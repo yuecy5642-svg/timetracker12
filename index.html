@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>时间捕手 TimeCatcher V9.26</title>
+    <title>时间捕手 TimeCatcher V10.14</title>
     
     <!-- 核心资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -91,15 +91,14 @@
             save: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>,
             cal: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5v-5z"/></svg>,
             clear: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>,
+            csv: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>,
             mic: <svg className="icon-svg text-black" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
         };
 
         const COMMON_EMOJIS = ["⚔️", "💻", "📖", "📝", "🧠", "🔥", "🚀", "💡", "🛠️", "🎯", "💪", "🧘", "🏃", "🚶", "🚴", "🏊", "🏀", "⚽", "🥊", "🔋", "🧹", "🍳", "☕", "🚿", "🧺", "🏠", "🪴", "🛌", "🌙", "🧴", "📱", "🎮", "🎧", "🎬", "🎨", "📸", "🎸", "🎤", "🍿", "🍎", "🥗", "🍕", "🍔", "🍦", "🍺", "🍷", "🥂", "🍵", "🍱", "🌍", "🌊", "🌲", "🌸", "☀️", "🚗", "✈️", "🗺️", "🐕", "🐈"];
 
         const App = () => {
-            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v9_25_acts') || '[]'));
-            const activitiesRef = useRef(activities);
-
+            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v10_14_acts') || '[]'));
             useEffect(() => {
                 if (activities.length === 0) {
                     setActivities([
@@ -113,7 +112,7 @@
                 }
             }, []);
 
-            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v9_25_logs') || '[]'));
+            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v10_14_logs') || '[]'));
             const [currentParentId, setCurrentParentId] = useState(null);
             const [isEditMode, setIsEditMode] = useState(false);
             const [isListening, setIsListening] = useState(false);
@@ -121,17 +120,19 @@
             const [showEditModal, setShowEditModal] = useState(false);
             const [showSummary, setShowSummary] = useState(false);
             const [showBackupModal, setShowBackupModal] = useState(false);
+            const [showCalendar, setShowCalendar] = useState(false);
+            const [selectedDate, setSelectedDate] = useState(new Date());
             const [backupString, setBackupString] = useState('');
             const [isCapturing, setIsCapturing] = useState(false);
             const [activeEditId, setActiveEditId] = useState(null);
             const [formData, setFormData] = useState({ name: '', emoji: '📍', parentId: '' });
             const [msg, setMsg] = useState({ show: false, text: '', type: 'info' });
             
-            // 删除确认状态
             const [deleteConfirm, setDeleteConfirm] = useState(false);
-
+            const [itemDeleteConfirmId, setItemDeleteConfirmId] = useState(null);
             const recognitionRef = useRef(null);
             const cardRef = useRef(null);
+            const activitiesRef = useRef(activities);
 
             const showMsg = (text, type = 'info') => {
                 setMsg({ show: true, text, type });
@@ -140,8 +141,8 @@
 
             useEffect(() => {
                 activitiesRef.current = activities;
-                localStorage.setItem('tc_v9_25_acts', JSON.stringify(activities));
-                localStorage.setItem('tc_v9_25_logs', JSON.stringify(logs));
+                localStorage.setItem('tc_v10_14_acts', JSON.stringify(activities));
+                localStorage.setItem('tc_v10_14_logs', JSON.stringify(logs));
             }, [activities, logs]);
 
             const currentLog = useMemo(() => logs.find(l => l.endTime === null) || null, [logs]);
@@ -159,7 +160,6 @@
 
             const handleActivityClick = (act) => {
                 if (isEditMode) {
-                    // 编辑模式：如果是文件夹，允许进入；否则不响应点击
                     const children = activities.filter(a => a.parentId === act.id);
                     if (children.length > 0) { 
                         setCurrentParentId(act.id);
@@ -186,24 +186,40 @@
                 }
             };
 
+            // 双击删除逻辑 (V10.12)
+            const handleDeleteItem = (e, actId) => {
+                e.stopPropagation();
+                if (itemDeleteConfirmId === actId) {
+                    setActivities(prev => prev.filter(a => a.id !== actId && a.parentId !== actId));
+                    setItemDeleteConfirmId(null);
+                    triggerVibrate(50);
+                } else {
+                    setItemDeleteConfirmId(actId);
+                    triggerVibrate(20);
+                    setTimeout(() => setItemDeleteConfirmId(null), 3000);
+                }
+            };
+
             const toggleVoice = async () => {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!SpeechRecognition) return showMsg("不支持语音", "error");
-
+                if (!SpeechRecognition) {
+                    handleManualInput({ preventDefault: () => {} });
+                    return showMsg("系统不支持语音，已转为手动输入", "error");
+                }
                 if (isListening) {
                     if (recognitionRef.current) recognitionRef.current.stop();
                     setIsListening(false);
                     return;
                 }
-
                 try { await navigator.mediaDevices.getUserMedia({ audio: true }); } 
-                catch (e) { return showMsg("麦克风权限被拒", "error"); }
-
+                catch (e) {
+                    handleManualInput({ preventDefault: () => {} });
+                    return showMsg("麦克风受限，已转为手动输入", "error"); 
+                }
                 const recognition = new SpeechRecognition();
                 recognition.lang = 'zh-CN';
                 recognition.interimResults = false;
                 recognitionRef.current = recognition;
-
                 recognition.onstart = () => { setIsListening(true); triggerVibrate(20); showMsg("正在听..."); };
                 recognition.onresult = (event) => {
                     const transcript = event.results[0][0].transcript.replace(/[ .,?!。，？！\s\n]/g, '');
@@ -217,14 +233,7 @@
                         triggerVibrate(40);
                         setLogs(prev => {
                             const newLogs = prev.map(l => l.endTime === null ? { ...l, endTime: now } : l);
-                            newLogs.push({ 
-                                id: Math.random().toString(36).substr(2, 9), 
-                                activityName: match.name, 
-                                activityEmoji: match.emoji, 
-                                parentId: match.parentId,
-                                startTime: now, 
-                                endTime: null 
-                            });
+                            newLogs.push({ id: Math.random().toString(36).substr(2, 9), activityName: match.name, activityEmoji: match.emoji, parentId: match.parentId, startTime: now, endTime: null });
                             return newLogs;
                         });
                         showMsg(`已启动: ${match.name}`);
@@ -268,7 +277,7 @@
             const clearAllData = () => {
                 if (deleteConfirm) {
                     setLogs([]);
-                    localStorage.setItem('tc_v9_25_logs', JSON.stringify([])); 
+                    localStorage.setItem('tc_v10_14_logs', JSON.stringify([])); 
                     showMsg("数据已清空", "error");
                     setShowSummary(false); 
                     setDeleteConfirm(false);
@@ -278,26 +287,53 @@
                 }
             };
 
-            const exportCSV = () => {
-                const validLogs = logs.filter(l => l.endTime);
-                if (validLogs.length === 0) return showMsg("暂无数据", "error");
-                let csv = "\ufeff名称,开始时间,结束时间,时长(分)\n";
-                validLogs.forEach(l => {
-                    csv += `${l.activityName},${new Date(l.startTime).toLocaleTimeString()},${new Date(l.endTime).toLocaleTimeString()},${Math.round((l.endTime-l.startTime)/60000)}\n`;
+            // V10.13 完整路径导出逻辑
+            const exportCSV = (targetDate = null) => {
+                let targetLogs = logs.filter(l => l.endTime);
+                if (targetDate) {
+                    targetLogs = targetLogs.filter(l => {
+                        const d = new Date(l.endTime);
+                        return d.getDate() === targetDate.getDate() && d.getMonth() === targetDate.getMonth() && d.getFullYear() === targetDate.getFullYear();
+                    });
+                } else {
+                    const today = new Date();
+                    targetLogs = targetLogs.filter(l => {
+                        const d = new Date(l.endTime);
+                        return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
+                    });
+                }
+                if (targetLogs.length === 0) return showMsg("暂无数据", "error");
+                let csv = "\ufeff日期,名称,开始时间,结束时间,时长(分)\n";
+                targetLogs.forEach(l => {
+                    const dateStr = new Date(l.endTime).toLocaleDateString();
+                    const startStr = new Date(l.startTime).toLocaleTimeString([],{hour12:false});
+                    const endStr = new Date(l.endTime).toLocaleTimeString([],{hour12:false});
+                    const duration = Math.round((l.endTime-l.startTime)/60000);
+                    // 完整路径逻辑
+                    const activityObj = activities.find(a => a.name === l.activityName);
+                    const parentObj = activityObj?.parentId ? activities.find(a => a.id === activityObj.parentId) : null;
+                    const displayName = parentObj ? `${parentObj.name}-${l.activityName}` : l.activityName;
+                    csv += `${dateStr},${displayName},${startStr},${endStr},${duration}\n`;
                 });
                 const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = "time.csv";
+                const fileNameDate = targetDate ? targetDate.toLocaleDateString().replace(/\//g,'-') : 'Today';
+                link.download = `TimeCatcher_${fileNameDate}.csv`;
                 link.click();
             };
 
-            const exportICS = () => {
-                const validLogs = logs.filter(l => l.endTime);
+            const exportICS = (targetLogs) => {
+                const validLogs = targetLogs.filter(l => l.endTime);
                 if (validLogs.length === 0) return;
                 const fmt = (ts) => new Date(ts).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
                 let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//TimeCatcher//EN\n";
-                validLogs.forEach(l => { ics += `BEGIN:VEVENT\nSUMMARY:[捕手] ${l.activityName}\nDTSTART:${fmt(l.startTime)}\nDTEND:${fmt(l.endTime)}\nEND:VEVENT\n`; });
+                validLogs.forEach(l => { 
+                    const activityObj = activities.find(a => a.name === l.activityName);
+                    const parentObj = activityObj?.parentId ? activities.find(a => a.id === activityObj.parentId) : null;
+                    const displayName = parentObj ? `${parentObj.name}-${l.activityName}` : l.activityName;
+                    ics += `BEGIN:VEVENT\nSUMMARY:[捕手] ${displayName}\nDTSTART:${fmt(l.startTime)}\nDTEND:${fmt(l.endTime)}\nEND:VEVENT\n`; 
+                });
                 ics += "END:VCALENDAR";
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(new Blob([ics], {type:'text/calendar'}));
@@ -322,16 +358,56 @@
                 }, 200);
             };
 
+            const getDaysInMonth = (date) => {
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                const days = new Date(year, month + 1, 0).getDate();
+                const firstDay = new Date(year, month, 1).getDay();
+                return { days, firstDay };
+            };
+
+            const handleMonthChange = (e) => {
+                const [y, m] = e.target.value.split('-');
+                const newDate = new Date(parseInt(y), parseInt(m) - 1, 1);
+                setSelectedDate(newDate);
+            };
+
+            const renderCalendar = () => {
+                const { days, firstDay } = getDaysInMonth(selectedDate);
+                const monthLogs = logs.filter(l => {
+                    if (!l.endTime) return false;
+                    const d = new Date(l.endTime); 
+                    return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear();
+                });
+
+                const grid = [];
+                for (let i = 0; i < firstDay; i++) grid.push(<div key={`empty-${i}`} className="h-8"></div>);
+                
+                for (let d = 1; d <= days; d++) {
+                    const dateLogs = monthLogs.filter(l => new Date(l.endTime).getDate() === d);
+                    const hasData = dateLogs.length > 0;
+                    const isSelected = selectedDate.getDate() === d;
+                    grid.push(
+                        <button key={d} onClick={() => { const newDate = new Date(selectedDate); newDate.setDate(d); setSelectedDate(newDate); setShowCalendar(false); setShowSummary(true); }} className={`h-8 flex flex-col items-center justify-center border font-bold relative ${isSelected ? 'bg-black text-white' : 'bg-white text-black'} ${hasData ? 'border-black' : 'border-gray-200 text-gray-300'}`}>
+                            {d}
+                            {hasData && <div className="absolute bottom-1 w-1 h-1 bg-[#FFD60A] border border-black"></div>}
+                        </button>
+                    );
+                }
+                return grid;
+            };
+
+            const getLogsForDate = (date) => {
+                return logs.filter(l => {
+                    if (!l.endTime) return false;
+                    const d = new Date(l.endTime); 
+                    return d.getDate() === date.getDate() && d.getMonth() === date.getMonth() && d.getFullYear() === date.getFullYear();
+                }).sort((a,b) => a.startTime - b.startTime);
+            };
+
             return (
                 <div className={`flex flex-col h-full w-full p-6 text-[#2D3436] justify-between ${isCapturing ? 'is-capturing' : ''}`}>
-                    
-                    {msg.show && (
-                        <div className="fixed top-32 left-1/2 -translate-x-1/2 z-[500] w-[80%] pointer-events-none">
-                            <div className="pixel-border p-2 shadow-[4px_4px_0px_0px_black] bg-[#FFD60A] text-black font-black text-center text-xs">
-                                {msg.text}
-                            </div>
-                        </div>
-                    )}
+                    {msg.show && <div className="fixed top-32 left-1/2 -translate-x-1/2 z-[500] w-[80%] pointer-events-none"><div className="pixel-border p-2 shadow-[4px_4px_0px_0px_black] bg-[#FFD60A] text-black font-black text-center text-xs">{msg.text}</div></div>}
 
                     {/* Banner */}
                     <div className="flex-shrink-0 mb-4">
@@ -342,24 +418,13 @@
                                     <h1 className="text-2xl font-black truncate leading-none tracking-tighter uppercase">
                                         {currentLog ? currentLog.activityName : 'STANDBY'}
                                     </h1>
-                                    {currentLog && (
-                                        <span className="text-sm font-bold text-blue-700 bg-blue-100 border-2 border-blue-500 px-2 py-0.5 leading-none whitespace-nowrap flex-shrink-0">
-                                            {formatTime(currentLog.startTime)}
-                                        </span>
-                                    )}
+                                    {currentLog && <span className="text-sm font-bold text-blue-700 bg-blue-100 border-2 border-blue-500 px-2 py-0.5 leading-none whitespace-nowrap flex-shrink-0">{formatTime(currentLog.startTime)}</span>}
                                 </div>
                             </div>
                             <div className="absolute bottom-3 right-3 flex gap-2">
-                                <button onClick={toggleVoice} onContextMenu={handleManualInput} className={`w-7 h-7 pixel-border pixel-btn-flat bg-white flex items-center justify-center transition-all ${isListening ? 'mic-active' : ''}`}>
-                                    {PIXEL_ICONS.mic}
-                                </button>
-                                {/* 修复：现在点击齿轮只切换模式，不重置 ParentId */}
-                                <button onClick={() => setIsEditMode(!isEditMode)} className={`w-7 h-7 pixel-border pixel-btn-flat bg-white flex items-center justify-center ${isEditMode ? 'bg-[#FFD60A]' : ''}`}>
-                                    {PIXEL_ICONS.gear}
-                                </button>
-                                <button onClick={stopCurrent} className={`w-7 h-7 pixel-border pixel-btn-flat flex items-center justify-center transition-all ${currentLog ? 'bg-white active:bg-red-50' : 'bg-gray-200 opacity-20'}`}>
-                                    {PIXEL_ICONS.stop}
-                                </button>
+                                <button onClick={toggleVoice} onContextMenu={handleManualInput} className={`w-7 h-7 pixel-border pixel-btn-flat bg-white flex items-center justify-center transition-all ${isListening ? 'mic-active' : ''}`}>{PIXEL_ICONS.mic}</button>
+                                <button onClick={() => setIsEditMode(!isEditMode)} className={`w-7 h-7 pixel-border pixel-btn-flat bg-white flex items-center justify-center ${isEditMode ? 'bg-[#FFD60A]' : ''}`}>{PIXEL_ICONS.gear}</button>
+                                <button onClick={stopCurrent} className={`w-7 h-7 pixel-border pixel-btn-flat flex items-center justify-center transition-all ${currentLog ? 'bg-white active:bg-red-50' : 'bg-gray-200 opacity-20'}`}>{PIXEL_ICONS.stop}</button>
                             </div>
                         </div>
                     </div>
@@ -368,11 +433,7 @@
                     <div className="flex-1 flex flex-col justify-center min-h-0 py-4 overflow-hidden">
                         <div className="overflow-y-auto no-scrollbar max-h-full">
                             <div className={`transition-all duration-300 ${isEditMode ? 'pt-14' : 'pt-2'}`}>
-                                {currentParentId && (
-                                    <button onClick={() => setCurrentParentId(null)} className="mb-8 px-1 text-xs font-black flex items-center gap-2 underline underline-offset-4 decoration-4 uppercase tracking-tighter">
-                                        {PIXEL_ICONS.back} Back to menu
-                                    </button>
-                                )}
+                                {currentParentId && <button onClick={() => setCurrentParentId(null)} className="mb-8 px-1 text-xs font-black flex items-center gap-2 underline underline-offset-4 decoration-4 uppercase tracking-tighter">{PIXEL_ICONS.back} Back to menu</button>}
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-12 px-1 pb-10">
                                     {activities.filter(a => a.parentId === currentParentId).map((act, idx) => {
                                         const hasChildren = activities.some(child => child.parentId === act.id);
@@ -381,13 +442,13 @@
                                                 <button onClick={() => handleActivityClick(act)} className="w-full bg-white pixel-border p-3 pixel-btn-flat flex items-center gap-2 h-20 text-left relative overflow-hidden">
                                                     <span className="text-3xl leading-none flex-shrink-0 select-none">{act.emoji}</span>
                                                     <p className="font-black text-lg uppercase leading-none truncate flex-1">{act.name}</p>
-                                                    {/* 修复：编辑模式下依然显示文件夹图标 */}
                                                     {hasChildren && <div className="absolute bottom-2 right-2">{PIXEL_ICONS.folder}</div>}
                                                 </button>
                                                 {isEditMode && (
                                                     <div className="absolute -top-11 left-0 right-0 flex justify-center gap-1.5 z-20">
                                                         <button onClick={() => { setActiveEditId(act.id); setFormData({name: act.name, emoji: act.emoji, parentId: act.parentId || ''}); setShowEditModal(true); }} className="bg-[#FFD60A] border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.edit}</button>
-                                                        <button onClick={() => { if(confirm('删除？')) setActivities(activities.filter(a => a.id !== act.id && a.parentId !== act.id)); }} className="bg-red-600 border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.trash}</button>
+                                                        {/* 双击确认删除 */}
+                                                        <button onClick={(e) => handleDeleteItem(e, act.id)} className={`border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${itemDeleteConfirmId === act.id ? 'bg-red-600 text-white animate-pulse' : 'bg-red-500 text-white'}`}>{itemDeleteConfirmId === act.id ? <span className="text-[6px] font-black">SURE</span> : PIXEL_ICONS.trash}</button>
                                                         <button onClick={() => moveItem(act.id, -1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.up}</button>
                                                         <button onClick={() => moveItem(act.id, 1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.down}</button>
                                                     </div>
@@ -397,15 +458,8 @@
                                     })}
                                     {isEditMode && (
                                         <div className="flex flex-col gap-2">
-                                            <button onClick={() => { setFormData({name:'', emoji:'📍', parentId:''}); setShowAddModal(true); }} className="border-4 border-dashed border-gray-400 p-3 flex items-center justify-center h-20 text-gray-400 bg-white/30">
-                                                {PIXEL_ICONS.plus}
-                                            </button>
-                                            <button onClick={() => {
-                                                const data = { activities, logs };
-                                                const str = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-                                                setBackupString(str);
-                                                setShowBackupModal(true);
-                                            }} className="border-2 border-black bg-white p-2 text-[8px] font-bold tracking-tighter shadow-sm uppercase">Backup Vault</button>
+                                            <button onClick={() => { setFormData({name:'', emoji:'📍', parentId:''}); setShowAddModal(true); }} className="border-4 border-dashed border-gray-400 p-3 flex items-center justify-center h-20 text-gray-400 bg-white/30">{PIXEL_ICONS.plus}</button>
+                                            <button onClick={() => { const data = { activities, logs }; const str = btoa(unescape(encodeURIComponent(JSON.stringify(data)))); setBackupString(str); setShowBackupModal(true); }} className="border-2 border-black bg-white p-2 text-[8px] font-bold tracking-tighter shadow-sm uppercase">Backup Vault</button>
                                         </div>
                                     )}
                                 </div>
@@ -415,82 +469,81 @@
 
                     {/* 底部导航 */}
                     <div className="flex-shrink-0 grid grid-cols-2 gap-5 pb-2">
-                        <button onClick={() => setShowSummary(true)} className="bg-black text-white pixel-border p-5 font-bold text-lg flex items-center justify-center gap-2 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">
-                            SUMMARY
-                        </button>
-                        <button onClick={exportCSV} className="bg-white pixel-border p-5 font-bold text-lg active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">
-                            EXPORT
-                        </button>
+                        <button onClick={() => { setSelectedDate(new Date()); setShowSummary(true); }} className="bg-black text-white pixel-border p-3 font-bold text-lg flex items-center justify-center gap-2 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">SUMMARY</button>
+                        <button onClick={() => setShowCalendar(true)} className="bg-white pixel-border p-3 font-bold text-lg active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">HISTORY</button>
                     </div>
 
-                    {/* 总结页面 - 修复版布局 */}
+                    {/* 日历弹窗 */}
+                    {showCalendar && (
+                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
+                            <div className="bg-white pixel-border p-6 w-full max-w-sm">
+                                <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2">
+                                    <h2 className="text-2xl font-black uppercase">TIME TRAVEL</h2>
+                                    <button onClick={() => setShowCalendar(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
+                                </div>
+                                <div className="flex justify-center items-center mb-4">
+                                    <input type="month" value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth()+1).padStart(2,'0')}`} onChange={handleMonthChange} className="font-black text-xl text-center bg-[#E0F2F1] border-2 border-black p-2 outline-none uppercase" />
+                                </div>
+                                <div className="grid grid-cols-7 gap-2 mb-6">
+                                    {['S','M','T','W','T','F','S'].map((d,i) => <div key={i} className="text-center text-xs font-bold opacity-40">{d}</div>)}
+                                    {renderCalendar()}
+                                </div>
+                                <div className="border-t-4 border-dashed border-gray-300 pt-4">
+                                    <button onClick={() => exportCSV(null)} className="w-full bg-[#E0F2F1] pixel-border p-3 font-bold text-xs uppercase shadow-sm active:bg-gray-200">EXPORT ALL HISTORY (CSV)</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 总结页面 (2x2 矩阵 + 清除) */}
                     {showSummary && (
                         <div className={`fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm ${isCapturing ? 'is-capturing' : ''}`}>
                             <div id="summary-card" className="bg-[#E0F2F1] pixel-border p-6 w-full max-w-sm flex flex-col overflow-hidden max-h-[85vh] text-left">
                                 <div className="flex justify-between items-center mb-5 border-b-4 border-black pb-2">
-                                    <div><h2 className="text-3xl font-black italic uppercase tracking-tighter">Mission Clear</h2><p className="text-[10px] font-bold opacity-40 mt-1">Date: {new Date().toLocaleDateString()}</p></div>
+                                    <div><h2 className="text-3xl font-black italic uppercase tracking-tighter">Mission Clear</h2><p className="text-[10px] font-bold opacity-40 mt-1">Date: {selectedDate.toLocaleDateString()}</p></div>
                                     <button onClick={() => setShowSummary(false)} className="hide-in-capture text-xl font-bold border-4 border-black px-4 py-1 bg-white mb-2 shadow-sm shadow-black">X</button>
                                 </div>
                                 <div className="flex-1 space-y-1 overflow-y-auto no-scrollbar pr-1 pb-4">
-                                    {logs.filter(l => l.endTime).sort((a,b) => a.startTime - b.startTime).map((l, i) => {
-                                        const activityObj = activities.find(a => a.name === l.activityName);
-                                        const parentObj = activityObj?.parentId ? activities.find(a => a.id === activityObj.parentId) : null;
-                                        const displayName = parentObj ? `${parentObj.name}-${l.activityName}` : l.activityName;
-                                        return (
-                                            <div key={i} className="bg-white border-b-2 border-black/10 p-2 flex justify-between items-center text-left">
-                                                <div className="flex items-center gap-1.5 min-w-0">
-                                                    <span className="text-lg flex-shrink-0">{l.activityEmoji || '📍'}</span>
-                                                    <div className="flex items-baseline gap-1.5 truncate">
-                                                        <span className="font-black text-[13px] uppercase truncate leading-none">{displayName}</span>
-                                                        <span className="text-[9px] font-bold text-blue-600 opacity-60 flex-shrink-0">[{formatTime(l.startTime)}-{formatTime(l.endTime)}]</span>
+                                    {getLogsForDate(selectedDate).length === 0 ? (
+                                        <p className="text-center font-bold opacity-30 py-20 italic uppercase tracking-tight">No Data Found</p>
+                                    ) : (
+                                        getLogsForDate(selectedDate).map((l, i) => {
+                                            const activityObj = activities.find(a => a.name === l.activityName);
+                                            const parentObj = activityObj?.parentId ? activities.find(a => a.id === activityObj.parentId) : null;
+                                            const displayName = parentObj ? `${parentObj.name}-${l.activityName}` : l.activityName;
+                                            return (
+                                                <div key={i} className="bg-white border-b-2 border-black/10 p-2 flex justify-between items-center text-left">
+                                                    <div className="flex items-center gap-1.5 min-w-0">
+                                                        <span className="text-lg flex-shrink-0">{l.activityEmoji || '📍'}</span>
+                                                        <div className="flex items-baseline gap-1.5 truncate">
+                                                            <span className="font-black text-[13px] uppercase truncate leading-none">{displayName}</span>
+                                                            <span className="text-[9px] font-bold text-blue-600 opacity-60 flex-shrink-0">[{formatTime(l.startTime)}-{formatTime(l.endTime)}]</span>
+                                                        </div>
                                                     </div>
+                                                    <div className="font-black text-xs flex-shrink-0 ml-2">{Math.round((l.endTime-l.startTime)/60000)}M</div>
                                                 </div>
-                                                <div className="font-black text-xs flex-shrink-0 ml-2">{Math.round((l.endTime-l.startTime)/60000)}M</div>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })
+                                    )}
                                 </div>
-                                {/* 修复：底部田字格布局 */}
-                                <div className="mt-2 pt-4 border-t-4 border-black flex items-end justify-between flex-shrink-0 text-left">
+                                <div className="mt-2 pt-4 border-t-4 border-black flex justify-between items-end flex-shrink-0 text-left">
                                     <div className="flex-1">
                                         <p className="text-[10px] font-bold opacity-40 uppercase mb-1">Total XP</p>
                                         <p className="text-5xl font-black leading-none">
-                                            {Math.round(logs.reduce((acc, l) => acc + (l.endTime ? (l.endTime - l.startTime) / 60000 : 0), 0))}0
+                                            {Math.round(getLogsForDate(selectedDate).reduce((acc, l) => acc + (l.endTime ? (l.endTime - l.startTime) / 60000 : 0), 0))}0
                                         </p>
                                     </div>
-                                    <div className="hide-in-capture flex flex-col gap-1.5 w-24">
-                                        <button onClick={saveAsImage} className="bg-[#FFD60A] border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1">
-                                            {PIXEL_ICONS.save} PNG
-                                        </button>
-                                        <button onClick={exportICS} className="bg-[#6D83F2] text-white border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1">
-                                            {PIXEL_ICONS.cal} CAL
-                                        </button>
-                                        {/* 双击清空逻辑 */}
-                                        <button 
-                                            onClick={clearAllData} 
-                                            className={`${deleteConfirm ? 'bg-red-600 text-white' : 'bg-white text-red-600'} border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1 transition-colors`}
-                                        >
-                                            {PIXEL_ICONS.clear} {deleteConfirm ? 'SURE?' : 'CLEAR'}
-                                        </button>
+                                    <div className="hide-in-capture grid grid-cols-2 gap-2 w-32">
+                                        <button onClick={saveAsImage} className="bg-[#FFD60A] border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Save Image">{PIXEL_ICONS.save} PNG</button>
+                                        <button onClick={() => exportICS(getLogsForDate(selectedDate))} className="bg-[#6D83F2] text-white border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Sync Calendar">{PIXEL_ICONS.cal} CAL</button>
+                                        <button onClick={() => exportCSV(selectedDate)} className="bg-white text-black border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Export CSV">{PIXEL_ICONS.csv} CSV</button>
+                                        <button onClick={clearAllData} className={`border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1 transition-colors ${deleteConfirm ? 'bg-red-600 text-white' : 'bg-white text-red-600'}`} title="Clear Data">{PIXEL_ICONS.trash} {deleteConfirm ? '?' : 'CLR'}</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
-                    {/* 其他弹窗保持不变... */}
-                    {showBackupModal && (
-                        <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left">
-                            <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
-                                <h2 className="text-2xl font-black mb-4 border-b-4 border-black uppercase">Vault</h2>
-                                <textarea readOnly className="w-full h-40 pixel-border p-3 text-[9px] font-mono mb-4 break-all bg-gray-50 outline-none" value={backupString}></textarea>
-                                <div className="flex flex-col gap-3">
-                                    <button onClick={() => { document.execCommand('copy'); showMsg("Copied"); }} className="bg-[#FFD60A] p-4 font-black">COPY CODE</button>
-                                    <button onClick={() => { const i = prompt("Paste:"); if(i) restoreBackup(i); }} className="bg-[#6D83F2] text-white p-4 font-black">RESTORE</button>
-                                    <button onClick={() => setShowBackupModal(false)} className="bg-black text-white p-3 font-black text-xs">EXIT</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    {/* 新增/编辑弹窗 */}
                     {(showAddModal || showEditModal) && (
                         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-6 backdrop-blur-md text-left">
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">

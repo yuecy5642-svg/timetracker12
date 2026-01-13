@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>时间捕手 TimeCatcher V9.17</title>
+    <title>时间捕手 TimeCatcher V9.21</title>
     
     <!-- 核心资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -23,7 +23,7 @@
         }
 
         body {
-            font-family: 'DotGothic16', 'Silkscreen', monospace;
+            font-family: 'DotGothic16', 'Silkscreen', 'Courier New', Courier, monospace;
             background-color: var(--p-bg);
             margin: 0;
             position: fixed;
@@ -94,7 +94,7 @@
         const COMMON_EMOJIS = ["⚔️", "💻", "📖", "📝", "🧠", "🔥", "🚀", "💡", "🛠️", "🎯", "💪", "🧘", "🏃", "🚶", "🚴", "🏊", "🏀", "⚽", "🥊", "🔋", "🧹", "🍳", "☕", "🚿", "🧺", "🏠", "🪴", "🛌", "🌙", "🧴", "📱", "🎮", "🎧", "🎬", "🎨", "📸", "🎸", "🎤", "🍿", "🍎", "🥗", "🍕", "🍔", "🍦", "🍺", "🍷", "🥂", "🍵", "🍱", "🌍", "🌊", "🌲", "🌸", "☀️", "🚗", "✈️", "🗺️", "🐕", "🐈"];
 
         const App = () => {
-            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v9_17_acts') || '[]'));
+            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v9_21_acts') || '[]'));
             const activitiesRef = useRef(activities);
 
             useEffect(() => {
@@ -110,7 +110,7 @@
                 }
             }, []);
 
-            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v9_17_logs') || '[]'));
+            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v9_21_logs') || '[]'));
             const [currentParentId, setCurrentParentId] = useState(null);
             const [isEditMode, setIsEditMode] = useState(false);
             const [isListening, setIsListening] = useState(false);
@@ -134,8 +134,8 @@
 
             useEffect(() => {
                 activitiesRef.current = activities;
-                localStorage.setItem('tc_v9_17_acts', JSON.stringify(activities));
-                localStorage.setItem('tc_v9_17_logs', JSON.stringify(logs));
+                localStorage.setItem('tc_v9_21_acts', JSON.stringify(activities));
+                localStorage.setItem('tc_v9_21_logs', JSON.stringify(logs));
             }, [activities, logs]);
 
             const currentLog = useMemo(() => logs.find(l => l.endTime === null) || null, [logs]);
@@ -196,13 +196,30 @@
 
                 recognition.onstart = () => { setIsListening(true); triggerVibrate(20); showMsg("正在听..."); };
                 recognition.onresult = (event) => {
-                    const transcript = event.results[0][0].transcript;
-                    const candidates = [...activitiesRef.current].sort((a,b) => b.name.length - a.name.length);
-                    const match = candidates.find(act => transcript.includes(act.name));
+                    const transcript = event.results[0][0].transcript.replace(/[ .,?!。，？！\s\n]/g, '');
+                    const allActivities = activitiesRef.current;
+                    const match = allActivities.find(act => {
+                        const name = act.name.replace(/[ .,?!。，？！\s\n]/g, '');
+                        return transcript.includes(name) || name.includes(transcript);
+                    });
                     if (match) {
-                        handleActivityClick(match);
+                        const now = Date.now();
+                        triggerVibrate(40);
+                        setLogs(prev => {
+                            const newLogs = prev.map(l => l.endTime === null ? { ...l, endTime: now } : l);
+                            newLogs.push({ 
+                                id: Math.random().toString(36).substr(2, 9), 
+                                activityName: match.name, 
+                                activityEmoji: match.emoji, 
+                                parentId: match.parentId,
+                                startTime: now, 
+                                endTime: null 
+                            });
+                            return newLogs;
+                        });
                         showMsg(`已启动: ${match.name}`);
                     } else { showMsg(`未识别: "${transcript}"`, "error"); }
+                    setIsListening(false);
                 };
                 recognition.onend = () => setIsListening(false);
                 recognition.onerror = () => setIsListening(false);
@@ -213,7 +230,7 @@
                 e.preventDefault();
                 const input = prompt("手动输入活动名称：");
                 if (input) {
-                     const match = activitiesRef.current.find(act => input.includes(act.name));
+                     const match = activitiesRef.current.find(act => input.includes(act.name) || act.name.includes(input));
                      if (match) {
                         handleActivityClick(match);
                         showMsg(`指令已执行: ${match.name}`);
@@ -278,28 +295,26 @@
                         </div>
                     )}
 
-                    {/* --- 顶部 Banner：左对齐，避让右侧 --- */}
+                    {/* --- 顶部 Banner：绝对单行版 (V9.21) --- */}
                     <div className="flex-shrink-0 mb-4">
-                        <div className={`pixel-border pixel-shadow p-5 transition-all duration-500 relative flex flex-col justify-center min-h-[120px] ${currentLog ? 'banner-active bg-white' : 'bg-gray-100 opacity-90'}`}>
+                        <div className={`pixel-border pixel-shadow p-5 transition-all duration-500 relative flex flex-col justify-center min-h-[140px] ${currentLog ? 'banner-active bg-white' : 'bg-gray-100 opacity-90'}`}>
                             
-                            {/* 核心信息：靠左 + 留白右侧 */}
-                            <div className="flex items-center gap-4 w-full pr-28 pb-4">
-                                <span className="text-5xl leading-none flex-shrink-0 drop-shadow-sm">{currentEmoji}</span>
-                                <div className="flex flex-col gap-1 overflow-hidden min-w-0 text-left">
-                                    <h1 className="text-3xl font-black truncate leading-none tracking-tighter uppercase">
+                            {/* 核心信息组：水平排列 [Logo] [名字] [时间] */}
+                            <div className="flex items-center gap-3 w-full pr-2 pb-6"> 
+                                <span className="text-4xl leading-none flex-shrink-0 drop-shadow-sm">{currentEmoji}</span>
+                                <div className="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
+                                    <h1 className="text-2xl font-black truncate leading-none tracking-tighter uppercase">
                                         {currentLog ? currentLog.activityName : 'STANDBY'}
                                     </h1>
                                     {currentLog && (
-                                        <div className="flex">
-                                            <span className="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 border border-blue-300 whitespace-nowrap">
-                                                SINCE {formatTime(currentLog.startTime)}
-                                            </span>
-                                        </div>
+                                        <span className="text-sm font-bold text-blue-700 bg-blue-100 border-2 border-blue-500 px-2 py-0.5 leading-none whitespace-nowrap flex-shrink-0">
+                                            {formatTime(currentLog.startTime)}
+                                        </span>
                                     )}
                                 </div>
                             </div>
 
-                            {/* 右下角控制台：绝对定位 */}
+                            {/* 右下角控制台：绝对定位，不干扰左侧 */}
                             <div className="absolute bottom-3 right-3 flex gap-2">
                                 <button onClick={toggleVoice} onContextMenu={handleManualInput} className={`w-9 h-9 pixel-border pixel-btn-flat bg-white flex items-center justify-center transition-all ${isListening ? 'mic-active' : ''}`}>
                                     {PIXEL_ICONS.mic}
@@ -314,7 +329,7 @@
                         </div>
                     </div>
 
-                    {/* --- 中间列表 --- */}
+                    {/* --- 中间：活动列表 (严格锁定 h-20) --- */}
                     <div className="flex-1 flex flex-col justify-center min-h-0 py-4 overflow-hidden">
                         <div className="overflow-y-auto no-scrollbar max-h-full">
                             <div className={`transition-all duration-300 ${isEditMode ? 'pt-14' : 'pt-2'}`}>
@@ -379,7 +394,7 @@
 
                     {/* --- 总结页面 --- */}
                     {showSummary && (
-                        <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
+                        <div className={`fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm ${isCapturing ? 'is-capturing' : ''}`}>
                             <div id="summary-card" className="bg-[#E0F2F1] pixel-border p-6 w-full max-w-sm flex flex-col overflow-hidden max-h-[85vh] text-left">
                                 <div className="flex justify-between items-center mb-5 border-b-4 border-black pb-2">
                                     <div><h2 className="text-3xl font-black italic uppercase tracking-tighter">Mission Clear</h2><p className="text-[10px] font-bold opacity-40 mt-1">Date: {new Date().toLocaleDateString()}</p></div>
@@ -414,8 +429,7 @@
                             </div>
                         </div>
                     )}
-                    
-                    {/* 其他弹窗保持一致... */}
+                    {/* 其他弹窗保持不变... */}
                     {showBackupModal && (
                         <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left">
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">

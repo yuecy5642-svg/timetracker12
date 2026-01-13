@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>时间捕手 TimeCatcher V9.22</title>
+    <title>时间捕手 TimeCatcher V9.26</title>
     
     <!-- 核心资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -88,13 +88,16 @@
             edit: <svg className="w-4 h-4 text-black" viewBox="0 0 24 24"><path d="M14 2h2v2h-2V2zM12 4h2v2h-2V4zm-2 2h2v2h-2V6zm-2 2h2v2H8V8zm-2 2h2v2H6v-2zm-2 2h2v2H4v-2zm0 2h2v2H4v-2zm0 2h2v2H4v-2zm2 2h2v2H6v-2zm2 2h2v2H8v-2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2z"/></svg>,
             up: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M11 6h2v2h-2V6zm-2 2h2v2H9V8zm6 0h2v2h-2V8zm-8 2h2v2H7v-2zm10 0h2v2h-2v-2zm-12 2h2v6h-2v-6zm14 0h2v6h-2v-6zm14 0h2v6h-2v-6z"/></svg>,
             down: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M8 6h8v2H8V6zm-1 2h2v6H7V8zm10 0h2v6h-2V8zm-8 6h2v2H9v-2zm6 0h2v2h-2v-2zm-4 2h2v2h-2v-2z"/></svg>,
-            mic: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V22h2v-3.06A9 9 0 0 0 21 12v-2h-2z"/></svg>
+            save: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>,
+            cal: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5v-5z"/></svg>,
+            clear: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>,
+            mic: <svg className="icon-svg text-black" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
         };
 
         const COMMON_EMOJIS = ["⚔️", "💻", "📖", "📝", "🧠", "🔥", "🚀", "💡", "🛠️", "🎯", "💪", "🧘", "🏃", "🚶", "🚴", "🏊", "🏀", "⚽", "🥊", "🔋", "🧹", "🍳", "☕", "🚿", "🧺", "🏠", "🪴", "🛌", "🌙", "🧴", "📱", "🎮", "🎧", "🎬", "🎨", "📸", "🎸", "🎤", "🍿", "🍎", "🥗", "🍕", "🍔", "🍦", "🍺", "🍷", "🥂", "🍵", "🍱", "🌍", "🌊", "🌲", "🌸", "☀️", "🚗", "✈️", "🗺️", "🐕", "🐈"];
 
         const App = () => {
-            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v9_21_acts') || '[]'));
+            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v9_25_acts') || '[]'));
             const activitiesRef = useRef(activities);
 
             useEffect(() => {
@@ -110,7 +113,7 @@
                 }
             }, []);
 
-            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v9_21_logs') || '[]'));
+            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v9_25_logs') || '[]'));
             const [currentParentId, setCurrentParentId] = useState(null);
             const [isEditMode, setIsEditMode] = useState(false);
             const [isListening, setIsListening] = useState(false);
@@ -123,6 +126,9 @@
             const [activeEditId, setActiveEditId] = useState(null);
             const [formData, setFormData] = useState({ name: '', emoji: '📍', parentId: '' });
             const [msg, setMsg] = useState({ show: false, text: '', type: 'info' });
+            
+            // 删除确认状态
+            const [deleteConfirm, setDeleteConfirm] = useState(false);
 
             const recognitionRef = useRef(null);
             const cardRef = useRef(null);
@@ -134,8 +140,8 @@
 
             useEffect(() => {
                 activitiesRef.current = activities;
-                localStorage.setItem('tc_v9_21_acts', JSON.stringify(activities));
-                localStorage.setItem('tc_v9_21_logs', JSON.stringify(logs));
+                localStorage.setItem('tc_v9_25_acts', JSON.stringify(activities));
+                localStorage.setItem('tc_v9_25_logs', JSON.stringify(logs));
             }, [activities, logs]);
 
             const currentLog = useMemo(() => logs.find(l => l.endTime === null) || null, [logs]);
@@ -152,7 +158,15 @@
             };
 
             const handleActivityClick = (act) => {
-                if (isEditMode) return;
+                if (isEditMode) {
+                    // 编辑模式：如果是文件夹，允许进入；否则不响应点击
+                    const children = activities.filter(a => a.parentId === act.id);
+                    if (children.length > 0) { 
+                        setCurrentParentId(act.id);
+                        triggerVibrate(20);
+                    }
+                    return;
+                }
                 const children = activities.filter(a => a.parentId === act.id);
                 if (children.length > 0) { 
                     setCurrentParentId(act.id);
@@ -161,18 +175,14 @@
                 else {
                     const now = Date.now();
                     triggerVibrate(40);
-                    setLogs(prev => {
-                        const newLogs = prev.map(l => l.endTime === null ? { ...l, endTime: now } : l);
-                        newLogs.push({ 
-                            id: Math.random().toString(36).substr(2, 9), 
-                            activityName: act.name, 
-                            activityEmoji: act.emoji, 
-                            parentId: act.parentId,
-                            startTime: now, 
-                            endTime: null 
-                        });
-                        return newLogs;
-                    });
+                    setLogs(prev => [...prev.map(l => l.endTime === null ? { ...l, endTime: now } : l), { 
+                        id: Math.random().toString(36).substr(2, 9), 
+                        activityName: act.name, 
+                        activityEmoji: act.emoji, 
+                        parentId: act.parentId,
+                        startTime: now, 
+                        endTime: null 
+                    }]);
                 }
             };
 
@@ -240,6 +250,34 @@
                 }
             };
 
+            const moveItem = (actId, direction) => {
+                const currentList = activities.filter(a => a.parentId === currentParentId);
+                const currentIndex = currentList.findIndex(a => a.id === actId);
+                if (currentIndex === -1) return;
+                const targetIndex = currentIndex + direction;
+                if (targetIndex < 0 || targetIndex >= currentList.length) return;
+                const targetActivity = currentList[targetIndex];
+                const newActivities = [...activities];
+                const realIndexA = newActivities.findIndex(a => a.id === actId);
+                const realIndexB = newActivities.findIndex(a => a.id === targetActivity.id);
+                [newActivities[realIndexA], newActivities[realIndexB]] = [newActivities[realIndexB], newActivities[realIndexA]];
+                setActivities(newActivities);
+                triggerVibrate(20);
+            };
+
+            const clearAllData = () => {
+                if (deleteConfirm) {
+                    setLogs([]);
+                    localStorage.setItem('tc_v9_25_logs', JSON.stringify([])); 
+                    showMsg("数据已清空", "error");
+                    setShowSummary(false); 
+                    setDeleteConfirm(false);
+                } else {
+                    setDeleteConfirm(true);
+                    setTimeout(() => setDeleteConfirm(false), 3000);
+                }
+            };
+
             const exportCSV = () => {
                 const validLogs = logs.filter(l => l.endTime);
                 if (validLogs.length === 0) return showMsg("暂无数据", "error");
@@ -295,15 +333,13 @@
                         </div>
                     )}
 
-                    {/* --- 顶部 Banner --- */}
+                    {/* Banner */}
                     <div className="flex-shrink-0 mb-4">
                         <div className={`pixel-border pixel-shadow p-5 transition-all duration-500 relative flex flex-col justify-center min-h-[140px] ${currentLog ? 'banner-active bg-white' : 'bg-gray-100 opacity-90'}`}>
-                            
-                            {/* 核心信息组 */}
                             <div className="flex items-center justify-center gap-4 w-full pr-2 pb-6"> 
                                 <span className="text-4xl leading-none flex-shrink-0 drop-shadow-sm">{currentEmoji}</span>
                                 <div className="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
-                                    <h1 className="text-2xl font-black truncate leading-none tracking-tighter uppercase flex-shrink-0 max-w-[60%]">
+                                    <h1 className="text-2xl font-black truncate leading-none tracking-tighter uppercase">
                                         {currentLog ? currentLog.activityName : 'STANDBY'}
                                     </h1>
                                     {currentLog && (
@@ -313,13 +349,11 @@
                                     )}
                                 </div>
                             </div>
-
-                            {/* 右下角控制台：图标缩小为 w-7 (28px) */}
                             <div className="absolute bottom-3 right-3 flex gap-2">
                                 <button onClick={toggleVoice} onContextMenu={handleManualInput} className={`w-7 h-7 pixel-border pixel-btn-flat bg-white flex items-center justify-center transition-all ${isListening ? 'mic-active' : ''}`}>
                                     {PIXEL_ICONS.mic}
                                 </button>
-                                {/* 修复：点击齿轮只切换编辑模式，不清除 ParentId，这样就能在二级目录编辑了 */}
+                                {/* 修复：现在点击齿轮只切换模式，不重置 ParentId */}
                                 <button onClick={() => setIsEditMode(!isEditMode)} className={`w-7 h-7 pixel-border pixel-btn-flat bg-white flex items-center justify-center ${isEditMode ? 'bg-[#FFD60A]' : ''}`}>
                                     {PIXEL_ICONS.gear}
                                 </button>
@@ -330,7 +364,7 @@
                         </div>
                     </div>
 
-                    {/* --- 中间列表 --- */}
+                    {/* 列表 */}
                     <div className="flex-1 flex flex-col justify-center min-h-0 py-4 overflow-hidden">
                         <div className="overflow-y-auto no-scrollbar max-h-full">
                             <div className={`transition-all duration-300 ${isEditMode ? 'pt-14' : 'pt-2'}`}>
@@ -347,18 +381,15 @@
                                                 <button onClick={() => handleActivityClick(act)} className="w-full bg-white pixel-border p-3 pixel-btn-flat flex items-center gap-2 h-20 text-left relative overflow-hidden">
                                                     <span className="text-3xl leading-none flex-shrink-0 select-none">{act.emoji}</span>
                                                     <p className="font-black text-lg uppercase leading-none truncate flex-1">{act.name}</p>
-                                                    {!isEditMode && hasChildren && (
-                                                        <div className="absolute bottom-2 right-2">
-                                                            {PIXEL_ICONS.folder}
-                                                        </div>
-                                                    )}
+                                                    {/* 修复：编辑模式下依然显示文件夹图标 */}
+                                                    {hasChildren && <div className="absolute bottom-2 right-2">{PIXEL_ICONS.folder}</div>}
                                                 </button>
                                                 {isEditMode && (
                                                     <div className="absolute -top-11 left-0 right-0 flex justify-center gap-1.5 z-20">
                                                         <button onClick={() => { setActiveEditId(act.id); setFormData({name: act.name, emoji: act.emoji, parentId: act.parentId || ''}); setShowEditModal(true); }} className="bg-[#FFD60A] border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.edit}</button>
                                                         <button onClick={() => { if(confirm('删除？')) setActivities(activities.filter(a => a.id !== act.id && a.parentId !== act.id)); }} className="bg-red-600 border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.trash}</button>
-                                                        <button onClick={() => moveItem(idx, -1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.up}</button>
-                                                        <button onClick={() => moveItem(idx, 1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.down}</button>
+                                                        <button onClick={() => moveItem(act.id, -1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.up}</button>
+                                                        <button onClick={() => moveItem(act.id, 1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.down}</button>
                                                     </div>
                                                 )}
                                             </div>
@@ -382,17 +413,17 @@
                         </div>
                     </div>
 
-                    {/* --- 底部导航 --- */}
+                    {/* 底部导航 */}
                     <div className="flex-shrink-0 grid grid-cols-2 gap-5 pb-2">
-                        <button onClick={() => setShowSummary(true)} className="bg-black text-white pixel-border p-5 font-bold text-lg flex items-center justify-center gap-2 active:bg-gray-800 uppercase italic tracking-tighter">
+                        <button onClick={() => setShowSummary(true)} className="bg-black text-white pixel-border p-5 font-bold text-lg flex items-center justify-center gap-2 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">
                             SUMMARY
                         </button>
-                        <button onClick={exportCSV} className="bg-white pixel-border p-5 font-bold text-lg active:bg-gray-100 uppercase italic tracking-tighter">
+                        <button onClick={exportCSV} className="bg-white pixel-border p-5 font-bold text-lg active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">
                             EXPORT
                         </button>
                     </div>
 
-                    {/* --- 总结页面 --- */}
+                    {/* 总结页面 - 修复版布局 */}
                     {showSummary && (
                         <div className={`fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm ${isCapturing ? 'is-capturing' : ''}`}>
                             <div id="summary-card" className="bg-[#E0F2F1] pixel-border p-6 w-full max-w-sm flex flex-col overflow-hidden max-h-[85vh] text-left">
@@ -419,17 +450,34 @@
                                         );
                                     })}
                                 </div>
-                                <div className="mt-2 pt-4 border-t-4 border-black flex justify-between items-end flex-shrink-0 text-left">
-                                    <div><p className="text-[10px] font-bold opacity-40 uppercase mb-1">Energy Gained</p><p className="text-5xl font-black leading-none">{Math.round(logs.reduce((acc, l) => acc + (l.endTime ? (l.endTime - l.startTime) / 60000 : 0), 0))}0</p></div>
-                                    <div className="hide-in-capture flex gap-2 flex-1 ml-4 h-12">
-                                        <button onClick={saveAsImage} className="flex-1 bg-[#FFD60A] border-2 border-black font-black uppercase text-[10px] italic shadow-sm active:translate-y-0.5">Save PNG</button>
-                                        <button onClick={exportICS} className="flex-1 bg-[#6D83F2] text-white border-2 border-black font-black uppercase text-[10px] italic shadow-sm active:translate-y-0.5">Sync Cal</button>
+                                {/* 修复：底部田字格布局 */}
+                                <div className="mt-2 pt-4 border-t-4 border-black flex items-end justify-between flex-shrink-0 text-left">
+                                    <div className="flex-1">
+                                        <p className="text-[10px] font-bold opacity-40 uppercase mb-1">Total XP</p>
+                                        <p className="text-5xl font-black leading-none">
+                                            {Math.round(logs.reduce((acc, l) => acc + (l.endTime ? (l.endTime - l.startTime) / 60000 : 0), 0))}0
+                                        </p>
+                                    </div>
+                                    <div className="hide-in-capture flex flex-col gap-1.5 w-24">
+                                        <button onClick={saveAsImage} className="bg-[#FFD60A] border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1">
+                                            {PIXEL_ICONS.save} PNG
+                                        </button>
+                                        <button onClick={exportICS} className="bg-[#6D83F2] text-white border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1">
+                                            {PIXEL_ICONS.cal} CAL
+                                        </button>
+                                        {/* 双击清空逻辑 */}
+                                        <button 
+                                            onClick={clearAllData} 
+                                            className={`${deleteConfirm ? 'bg-red-600 text-white' : 'bg-white text-red-600'} border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1 transition-colors`}
+                                        >
+                                            {PIXEL_ICONS.clear} {deleteConfirm ? 'SURE?' : 'CLEAR'}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
-                    {/* 其他弹窗逻辑保持... */}
+                    {/* 其他弹窗保持不变... */}
                     {showBackupModal && (
                         <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left">
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">

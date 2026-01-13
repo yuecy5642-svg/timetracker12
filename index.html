@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>时间捕手 TimeCatcher V9.21</title>
+    <title>时间捕手 TimeCatcher V9.22</title>
     
     <!-- 核心资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -295,15 +295,15 @@
                         </div>
                     )}
 
-                    {/* --- 顶部 Banner：绝对单行版 (V9.21) --- */}
+                    {/* --- 顶部 Banner --- */}
                     <div className="flex-shrink-0 mb-4">
                         <div className={`pixel-border pixel-shadow p-5 transition-all duration-500 relative flex flex-col justify-center min-h-[140px] ${currentLog ? 'banner-active bg-white' : 'bg-gray-100 opacity-90'}`}>
                             
-                            {/* 核心信息组：水平排列 [Logo] [名字] [时间] */}
-                            <div className="flex items-center gap-3 w-full pr-2 pb-6"> 
+                            {/* 核心信息组 */}
+                            <div className="flex items-center justify-center gap-4 w-full pr-2 pb-6"> 
                                 <span className="text-4xl leading-none flex-shrink-0 drop-shadow-sm">{currentEmoji}</span>
                                 <div className="flex items-center gap-2 overflow-hidden flex-1 min-w-0">
-                                    <h1 className="text-2xl font-black truncate leading-none tracking-tighter uppercase">
+                                    <h1 className="text-2xl font-black truncate leading-none tracking-tighter uppercase flex-shrink-0 max-w-[60%]">
                                         {currentLog ? currentLog.activityName : 'STANDBY'}
                                     </h1>
                                     {currentLog && (
@@ -314,22 +314,23 @@
                                 </div>
                             </div>
 
-                            {/* 右下角控制台：绝对定位，不干扰左侧 */}
+                            {/* 右下角控制台：图标缩小为 w-7 (28px) */}
                             <div className="absolute bottom-3 right-3 flex gap-2">
-                                <button onClick={toggleVoice} onContextMenu={handleManualInput} className={`w-9 h-9 pixel-border pixel-btn-flat bg-white flex items-center justify-center transition-all ${isListening ? 'mic-active' : ''}`}>
+                                <button onClick={toggleVoice} onContextMenu={handleManualInput} className={`w-7 h-7 pixel-border pixel-btn-flat bg-white flex items-center justify-center transition-all ${isListening ? 'mic-active' : ''}`}>
                                     {PIXEL_ICONS.mic}
                                 </button>
-                                <button onClick={() => { setIsEditMode(!isEditMode); setCurrentParentId(null); }} className={`w-9 h-9 pixel-border pixel-btn-flat bg-white flex items-center justify-center ${isEditMode ? 'bg-[#FFD60A]' : ''}`}>
+                                {/* 修复：点击齿轮只切换编辑模式，不清除 ParentId，这样就能在二级目录编辑了 */}
+                                <button onClick={() => setIsEditMode(!isEditMode)} className={`w-7 h-7 pixel-border pixel-btn-flat bg-white flex items-center justify-center ${isEditMode ? 'bg-[#FFD60A]' : ''}`}>
                                     {PIXEL_ICONS.gear}
                                 </button>
-                                <button onClick={stopCurrent} className={`w-9 h-9 pixel-border pixel-btn-flat flex items-center justify-center transition-all ${currentLog ? 'bg-white active:bg-red-50' : 'bg-gray-200 opacity-20'}`}>
+                                <button onClick={stopCurrent} className={`w-7 h-7 pixel-border pixel-btn-flat flex items-center justify-center transition-all ${currentLog ? 'bg-white active:bg-red-50' : 'bg-gray-200 opacity-20'}`}>
                                     {PIXEL_ICONS.stop}
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    {/* --- 中间：活动列表 (严格锁定 h-20) --- */}
+                    {/* --- 中间列表 --- */}
                     <div className="flex-1 flex flex-col justify-center min-h-0 py-4 overflow-hidden">
                         <div className="overflow-y-auto no-scrollbar max-h-full">
                             <div className={`transition-all duration-300 ${isEditMode ? 'pt-14' : 'pt-2'}`}>
@@ -346,7 +347,6 @@
                                                 <button onClick={() => handleActivityClick(act)} className="w-full bg-white pixel-border p-3 pixel-btn-flat flex items-center gap-2 h-20 text-left relative overflow-hidden">
                                                     <span className="text-3xl leading-none flex-shrink-0 select-none">{act.emoji}</span>
                                                     <p className="font-black text-lg uppercase leading-none truncate flex-1">{act.name}</p>
-                                                    {/* 文件夹图标：绝对定位右下角 */}
                                                     {!isEditMode && hasChildren && (
                                                         <div className="absolute bottom-2 right-2">
                                                             {PIXEL_ICONS.folder}
@@ -429,7 +429,7 @@
                             </div>
                         </div>
                     )}
-                    {/* 其他弹窗保持不变... */}
+                    {/* 其他弹窗逻辑保持... */}
                     {showBackupModal && (
                         <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left">
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">

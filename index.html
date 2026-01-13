@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>时间捕手 TimeCatcher V9.14</title>
+    <title>时间捕手 TimeCatcher V9.16</title>
     
     <!-- 核心资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -86,7 +86,7 @@
             folder: <svg className="w-3 h-3 opacity-40" viewBox="0 0 24 24"><path d="M2 4h8l2 2h10v14H2V4zm2 4v10h16V8H4z"/></svg>,
             trash: <svg className="w-4 h-4 text-white" viewBox="0 0 24 24"><path d="M9 2h6v2H9V2zM5 4h14v2H5V4zm2 2h10v14H7V6zm2 2v10h2V8H9zm4 0v10h2V8h-2z"/></svg>,
             edit: <svg className="w-4 h-4 text-black" viewBox="0 0 24 24"><path d="M14 2h2v2h-2V2zM12 4h2v2h-2V4zm-2 2h2v2h-2V6zm-2 2h2v2H8V8zm-2 2h2v2H6v-2zm-2 2h2v2H4v-2zm0 2h2v2H4v-2zm0 2h2v2H4v-2zm2 2h2v2H6v-2zm2 2h2v2H8v-2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2z"/></svg>,
-            up: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M11 6h2v2h-2V6zm-2 2h2v2H9V8zm6 0h2v2h-2V8zm-8 2h2v2H7v-2zm10 0h2v2h-2v-2zm-12 2h2v6h-2v-6zm14 0h2v6h-2v-6z"/></svg>,
+            up: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M11 6h2v2h-2V6zm-2 2h2v2H9V8zm6 0h2v2h-2V8zm-8 2h2v2H7v-2zm10 0h2v2h-2v-2zm-12 2h2v6h-2v-6zm14 0h2v6h-2v-6zm14 0h2v6h-2v-6z"/></svg>,
             down: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M8 6h8v2H8V6zm-1 2h2v6H7V8zm10 0h2v6h-2V8zm-8 6h2v2H9v-2zm6 0h2v2h-2v-2zm-4 2h2v2h-2v-2z"/></svg>,
             mic: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V22h2v-3.06A9 9 0 0 0 21 12v-2h-2z"/></svg>
         };
@@ -94,7 +94,7 @@
         const COMMON_EMOJIS = ["⚔️", "💻", "📖", "📝", "🧠", "🔥", "🚀", "💡", "🛠️", "🎯", "💪", "🧘", "🏃", "🚶", "🚴", "🏊", "🏀", "⚽", "🥊", "🔋", "🧹", "🍳", "☕", "🚿", "🧺", "🏠", "🪴", "🛌", "🌙", "🧴", "📱", "🎮", "🎧", "🎬", "🎨", "📸", "🎸", "🎤", "🍿", "🍎", "🥗", "🍕", "🍔", "🍦", "🍺", "🍷", "🥂", "🍵", "🍱", "🌍", "🌊", "🌲", "🌸", "☀️", "🚗", "✈️", "🗺️", "🐕", "🐈"];
 
         const App = () => {
-            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v9_14_acts') || '[]'));
+            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v9_16_acts') || '[]'));
             const activitiesRef = useRef(activities);
 
             useEffect(() => {
@@ -110,7 +110,7 @@
                 }
             }, []);
 
-            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v9_14_logs') || '[]'));
+            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v9_16_logs') || '[]'));
             const [currentParentId, setCurrentParentId] = useState(null);
             const [isEditMode, setIsEditMode] = useState(false);
             const [isListening, setIsListening] = useState(false);
@@ -134,8 +134,8 @@
 
             useEffect(() => {
                 activitiesRef.current = activities;
-                localStorage.setItem('tc_v9_14_acts', JSON.stringify(activities));
-                localStorage.setItem('tc_v9_14_logs', JSON.stringify(logs));
+                localStorage.setItem('tc_v9_16_acts', JSON.stringify(activities));
+                localStorage.setItem('tc_v9_16_logs', JSON.stringify(logs));
             }, [activities, logs]);
 
             const currentLog = useMemo(() => logs.find(l => l.endTime === null) || null, [logs]);
@@ -278,26 +278,25 @@
                         </div>
                     )}
 
-                    {/* --- 顶部 Banner：仪表盘居中版 --- */}
+                    {/* --- 顶部 Banner：双层指挥塔布局 --- */}
                     <div className="flex-shrink-0 mb-4">
-                        <div className={`pixel-border pixel-shadow p-6 transition-all duration-500 relative flex flex-col justify-center items-center gap-3 min-h-[160px] ${currentLog ? 'banner-active bg-white' : 'bg-gray-100 opacity-90'}`}>
-                            
-                            {/* 居中核心信息 */}
-                            <div className="flex flex-col items-center justify-center w-full">
-                                <span className="text-6xl mb-2 drop-shadow-sm leading-none">{currentEmoji}</span>
-                                <h1 className="text-3xl font-black uppercase tracking-tighter text-center leading-tight break-words max-w-full">
-                                    {currentLog ? currentLog.activityName : 'STANDBY'}
-                                </h1>
-                                {currentLog && (
-                                    <div className="mt-2 bg-blue-100 border-2 border-blue-500 px-3 py-1">
-                                        <span className="text-lg font-bold text-blue-700 leading-none">
-                                            {formatTime(currentLog.startTime)}
+                        <div className={`pixel-border pixel-shadow p-5 transition-all duration-500 relative flex flex-col gap-3 ${currentLog ? 'banner-active bg-white' : 'bg-gray-100 opacity-90'}`}>
+                            {/* 第一层：核心信息 (Logo + 任务名 + 时间) */}
+                            <div className="flex items-center justify-center gap-4 w-full pb-2">
+                                <span className="text-5xl leading-none flex-shrink-0 drop-shadow-sm">{currentEmoji}</span>
+                                <div className="flex items-baseline gap-2 overflow-hidden min-w-0">
+                                    <h1 className="text-3xl font-black truncate leading-none tracking-tighter uppercase">
+                                        {currentLog ? currentLog.activityName : 'STANDBY'}
+                                    </h1>
+                                    {currentLog && (
+                                        <span className="text-xs font-bold text-blue-700 uppercase tracking-tight leading-none bg-blue-100 px-1.5 py-0.5 border border-blue-300 whitespace-nowrap flex-shrink-0">
+                                            SINCE {formatTime(currentLog.startTime)}
                                         </span>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
 
-                            {/* 右下角控制台 */}
+                            {/* 第二层：控制按钮组 (绝对定位右下角) */}
                             <div className="absolute bottom-3 right-3 flex gap-2">
                                 <button onClick={toggleVoice} onContextMenu={handleManualInput} className={`w-9 h-9 pixel-border pixel-btn-flat bg-white flex items-center justify-center transition-all ${isListening ? 'mic-active' : ''}`}>
                                     {PIXEL_ICONS.mic}
@@ -312,7 +311,7 @@
                         </div>
                     </div>
 
-                    {/* --- 中间列表 --- */}
+                    {/* --- 中间列表：Logo 居左，文件夹居右下角 --- */}
                     <div className="flex-1 flex flex-col justify-center min-h-0 py-4 overflow-hidden">
                         <div className="overflow-y-auto no-scrollbar max-h-full">
                             <div className={`transition-all duration-300 ${isEditMode ? 'pt-14' : 'pt-2'}`}>
@@ -329,7 +328,12 @@
                                                 <button onClick={() => handleActivityClick(act)} className="w-full bg-white pixel-border p-3 pixel-btn-flat flex items-center gap-2 h-20 text-left relative overflow-hidden">
                                                     <span className="text-3xl leading-none flex-shrink-0 select-none">{act.emoji}</span>
                                                     <p className="font-black text-lg uppercase leading-none truncate flex-1">{act.name}</p>
-                                                    {!isEditMode && hasChildren && PIXEL_ICONS.folder}
+                                                    {/* 文件夹图标：绝对定位右下角 */}
+                                                    {!isEditMode && hasChildren && (
+                                                        <div className="absolute bottom-1 right-1">
+                                                            {PIXEL_ICONS.folder}
+                                                        </div>
+                                                    )}
                                                 </button>
                                                 {isEditMode && (
                                                     <div className="absolute -top-11 left-0 right-0 flex justify-center gap-1.5 z-20">

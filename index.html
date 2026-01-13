@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>时间捕手 TimeCatcher V9.4</title>
+    <title>时间捕手 TimeCatcher V9.9</title>
     
     <!-- 核心资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -34,8 +34,8 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .pixel-border { border: 4px solid black; }
-        .pixel-shadow { box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); }
+        .pixel-border { border: 3px solid black; }
+        .pixel-shadow { box-shadow: 5px 5px 0px 0px rgba(0,0,0,1); }
         
         .pixel-btn-flat:active {
             transform: translate(2px, 2px);
@@ -51,20 +51,19 @@
             50% { background-color: #fffde7; }
         }
 
-        .icon-svg { fill: currentColor; width: 28px; height: 28px; }
-        .icon-sm { width: 18px; height: 18px; }
+        .icon-svg { fill: currentColor; width: 22px; height: 22px; }
         
         #root { height: 100%; width: 100%; }
 
         .mic-active {
-            animation: mic-pulse 1s infinite;
+            animation: mic-pulse 0.8s infinite;
             background-color: var(--p-red) !important;
             color: white !important;
         }
         @keyframes mic-pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.9); opacity: 0.7; }
-            100% { transform: scale(1); }
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.92); opacity: 0.6; }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
@@ -77,20 +76,20 @@
         const PIXEL_ICONS = {
             stop: <svg className="icon-svg text-red-600" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>,
             gear: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M11 2h2v4h-2V2zm6 2l1.4 1.4-2.8 2.8-1.4-1.4L17 4zM7 4L5.6 5.4l2.8 2.8 1.4-1.4L7 4zm13 7v2h-4v-2h4zM8 11v2H4v-2h4zm9 8l-1.4 1.4-2.8-2.8 1.4-1.4 2.8 2.8zM7 19l1.4-1.4 2.8 2.8-1.4 1.4L7 19zm4 1h2v4h-2v-4zm1-11a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>,
-            back: <svg className="icon-sm" viewBox="0 0 24 24"><path d="M10 4v2H8v2H6v2H4v4h2v2h2v2h2v2h2v-4h-2v-2h-2v-4h2V8h2V4h-2zM12 10h8v4h-8v-4z"/></svg>,
+            back: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M10 4v2H8v2H6v2H4v4h2v2h2v2h2v2h2v-4h-2v-2h-2v-4h2V8h2V4h-2zM12 10h8v4h-8v-4z"/></svg>,
             plus: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z"/></svg>,
-            folder: <svg className="icon-sm opacity-50 flex-shrink-0" viewBox="0 0 24 24"><path d="M2 4h8l2 2h10v14H2V4zm2 4v10h16V8H4z"/></svg>,
-            trash: <svg className="icon-sm text-white" viewBox="0 0 24 24"><path d="M9 2h6v2H9V2zM5 4h14v2H5V4zm2 2h10v14H7V6zm2 2v10h2V8H9zm4 0v10h2V8h-2z"/></svg>,
-            edit: <svg className="icon-sm text-black" viewBox="0 0 24 24"><path d="M14 2h2v2h-2V2zM12 4h2v2h-2V4zm-2 2h2v2h-2V6zm-2 2h2v2H8V8zm-2 2h2v2H6v-2zm-2 2h2v2H4v-2zm0 2h2v2H4v-2zm0 2h2v2H4v-2zm2 2h2v2H6v-2zm2 2h2v2H8v-2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2z"/></svg>,
-            up: <svg className="icon-sm" viewBox="0 0 24 24"><path d="M11 6h2v2h-2V6zm-2 2h2v2H9V8zm6 0h2v2h-2V8zm-8 2h2v2H7v-2zm10 0h2v2h-2v-2zm-12 2h2v6h-2v-6zm14 0h2v6h-2v-6z"/></svg>,
-            down: <svg className="icon-sm" viewBox="0 0 24 24"><path d="M8 6h8v2H8V6zm-1 2h2v6H7V8zm10 0h2v6h-2V8zm-8 6h2v2H9v-2zm6 0h2v2h-2v-2zm-4 2h2v2h-2v-2z"/></svg>,
+            folder: <svg className="w-4 h-4 opacity-50 flex-shrink-0" viewBox="0 0 24 24"><path d="M2 4h8l2 2h10v14H2V4zm2 4v10h16V8H4z"/></svg>,
+            trash: <svg className="w-4 h-4 text-white" viewBox="0 0 24 24"><path d="M9 2h6v2H9V2zM5 4h14v2H5V4zm2 2h10v14H7V6zm2 2v10h2V8H9zm4 0v10h2V8h-2z"/></svg>,
+            edit: <svg className="w-4 h-4 text-black" viewBox="0 0 24 24"><path d="M14 2h2v2h-2V2zM12 4h2v2h-2V4zm-2 2h2v2h-2V6zm-2 2h2v2H8V8zm-2 2h2v2H6v-2zm-2 2h2v2H4v-2zm0 2h2v2H4v-2zm0 2h2v2H4v-2zm2 2h2v2H6v-2zm2 2h2v2H8v-2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2z"/></svg>,
+            up: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M11 6h2v2h-2V6zm-2 2h2v2H9V8zm6 0h2v2h-2V8zm-8 2h2v2H7v-2zm10 0h2v2h-2v-2zm-12 2h2v6h-2v-6zm14 0h2v6h-2v-6z"/></svg>,
+            down: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M8 6h8v2H8V6zm-1 2h2v6H7V8zm10 0h2v6h-2V8zm-8 6h2v2H9v-2zm6 0h2v2h-2v-2zm-4 2h2v2h-2v-2z"/></svg>,
             mic: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2H3v2a9 9 0 0 0 8 8.94V22h2v-3.06A9 9 0 0 0 21 12v-2h-2z"/></svg>
         };
 
-        const COMMON_EMOJIS = ["⚔️", "💻", "📖", "📝", "🧠", "🔥", "🚀", "💡", "🛠️", "🎯", "💪", "🧘", "🏃", "🚶", "🚴", "🏊", "🏀", "⚽", "🥊", "🔋", "🧹", "🍳", "☕", "🚿", "🧺", "🏠", "🪴", "🛌", "🌙", "🧴", "📱", "🎮", "🎧", "🎬", "🎨", "📸", "🎸", "🎤", "🍿", "🧩", "🍎", "🥗", "🍕", "🍔", "🍦", "🍺", "🍷", "🥂", "🍵", "🍱", "🌍", "🌊", "🌲", "🌸", "☀️", "🚗", "✈️", "🗺️", "🐕", "🐈"];
+        const COMMON_EMOJIS = ["⚔️", "💻", "📖", "📝", "🧠", "🔥", "🚀", "💡", "🛠️", "🎯", "💪", "🧘", "🏃", "🚶", "🚴", "🏊", "🏀", "⚽", "🥊", "🔋", "🧹", "🍳", "☕", "🚿", "🧺", "🏠", "🪴", "🛌", "🌙", "🧴", "📱", "🎮", "🎧", "🎬", "🎨", "📸", "🎸", "🎤", "🍿", "🍎", "🥗", "🍕", "🍔", "🍦", "🍺", "🍷", "🥂", "🍵", "🍱", "🌍", "🌊", "🌲", "🌸", "☀️", "🚗", "✈️", "🗺️", "🐕", "🐈"];
 
         const App = () => {
-            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v9_4_acts') || '[]'));
+            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v9_9_acts') || '[]'));
             useEffect(() => {
                 if (activities.length === 0) {
                     setActivities([
@@ -98,18 +97,26 @@
                         { id: '2', name: '写代码', emoji: '💻', parentId: '1' },
                         { id: '3', name: '开会', emoji: '👥', parentId: '1' },
                         { id: '4', name: '技能学习', emoji: '📖', parentId: null },
-                        { id: '5', name: '体力锻炼', emoji: '💪', parentId: null },
-                        { id: '6', name: '心灵冥想', emoji: '🧘', parentId: null }
+                        { id: '5', name: '读书', emoji: '📚', parentId: '4' },
+                        { id: '6', name: '体力锻炼', emoji: '💪', parentId: null }
                     ]);
                 }
             }, []);
 
-            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v9_4_logs') || '[]'));
+            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v9_9_logs') || '[]'));
             const [currentParentId, setCurrentParentId] = useState(null);
             const [isEditMode, setIsEditMode] = useState(false);
             const [isListening, setIsListening] = useState(false);
+            const [showAddModal, setShowAddModal] = useState(false);
+            const [showEditModal, setShowEditModal] = useState(false);
             const [showSummary, setShowSummary] = useState(false);
+            const [showBackupModal, setShowBackupModal] = useState(false);
+            const [backupString, setBackupString] = useState('');
+            const [activeEditId, setActiveEditId] = useState(null);
+            const [formData, setFormData] = useState({ name: '', emoji: '📍', parentId: '' });
             const [msg, setMsg] = useState({ show: false, text: '', type: 'info' });
+
+            const recognitionRef = useRef(null);
 
             const showMsg = (text, type = 'info') => {
                 setMsg({ show: true, text, type });
@@ -117,8 +124,8 @@
             };
 
             useEffect(() => {
-                localStorage.setItem('tc_v9_4_acts', JSON.stringify(activities));
-                localStorage.setItem('tc_v9_4_logs', JSON.stringify(logs));
+                localStorage.setItem('tc_v9_9_acts', JSON.stringify(activities));
+                localStorage.setItem('tc_v9_9_logs', JSON.stringify(logs));
             }, [activities, logs]);
 
             const currentLog = useMemo(() => logs.find(l => l.endTime === null) || null, [logs]);
@@ -126,12 +133,6 @@
 
             const triggerVibrate = (ms = 50) => {
                 if (window.navigator?.vibrate) window.navigator.vibrate(ms);
-            };
-
-            const stopCurrent = () => {
-                if (!currentLog) return;
-                triggerVibrate();
-                setLogs(prev => prev.map(l => l.endTime === null ? { ...l, endTime: Date.now() } : l));
             };
 
             const handleActivityClick = (act) => {
@@ -144,23 +145,31 @@
                 else {
                     const now = Date.now();
                     triggerVibrate(40);
-                    setLogs(prev => [...prev.map(l => l.endTime === null ? { ...l, endTime: now } : l), { 
-                        id: Math.random().toString(36).substr(2, 9), 
-                        activityName: act.name, 
-                        activityEmoji: act.emoji, 
-                        parentId: act.parentId,
-                        startTime: now, 
-                        endTime: null 
-                    }]);
+                    setLogs(prev => {
+                        const newLogs = prev.map(l => l.endTime === null ? { ...l, endTime: now } : l);
+                        newLogs.push({ 
+                            id: Math.random().toString(36).substr(2, 9), 
+                            activityName: act.name, 
+                            activityEmoji: act.emoji, 
+                            parentId: act.parentId,
+                            startTime: now, 
+                            endTime: null 
+                        });
+                        return newLogs;
+                    });
                 }
             };
 
-            // --- 核心升级：语音指令智能识别引擎 ---
-            const startVoiceCommand = async () => {
+            const toggleVoice = async () => {
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                if (!SpeechRecognition) return showMsg("此浏览器不支持语音功能", "error");
+                if (!SpeechRecognition) return showMsg("不支持语音功能", "error");
 
-                showMsg("正在请求麦克风...", "info");
+                if (isListening) {
+                    if (recognitionRef.current) recognitionRef.current.stop();
+                    setIsListening(false);
+                    return;
+                }
+
                 try {
                     await navigator.mediaDevices.getUserMedia({ audio: true });
                 } catch (e) {
@@ -170,44 +179,48 @@
                 const recognition = new SpeechRecognition();
                 recognition.lang = 'zh-CN';
                 recognition.interimResults = false;
+                recognitionRef.current = recognition;
 
-                recognition.onstart = () => {
-                    setIsListening(true);
-                    triggerVibrate(20);
-                    showMsg("正在倾听您的意图...", "info");
-                };
-
+                recognition.onstart = () => { setIsListening(true); triggerVibrate(20); showMsg("正在倾听指令..."); };
                 recognition.onresult = (event) => {
                     const transcript = event.results[0][0].transcript;
-                    
-                    // 1. 整理候选活动（按字数倒序排，防止错抓短词）
                     const candidates = [...activities].sort((a,b) => b.name.length - a.name.length);
-                    
-                    // 2. 在全库中寻找匹配（含二级活动）
                     const match = candidates.find(act => transcript.includes(act.name));
-
                     if (match) {
-                        // 寻找父级名称用于提示
-                        const parent = match.parentId ? activities.find(a => a.id === match.parentId) : null;
-                        const fullName = parent ? `${parent.name}-${match.name}` : match.name;
-                        
-                        // 执行记录操作
                         handleActivityClick(match);
-                        showMsg(`智能识别: [${fullName}]`, "info");
-                        setIsListening(false);
-                    } else {
-                        showMsg(`未匹配: "${transcript}"`, "error");
-                        setIsListening(false);
-                    }
+                        showMsg(`已自动识别: ${match.name}`);
+                    } else { showMsg(`未匹配活动: "${transcript}"`, "error"); }
                 };
-
-                recognition.onerror = (e) => {
-                    setIsListening(false);
-                    showMsg(`异常: ${e.error}`, "error");
-                };
-
                 recognition.onend = () => setIsListening(false);
+                recognition.onerror = () => setIsListening(false);
                 recognition.start();
+            };
+
+            const exportCSV = () => {
+                const validLogs = logs.filter(l => l.endTime);
+                if (validLogs.length === 0) return showMsg("暂无数据", "error");
+                let csv = "\ufeff名称,开始时间,结束时间,时长(分)\n";
+                validLogs.forEach(l => {
+                    csv += `${l.activityName},${new Date(l.startTime).toLocaleTimeString()},${new Date(l.endTime).toLocaleTimeString()},${Math.round((l.endTime-l.startTime)/60000)}\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `时间捕手_${new Date().toLocaleDateString()}.csv`;
+                link.click();
+            };
+
+            const exportICS = () => {
+                const validLogs = logs.filter(l => l.endTime);
+                if (validLogs.length === 0) return;
+                const fmt = (ts) => new Date(ts).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//TimeCatcher//EN\n";
+                validLogs.forEach(l => { ics += `BEGIN:VEVENT\nSUMMARY:[捕手] ${l.activityName}\nDTSTART:${fmt(l.startTime)}\nDTEND:${fmt(l.endTime)}\nEND:VEVENT\n`; });
+                ics += "END:VCALENDAR";
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(new Blob([ics], {type:'text/calendar'}));
+                link.download = "日历同步.ics";
+                link.click();
             };
 
             const formatTime = (ts) => new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
@@ -215,43 +228,43 @@
             return (
                 <div className="flex flex-col h-full w-full p-6 text-[#2D3436] justify-between">
                     
-                    {/* --- 系统指令看板 --- */}
+                    {/* 消息看板 */}
                     {msg.show && (
-                        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[300] w-[85%] pointer-events-none transition-all duration-300">
-                            <div className="pixel-border p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-[#FFD60A] text-black border-black text-center font-black uppercase text-xs">
-                                <div className="mb-1 text-[10px] opacity-40 italic">Intent Recognition System</div>
+                        <div className="fixed top-32 left-1/2 -translate-x-1/2 z-[500] w-[80%] pointer-events-none">
+                            <div className="pixel-border p-3 shadow-[4px_4px_0px_0px_black] bg-[#FFD60A] text-black font-black text-center text-xs uppercase">
                                 {msg.text}
                             </div>
                         </div>
                     )}
 
-                    {/* --- 顶部固定：Banner --- */}
+                    {/* --- 顶部 Banner：视觉重心 --- */}
                     <div className="flex-shrink-0">
-                        <div className={`pixel-border pixel-shadow p-5 transition-all duration-500 relative ${currentLog ? 'banner-active bg-white' : 'bg-gray-100 opacity-90'}`}>
-                            <div className="flex items-center justify-between gap-3 text-left">
-                                <div className="flex items-center gap-4 flex-1 min-w-0">
-                                    <span className="text-5xl leading-none flex-shrink-0 select-none">{currentEmoji}</span>
-                                    <div className="flex items-baseline gap-2 overflow-hidden">
-                                        <h1 className="text-3xl font-black truncate leading-none tracking-tighter uppercase">
+                        <div className={`pixel-border pixel-shadow p-8 transition-all duration-500 relative ${currentLog ? 'banner-active bg-white' : 'bg-gray-100 opacity-90'}`}>
+                            <div className="flex items-center justify-between gap-4 text-left">
+                                <div className="flex items-center gap-5 flex-1 min-w-0">
+                                    <span className="text-5xl leading-none flex-shrink-0 drop-shadow-sm">{currentEmoji}</span>
+                                    <div className="flex flex-col overflow-hidden">
+                                        <h1 className="text-3xl font-black truncate leading-none uppercase tracking-tighter">
                                             {currentLog ? currentLog.activityName : 'STANDBY'}
                                         </h1>
                                         {currentLog && (
-                                            <div className="bg-blue-100 border-2 border-blue-500 px-2 py-0.5">
-                                                <span className="text-lg font-bold text-blue-700 leading-none">
-                                                    {formatTime(currentLog.startTime)}
+                                            <div className="mt-3 flex items-center gap-2">
+                                                <div className="h-2 w-2 bg-blue-600 animate-pulse"></div>
+                                                <span className="text-xs font-bold text-blue-700 uppercase tracking-widest leading-none">
+                                                    SINCE {formatTime(currentLog.startTime)}
                                                 </span>
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                                <div className="flex gap-2">
-                                    <button onClick={startVoiceCommand} className={`w-12 h-12 pixel-border pixel-btn-flat bg-white flex items-center justify-center transition-all ${isListening ? 'mic-active' : ''}`}>
+                                <div className="flex gap-2 items-center flex-shrink-0">
+                                    <button onClick={toggleVoice} className={`w-11 h-11 pixel-border pixel-btn-flat bg-white flex items-center justify-center transition-all ${isListening ? 'mic-active' : ''}`}>
                                         {PIXEL_ICONS.mic}
                                     </button>
-                                    <button onClick={() => { setIsEditMode(!isEditMode); setCurrentParentId(null); }} className={`w-12 h-12 pixel-border pixel-btn-flat bg-white flex items-center justify-center ${isEditMode ? 'bg-[#FFD60A]' : ''}`}>
+                                    <button onClick={() => { setIsEditMode(!isEditMode); setCurrentParentId(null); }} className={`w-11 h-11 pixel-border pixel-btn-flat bg-white flex items-center justify-center ${isEditMode ? 'bg-[#FFD60A]' : ''}`}>
                                         {PIXEL_ICONS.gear}
                                     </button>
-                                    <button onClick={stopCurrent} className={`w-12 h-12 pixel-border pixel-btn-flat flex items-center justify-center transition-all ${currentLog ? 'bg-white' : 'bg-gray-200 opacity-20'}`}>
+                                    <button onClick={() => { if(currentLog) setLogs(prev => prev.map(l => l.endTime === null ? {...l, endTime: Date.now()} : l)); }} className={`w-11 h-11 pixel-border pixel-btn-flat flex items-center justify-center transition-all ${currentLog ? 'bg-white active:bg-red-50' : 'bg-gray-200 opacity-20'}`}>
                                         {PIXEL_ICONS.stop}
                                     </button>
                                 </div>
@@ -259,28 +272,60 @@
                         </div>
                     </div>
 
-                    {/* --- 中间：活动列表 (严格锁定 h-20) --- */}
-                    <div className="flex-1 flex flex-col justify-center min-h-0 py-4 overflow-hidden">
+                    {/* --- 中间列表：强制竖向均匀分布 --- */}
+                    <div className="flex-1 flex flex-col justify-center min-h-0 overflow-hidden">
                         <div className="overflow-y-auto no-scrollbar max-h-full">
-                            <div className={`transition-all duration-300 ${isEditMode ? 'pt-12' : 'pt-2'}`}>
+                            <div className={`transition-all duration-300 ${isEditMode ? 'pt-14' : 'pt-2'}`}>
                                 {currentParentId && (
-                                    <button onClick={() => setCurrentParentId(null)} className="mb-6 px-1 text-xs font-black flex items-center gap-2 underline underline-offset-4 decoration-4 uppercase">
+                                    <button onClick={() => setCurrentParentId(null)} className="mb-8 px-1 text-xs font-black flex items-center gap-2 underline underline-offset-4 decoration-4 uppercase tracking-tighter">
                                         {PIXEL_ICONS.back} Back to menu
                                     </button>
                                 )}
-                                <div className="grid grid-cols-2 gap-x-6 gap-y-10 px-1 pb-6 text-left">
+                                <div className="grid grid-cols-2 gap-x-6 gap-y-12 px-1 pb-10">
                                     {activities.filter(a => a.parentId === currentParentId).map((act, idx) => {
                                         const hasChildren = activities.some(child => child.parentId === act.id);
                                         return (
                                             <div key={act.id} className="relative">
                                                 <button onClick={() => handleActivityClick(act)} className="w-full bg-white pixel-border p-3 pixel-btn-flat flex items-center gap-3 h-20 text-left relative overflow-hidden">
-                                                    <span className="text-4xl leading-none flex-shrink-0 select-none">{act.emoji}</span>
-                                                    <p className="font-black text-lg uppercase leading-none truncate flex-1">{act.name}</p>
+                                                    <span className="text-3xl leading-none flex-shrink-0">{act.emoji}</span>
+                                                    <p className="font-black text-base uppercase truncate flex-1 leading-none">{act.name}</p>
                                                     {!isEditMode && hasChildren && PIXEL_ICONS.folder}
                                                 </button>
+                                                {isEditMode && (
+                                                    <div className="absolute -top-11 left-0 right-0 flex justify-center gap-1.5 z-20">
+                                                        <button onClick={() => { setActiveEditId(act.id); setFormData({name: act.name, emoji: act.emoji, parentId: act.parentId || ''}); setShowEditModal(true); }} className="bg-[#FFD60A] border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.edit}</button>
+                                                        <button onClick={() => { if(confirm('删除此分类？')) setActivities(activities.filter(a => a.id !== act.id && a.parentId !== act.id)); }} className="bg-red-600 border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.trash}</button>
+                                                        <button onClick={() => {
+                                                            const list = [...activities];
+                                                            const currentItems = list.filter(a => a.parentId === currentParentId);
+                                                            const targetIdx = idx - 1;
+                                                            if (targetIdx >= 0) {
+                                                                const idA = currentItems[idx].id;
+                                                                const idB = currentItems[targetIdx].id;
+                                                                const realIdxA = list.findIndex(a => a.id === idA);
+                                                                const realIdxB = list.findIndex(a => a.id === idB);
+                                                                [list[realIdxA], list[realIdxB]] = [list[realIdxB], list[realIdxA]];
+                                                                setActivities(list);
+                                                            }
+                                                        }} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.up}</button>
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })}
+                                    {isEditMode && (
+                                        <div className="flex flex-col gap-2">
+                                            <button onClick={() => { setFormData({name:'', emoji:'📍', parentId:''}); setShowAddModal(true); }} className="border-4 border-dashed border-gray-400 p-3 flex items-center justify-center h-20 text-gray-400 bg-white/30">
+                                                {PIXEL_ICONS.plus}
+                                            </button>
+                                            <button onClick={() => {
+                                                const data = { activities, logs };
+                                                const str = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+                                                setBackupString(str);
+                                                setShowBackupModal(true);
+                                            }} className="border-2 border-black bg-white p-2 text-[8px] font-bold tracking-tighter shadow-sm uppercase">Backup Vault</button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -288,10 +333,10 @@
 
                     {/* --- 底部导航 --- */}
                     <div className="flex-shrink-0 grid grid-cols-2 gap-5 pb-2">
-                        <button onClick={() => setShowSummary(true)} className="bg-black text-white pixel-border p-5 font-bold text-lg flex items-center justify-center gap-2 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">
+                        <button onClick={() => setShowSummary(true)} className="bg-black text-white pixel-border p-5 font-bold text-lg flex items-center justify-center gap-2 active:bg-gray-800 uppercase italic tracking-tighter">
                             SUMMARY
                         </button>
-                        <button onClick={() => showMsg("数据导出准备完毕", "info")} className="bg-white pixel-border p-5 font-bold text-lg active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">
+                        <button onClick={exportCSV} className="bg-white pixel-border p-5 font-bold text-lg active:bg-gray-100 uppercase italic tracking-tighter">
                             EXPORT
                         </button>
                     </div>
@@ -299,41 +344,97 @@
                     {/* --- 总结页面 --- */}
                     {showSummary && (
                         <div className="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm">
-                            <div className="bg-[#E0F2F1] pixel-border p-6 w-full max-w-sm flex flex-col overflow-hidden max-h-[85vh]">
-                                <div className="flex justify-between items-center mb-5 border-b-4 border-black flex-shrink-0 text-left">
-                                    <div className="pb-1">
-                                        <h2 className="text-3xl font-black italic uppercase tracking-tighter leading-none">Mission Clear</h2>
-                                        <p className="text-[10px] font-bold opacity-40 mt-1">Date: {new Date().toLocaleDateString()}</p>
+                            <div className="bg-[#E0F2F1] pixel-border p-6 w-full max-w-sm flex flex-col overflow-hidden max-h-[85vh] text-left">
+                                <div className="flex justify-between items-center mb-5 border-b-4 border-black pb-2">
+                                    <div>
+                                        <h2 className="text-3xl font-black italic uppercase tracking-tighter">Mission Clear</h2>
+                                        <p className="text-[10px] font-bold opacity-40 mt-1">Status Report: {new Date().toLocaleDateString()}</p>
                                     </div>
-                                    <button onClick={() => setShowSummary(false)} className="text-xl font-bold border-4 border-black px-4 py-1 bg-white mb-2 shadow-sm shadow-black">X</button>
+                                    <button onClick={() => setShowSummary(false)} className="text-xl font-bold border-4 border-black px-4 py-1 bg-white shadow-black shadow-[2px_2px_0px_0px]">X</button>
                                 </div>
-                                <div className="flex-1 space-y-1 overflow-y-auto no-scrollbar pr-1 pb-4">
+                                <div className="flex-1 space-y-1.5 overflow-y-auto no-scrollbar pr-1 pb-4">
                                     {logs.filter(l => l.endTime).sort((a,b) => a.startTime - b.startTime).map((l, i) => {
                                         const activityObj = activities.find(a => a.name === l.activityName);
                                         const parentObj = activityObj?.parentId ? activities.find(a => a.id === activityObj.parentId) : null;
                                         const displayName = parentObj ? `${parentObj.name}-${l.activityName}` : l.activityName;
                                         return (
-                                            <div key={i} className="bg-white border-b-2 border-black/10 p-2 flex justify-between items-center text-left">
-                                                <div className="flex items-center gap-1.5 min-w-0">
-                                                    <span className="text-lg flex-shrink-0">{l.activityEmoji || '📍'}</span>
-                                                    <div className="flex items-baseline gap-1.5 truncate">
+                                            <div key={i} className="bg-white border-b-2 border-black/10 p-2.5 flex justify-between items-center">
+                                                <div className="flex items-center gap-2.5 min-w-0">
+                                                    <span className="text-2xl">{l.activityEmoji || '📍'}</span>
+                                                    <div className="flex flex-col">
                                                         <span className="font-black text-[13px] uppercase truncate leading-none">{displayName}</span>
-                                                        <span className="text-[9px] font-bold text-blue-600 opacity-60 flex-shrink-0">[{formatTime(l.startTime)}-{formatTime(l.endTime)}]</span>
+                                                        <span className="text-[9px] font-bold text-blue-600 mt-1.5 opacity-70">[{formatTime(l.startTime)} - {formatTime(l.endTime)}]</span>
                                                     </div>
                                                 </div>
-                                                <div className="font-black text-xs flex-shrink-0 ml-2">{Math.round((l.endTime-l.startTime)/60000)}M</div>
+                                                <div className="font-black text-sm bg-gray-50 px-1 border border-black/5 flex-shrink-0">{Math.round((l.endTime-l.startTime)/60000)}M</div>
                                             </div>
                                         );
                                     })}
                                 </div>
-                                <div className="mt-2 pt-4 border-t-4 border-black flex justify-between items-end flex-shrink-0 text-left">
+                                <div className="mt-2 pt-5 border-t-4 border-black flex justify-between items-end">
                                     <div>
                                         <p className="text-[10px] font-bold opacity-40 uppercase mb-1">Energy Gained</p>
-                                        <p className="text-5xl font-black leading-none">
+                                        <p className="text-5xl font-black leading-none tracking-tighter">
                                             {Math.round(logs.reduce((acc, l) => acc + (l.endTime ? (l.endTime - l.startTime) / 60000 : 0), 0))}0
                                         </p>
                                     </div>
-                                    <button onClick={() => showMsg("同步成功")} className="bg-[#6D83F2] text-white border-2 border-black px-4 py-2 font-black uppercase text-[10px] italic shadow-black shadow-sm">Sync Cal</button>
+                                    <button onClick={exportICS} className="bg-[#6D83F2] text-white border-2 border-black px-4 py-3 font-black uppercase text-[10px] italic shadow-black shadow-[2px_2px_0px_0px]">Sync Calendar</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 备份弹窗 */}
+                    {showBackupModal && (
+                        <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left">
+                            <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
+                                <h2 className="text-2xl font-black mb-4 border-b-4 border-black uppercase">Data Vault</h2>
+                                <textarea readOnly className="w-full h-40 pixel-border p-3 text-[9px] font-mono mb-4 break-all bg-gray-50 outline-none" value={backupString}></textarea>
+                                <div className="flex flex-col gap-3">
+                                    <button onClick={() => { document.execCommand('copy'); showMsg("暗号已存入剪贴板"); }} className="bg-[#FFD60A] p-4 font-black text-sm">COPY CODE</button>
+                                    <button onClick={() => { 
+                                        const input = prompt("请输入备份暗号："); 
+                                        if(input) {
+                                            try {
+                                                const data = JSON.parse(decodeURIComponent(escape(atob(input))));
+                                                if (confirm("确认覆盖当前数据并恢复？")) { setActivities(data.activities); setLogs(data.logs); setShowBackupModal(false); showMsg("恢复成功！"); }
+                                            } catch (e) { alert("暗号无效。"); }
+                                        }
+                                    }} className="bg-[#6D83F2] text-white p-4 font-black text-sm">RESTORE</button>
+                                    <button onClick={() => setShowBackupModal(false)} className="bg-black text-white p-3 font-black text-xs">EXIT</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* 新增分类 */}
+                    {(showAddModal || showEditModal) && (
+                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-6 backdrop-blur-md text-left">
+                            <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
+                                <h2 className="text-3xl font-black mb-6 uppercase border-b-4 border-black">{showEditModal ? 'Update' : 'New Entry'}</h2>
+                                <div className="space-y-5 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">
+                                    <input type="text" placeholder="Entry Name..." className="w-full pixel-border p-4 font-bold text-xl outline-none focus:bg-yellow-50" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                                    <div className="pixel-border p-4 bg-gray-50">
+                                        <div className="grid grid-cols-5 gap-3 h-28 overflow-y-auto pr-1 no-scrollbar text-3xl text-center">
+                                            {COMMON_EMOJIS.map(e => (
+                                                <button key={e} onClick={() => setFormData({...formData, emoji: e})} className={`p-1 border-2 transition-all ${formData.emoji === e ? 'border-black bg-yellow-100 shadow-[3px_3px_0px_0px_black]' : 'border-transparent'}`}>{e}</button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <select className="w-full pixel-border p-4 font-bold bg-white text-lg outline-none" value={formData.parentId} onChange={e => setFormData({...formData, parentId: e.target.value})}>
+                                        <option value="">Top Category</option>
+                                        {activities.filter(a => !a.parentId && a.id !== activeEditId).map(a => <option key={a.id} value={a.id}>Under: {a.name}</option>)}
+                                    </select>
+                                </div>
+                                <div className="flex gap-4 mt-8">
+                                    <button onClick={() => {setShowAddModal(false); setShowEditModal(false);}} className="flex-1 pixel-border p-4 font-black uppercase text-xs text-center">Abort</button>
+                                    <button onClick={() => {
+                                        if(!formData.name) return;
+                                        if(showEditModal) setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, name: formData.name, emoji: formData.emoji, parentId: formData.parentId || null } : a));
+                                        else setActivities([...activities, { id: Math.random().toString(36).substr(2, 9), ...formData, parentId: formData.parentId || null }]);
+                                        setShowAddModal(false); setShowEditModal(false);
+                                        triggerVibrate(30);
+                                    }} className="flex-1 bg-black text-white p-4 font-black uppercase text-xs text-center">Save</button>
                                 </div>
                             </div>
                         </div>

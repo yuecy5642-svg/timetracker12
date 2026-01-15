@@ -131,6 +131,7 @@
             const [showStatsModal, setShowStatsModal] = useState(false);
             const [statsTab, setStatsTab] = useState('overview'); // 'overview' | 'compare'
             const [insightDrillId, setInsightDrillId] = useState(null);
+            const [pkDrillId, setPkDrillId] = useState(null);
             
             const [statsDateRange, setStatsDateRange] = useState({
                 start: new Date().toISOString().split('T')[0],
@@ -306,9 +307,12 @@
                     return { ...root, mins };
                 });
 
-                stats.sort((a, b) => b.mins - a.mins);
+                // Filter out 0 mins
+                const filteredStats = stats.filter(s => s.mins > 0);
 
-                return { totalPeriodMins, stats };
+                filteredStats.sort((a, b) => b.mins - a.mins);
+
+                return { totalPeriodMins, stats: filteredStats };
             };
 
             const isChallengeActive = (endDateStr) => {
@@ -352,6 +356,34 @@
                         const link = document.createElement('a');
                         link.href = canvas.toDataURL('image/png');
                         link.download = `挑战总结_${new Date().toLocaleDateString()}.png`;
+                        link.click();
+                        setIsCapturing(false);
+                    }).catch(() => setIsCapturing(false));
+                }, 200);
+            };
+
+            const saveStatsImage = () => {
+                const card = document.getElementById('stats-capture-area');
+                if (!card) return;
+                setIsCapturing(true);
+                setTimeout(() => {
+                    html2canvas(card, { 
+                        backgroundColor: '#FFFFFF', 
+                        scale: 2, 
+                        useCORS: true, 
+                        allowTaint: true,
+                        onclone: (clonedDoc) => {
+                            const clonedCard = clonedDoc.getElementById('stats-capture-area');
+                            if (clonedCard) {
+                                clonedCard.style.maxHeight = 'none';
+                                clonedCard.style.height = 'auto';
+                                clonedCard.style.overflow = 'visible';
+                            }
+                        }
+                    }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = `数据统计_${new Date().toLocaleDateString()}.png`;
                         link.click();
                         setIsCapturing(false);
                     }).catch(() => setIsCapturing(false));
@@ -793,211 +825,306 @@
                     {showStatsModal && (
                         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
                             <div className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto no-scrollbar flex flex-col">
-                                <div className="flex justify-between items-center mb-4 border-b-4 border-black pb-2">
+                                <div className="flex justify-between items-center mb-4 border-b-4 border-black pb-2 flex-shrink-0">
                                     <h2 className="text-2xl font-black uppercase">DATA CENTER</h2>
                                     <button onClick={() => setShowStatsModal(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
                                 </div>
 
-                                <div className="flex gap-2 mb-4">
+                                <div className="flex gap-2 mb-4 flex-shrink-0">
                                     <button onClick={() => { setStatsTab('overview'); setInsightDrillId(null); }} className={`flex-1 font-bold text-xs py-2 uppercase border-2 border-black ${statsTab === 'overview' ? 'bg-[#FFD60A]' : 'bg-white opacity-50'}`}>INSIGHTS</button>
                                     <button onClick={() => setStatsTab('compare')} className={`flex-1 font-bold text-xs py-2 uppercase border-2 border-black ${statsTab === 'compare' ? 'bg-[#FFD60A]' : 'bg-white opacity-50'}`}>PK MODE</button>
                                 </div>
 
-                                {statsTab === 'overview' ? (
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-2 gap-2 bg-gray-100 p-2 border-2 border-black">
-                                            <input type="date" className="p-1 text-xs font-bold border-2 border-black text-center" value={statsDateRange.start} onChange={e => setStatsDateRange({...statsDateRange, start: e.target.value})} />
-                                            <input type="date" className="p-1 text-xs font-bold border-2 border-black text-center" value={statsDateRange.end} onChange={e => setStatsDateRange({...statsDateRange, end: e.target.value})} />
+                                <div id="stats-capture-area" className="flex-1 overflow-y-auto no-scrollbar space-y-4 bg-white p-1">
+                                    {statsTab === 'overview' ? (
+                                        <div className="space-y-4">
+                                            <div className="grid grid-cols-2 gap-2 bg-gray-100 p-2 border-2 border-black">
+                                                <input type="date" className="p-1 text-xs font-bold border-2 border-black text-center" value={statsDateRange.start} onChange={e => setStatsDateRange({...statsDateRange, start: e.target.value})} />
+                                                <input type="date" className="p-1 text-xs font-bold border-2 border-black text-center" value={statsDateRange.end} onChange={e => setStatsDateRange({...statsDateRange, end: e.target.value})} />
+                                            </div>
+
+                                            {!insightDrillId ? (
+                                                (() => {
+                                                    const { totalPeriodMins, stats } = calculateStats(statsDateRange.start, statsDateRange.end);
+                                                    return (
+                                                        <>
+                                                            <div className="text-center py-4 bg-[#E0F2F1] border-2 border-black">
+                                                                <p className="text-xs font-bold opacity-50 mb-1">TOTAL HOURS</p>
+                                                                <p className="text-4xl font-black">{(totalPeriodMins / 60).toFixed(1)}h</p>
+                                                            </div>
+
+                                                            <div className="space-y-2">
+                                                                {stats.length === 0 ? <p className="text-center text-xs opacity-40 py-4">No data.</p> : stats.map(s => {
+                                                                    const pct = totalPeriodMins > 0 ? (s.mins / totalPeriodMins) * 100 : 0;
+                                                                    // Conditional: Only show arrow if it has children
+                                                                    const hasChildren = activities.some(child => child.parentId === s.id);
+                                                                    
+                                                                    return (
+                                                                        <div 
+                                                                            key={s.id} 
+                                                                            onClick={() => { if(hasChildren) setInsightDrillId(s.id); }}
+                                                                            className={`relative border-2 border-black bg-white h-10 flex items-center overflow-hidden transition-transform ${hasChildren ? 'active:scale-95 cursor-pointer' : 'cursor-default'}`}
+                                                                        >
+                                                                            <div 
+                                                                                className="absolute top-0 left-0 h-full bg-[#6D83F2] opacity-20 z-0 transition-all duration-500 border-r-2 border-[#6D83F2]" 
+                                                                                style={{width: `${pct}%`}}
+                                                                            ></div>
+                                                                            
+                                                                            <div className="flex justify-between items-center w-full px-2 relative z-10">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <span className="text-xl">{s.emoji}</span>
+                                                                                    <span className="font-bold text-sm uppercase">{s.name}</span>
+                                                                                    {/* Conditional arrow */}
+                                                                                    {hasChildren && <span className="text-[8px] opacity-40">▼</span>}
+                                                                                </div>
+                                                                                <div className="text-right flex items-center gap-2">
+                                                                                    <span className="text-[10px] opacity-50 font-mono">{Math.round(s.mins)}m</span>
+                                                                                    <span className="font-black text-sm w-8 text-right">{Math.round(pct)}%</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </>
+                                                    );
+                                                })()
+                                            ) : (
+                                                (() => {
+                                                    const parentAct = activities.find(a => a.id === insightDrillId);
+                                                    if (!parentAct) { setInsightDrillId(null); return null; }
+
+                                                    const subActivities = activities.filter(a => a.parentId === insightDrillId);
+                                                    const drillList = [parentAct, ...subActivities];
+
+                                                    let drillStats = drillList.map(item => ({
+                                                        ...item,
+                                                        mins: getStrictProgress(item.name, statsDateRange.start, statsDateRange.end)
+                                                    }));
+
+                                                    drillStats.sort((a, b) => b.mins - a.mins);
+                                                    const parentTotalMins = drillStats.reduce((acc, s) => acc + s.mins, 0);
+
+                                                    return (
+                                                        <>
+                                                            <div className="flex items-center gap-2 mb-2 bg-black text-white p-2 border-2 border-black">
+                                                                <button 
+                                                                    onClick={() => setInsightDrillId(null)}
+                                                                    className="text-xs font-bold border border-white px-2 py-1 hover:bg-white hover:text-black transition-colors"
+                                                                >
+                                                                    &lt; BACK
+                                                                </button>
+                                                                <span className="text-xl">{parentAct.emoji}</span>
+                                                                <span className="font-black text-sm uppercase flex-1">{parentAct.name} Breakdown</span>
+                                                                <span className="text-xs font-mono">{Math.round(parentTotalMins)}m</span>
+                                                            </div>
+
+                                                            <div className="space-y-2">
+                                                                {drillStats.length === 0 || parentTotalMins === 0 ? (
+                                                                    <p className="text-center text-xs opacity-40 py-4">No specific logs found.</p>
+                                                                ) : drillStats.map(s => {
+                                                                    const pct = parentTotalMins > 0 ? (s.mins / parentTotalMins) * 100 : 0;
+                                                                    const isSelf = s.id === parentAct.id;
+
+                                                                    if (Math.round(s.mins) === 0) return null;
+
+                                                                    return (
+                                                                        <div key={s.id} className={`relative border-2 border-black h-10 flex items-center overflow-hidden ${isSelf ? 'bg-gray-50' : 'bg-white'}`}>
+                                                                            <div 
+                                                                                className="absolute top-0 left-0 h-full bg-[#FFD60A] opacity-30 z-0 transition-all duration-500 border-r-2 border-[#FFD60A]" 
+                                                                                style={{width: `${pct}%`}}
+                                                                            ></div>
+                                                                            
+                                                                            <div className="flex justify-between items-center w-full px-2 relative z-10">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <span className="text-xl">{s.emoji}</span>
+                                                                                    <span className="font-bold text-sm uppercase">{s.name}</span>
+                                                                                    {isSelf && <span className="text-[8px] bg-gray-200 px-1 rounded opacity-60">SELF</span>}
+                                                                                </div>
+                                                                                <div className="text-right flex items-center gap-2">
+                                                                                    <span className="text-[10px] opacity-50 font-mono">{Math.round(s.mins)}m</span>
+                                                                                    <span className="font-black text-sm w-8 text-right">{Math.round(pct)}%</span>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        </>
+                                                    );
+                                                })()
+                                            )}
                                         </div>
+                                    ) : (
+                                        <div className="space-y-4">
+                                            <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-bold">
+                                                <span>PERIOD A</span>
+                                                <span>PERIOD B</span>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                <div className="flex flex-col gap-1">
+                                                    <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.startA} onChange={e => setCompareDateRange({...compareDateRange, startA: e.target.value})} />
+                                                    <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.endA} onChange={e => setCompareDateRange({...compareDateRange, endA: e.target.value})} />
+                                                </div>
+                                                <div className="flex flex-col gap-1">
+                                                    <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.startB} onChange={e => setCompareDateRange({...compareDateRange, startB: e.target.value})} />
+                                                    <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.endB} onChange={e => setCompareDateRange({...compareDateRange, endB: e.target.value})} />
+                                                </div>
+                                            </div>
 
-                                        {!insightDrillId ? (
-                                            (() => {
-                                                const { totalPeriodMins, stats } = calculateStats(statsDateRange.start, statsDateRange.end);
-                                                return (
-                                                    <>
-                                                        <div className="text-center py-4 bg-[#E0F2F1] border-2 border-black">
-                                                            <p className="text-xs font-bold opacity-50 mb-1">TOTAL HOURS</p>
-                                                            <p className="text-4xl font-black">{(totalPeriodMins / 60).toFixed(1)}h</p>
-                                                        </div>
+                                            <div className="border-t-4 border-black my-2"></div>
 
-                                                        <div className="space-y-2">
-                                                            {stats.length === 0 ? <p className="text-center text-xs opacity-40 py-4">No data.</p> : stats.map(s => {
-                                                                const pct = totalPeriodMins > 0 ? (s.mins / totalPeriodMins) * 100 : 0;
-                                                                // Conditional: Only show arrow if it has children
-                                                                const hasChildren = activities.some(child => child.parentId === s.id);
-                                                                
+                                            {(() => {
+                                                const dataA = calculateStats(compareDateRange.startA, compareDateRange.endA);
+                                                const dataB = calculateStats(compareDateRange.startB, compareDateRange.endB);
+                                                
+                                                // PK Mode Drill Down Logic
+                                                // Case 1: Overview (pkDrillId is null)
+                                                if (!pkDrillId) {
+                                                    const allRoots = [...new Set([...dataA.stats.map(s=>s.id), ...dataB.stats.map(s=>s.id)])];
+                                                    
+                                                    allRoots.sort((id1, id2) => {
+                                                        const getMins = (dataSet, id) => dataSet.stats.find(s => s.id === id)?.mins || 0;
+                                                        const max1 = Math.max(getMins(dataA, id1), getMins(dataB, id1));
+                                                        const max2 = Math.max(getMins(dataA, id2), getMins(dataB, id2));
+                                                        return max2 - max1; 
+                                                    });
+
+                                                    return (
+                                                        <div className="space-y-2 max-h-60 overflow-y-auto no-scrollbar">
+                                                            <div className="bg-black text-white p-2 border-2 border-black flex justify-between items-center">
+                                                                <span className="font-bold text-xs">TOTAL TIME</span>
+                                                                <div className="flex gap-4 text-xs font-mono">
+                                                                    <span className="opacity-70">{Math.round(dataA.totalPeriodMins)}m</span>
+                                                                    <span>vs</span>
+                                                                    <span className="opacity-70">{Math.round(dataB.totalPeriodMins)}m</span>
+                                                                </div>
+                                                                <span className={`text-xs font-black ${dataA.totalPeriodMins >= dataB.totalPeriodMins ? 'text-green-400' : 'text-red-400'}`}>
+                                                                    {dataB.totalPeriodMins > 0 ? (dataA.totalPeriodMins - dataB.totalPeriodMins > 0 ? '+' : '') + Math.round((dataA.totalPeriodMins - dataB.totalPeriodMins)/dataB.totalPeriodMins*100) + '%' : 'N/A'}
+                                                                </span>
+                                                            </div>
+
+                                                            {allRoots.map(id => {
+                                                                const act = activities.find(a => a.id === id);
+                                                                if (!act) return null;
+                                                                const minsA = dataA.stats.find(s => s.id === id)?.mins || 0;
+                                                                const minsB = dataB.stats.find(s => s.id === id)?.mins || 0;
+                                                                const diff = minsA - minsB;
+                                                                const diffPct = minsB > 0 ? Math.round((diff / minsB) * 100) : (minsA > 0 ? 100 : 0);
+                                                                const hasChildren = activities.some(child => child.parentId === act.id);
+
                                                                 return (
                                                                     <div 
-                                                                        key={s.id} 
-                                                                        onClick={() => { if(hasChildren) setInsightDrillId(s.id); }}
-                                                                        className={`relative border-2 border-black bg-white h-10 flex items-center overflow-hidden transition-transform ${hasChildren ? 'active:scale-95 cursor-pointer' : 'cursor-default'}`}
+                                                                        key={id} 
+                                                                        onClick={() => { if(hasChildren) setPkDrillId(id); }}
+                                                                        className={`border-b-2 border-gray-200 py-2 flex justify-between items-center text-xs transition-colors ${hasChildren ? 'hover:bg-gray-50 cursor-pointer' : ''}`}
                                                                     >
-                                                                        <div 
-                                                                            className="absolute top-0 left-0 h-full bg-[#6D83F2] opacity-20 z-0 transition-all duration-500 border-r-2 border-[#6D83F2]" 
-                                                                            style={{width: `${pct}%`}}
-                                                                        ></div>
-                                                                        
-                                                                        <div className="flex justify-between items-center w-full px-2 relative z-10">
-                                                                            <div className="flex items-center gap-2">
-                                                                                <span className="text-xl">{s.emoji}</span>
-                                                                                <span className="font-bold text-sm uppercase">{s.name}</span>
-                                                                                {/* Conditional arrow */}
-                                                                                {hasChildren && <span className="text-[8px] opacity-40">▼</span>}
-                                                                            </div>
-                                                                            <div className="text-right flex items-center gap-2">
-                                                                                <span className="text-[10px] opacity-50 font-mono">{Math.round(s.mins)}m</span>
-                                                                                <span className="font-black text-sm w-8 text-right">{Math.round(pct)}%</span>
-                                                                            </div>
+                                                                        <div className="flex items-center gap-1 w-1/3 min-w-0">
+                                                                            <span className="flex-shrink-0">{act.emoji}</span>
+                                                                            <span className="font-bold truncate">{act.name}</span>
+                                                                            {hasChildren && <span className="text-[8px] opacity-40">▼</span>}
+                                                                        </div>
+                                                                        <div className="flex gap-2 w-1/3 justify-center font-mono opacity-60">
+                                                                            <span>{Math.round(minsA)}</span>
+                                                                            <span>/</span>
+                                                                            <span>{Math.round(minsB)}</span>
+                                                                        </div>
+                                                                        <div className={`w-1/4 text-right font-black ${diff >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                                                            {diff > 0 ? '+' : ''}{diffPct}%
                                                                         </div>
                                                                     </div>
                                                                 );
                                                             })}
                                                         </div>
-                                                    </>
-                                                );
-                                            })()
-                                        ) : (
-                                            (() => {
-                                                const parentAct = activities.find(a => a.id === insightDrillId);
-                                                if (!parentAct) { setInsightDrillId(null); return null; }
+                                                    );
+                                                } else {
+                                                    // Case 2: Drill Down (pkDrillId is set)
+                                                    const parentAct = activities.find(a => a.id === pkDrillId);
+                                                    const subActivities = activities.filter(a => a.parentId === pkDrillId);
+                                                    const drillList = [parentAct, ...subActivities];
+                                                    
+                                                    // Helper to get strict mins for drill list
+                                                    const getDrillMins = (list, start, end) => {
+                                                        return list.map(item => ({
+                                                            id: item.id,
+                                                            name: item.name,
+                                                            emoji: item.emoji,
+                                                            mins: getStrictProgress(item.name, start, end)
+                                                        }));
+                                                    };
 
-                                                const subActivities = activities.filter(a => a.parentId === insightDrillId);
-                                                const drillList = [parentAct, ...subActivities];
+                                                    const drillStatsA = getDrillMins(drillList, compareDateRange.startA, compareDateRange.endA);
+                                                    const drillStatsB = getDrillMins(drillList, compareDateRange.startB, compareDateRange.endB);
+                                                    
+                                                    const allSubIds = drillList.map(item => item.id);
+                                                    
+                                                    // Sort by max time in either period
+                                                    allSubIds.sort((id1, id2) => {
+                                                        const getMins = (statsArr, id) => statsArr.find(s => s.id === id)?.mins || 0;
+                                                        const max1 = Math.max(getMins(drillStatsA, id1), getMins(drillStatsB, id1));
+                                                        const max2 = Math.max(getMins(drillStatsA, id2), getMins(drillStatsB, id2));
+                                                        return max2 - max1;
+                                                    });
+                                                    
+                                                    const parentMinsA = drillStatsA.reduce((acc, s) => acc + s.mins, 0);
+                                                    const parentMinsB = drillStatsB.reduce((acc, s) => acc + s.mins, 0);
 
-                                                let drillStats = drillList.map(item => ({
-                                                    ...item,
-                                                    mins: getStrictProgress(item.name, statsDateRange.start, statsDateRange.end)
-                                                }));
+                                                    return (
+                                                        <div className="space-y-2 max-h-60 overflow-y-auto no-scrollbar">
+                                                            <div className="flex items-center gap-2 mb-2 bg-black text-white p-2 border-2 border-black">
+                                                                <button 
+                                                                    onClick={() => setPkDrillId(null)}
+                                                                    className="text-xs font-bold border border-white px-2 py-1 hover:bg-white hover:text-black transition-colors"
+                                                                >
+                                                                    &lt; BACK
+                                                                </button>
+                                                                <span className="text-xl">{parentAct.emoji}</span>
+                                                                <span className="font-black text-sm uppercase flex-1">{parentAct.name} VS</span>
+                                                                <span className="text-xs font-mono">{Math.round(parentMinsA)}/{Math.round(parentMinsB)}m</span>
+                                                            </div>
 
-                                                drillStats.sort((a, b) => b.mins - a.mins);
-                                                const parentTotalMins = drillStats.reduce((acc, s) => acc + s.mins, 0);
+                                                            {allSubIds.map(id => {
+                                                                const item = drillList.find(i => i.id === id);
+                                                                if (!item) return null;
+                                                                const minsA = drillStatsA.find(s => s.id === id)?.mins || 0;
+                                                                const minsB = drillStatsB.find(s => s.id === id)?.mins || 0;
+                                                                
+                                                                // Filter out 0 vs 0 to reduce noise, unless it's self
+                                                                if (Math.round(minsA) === 0 && Math.round(minsB) === 0) return null;
 
-                                                return (
-                                                    <>
-                                                        <div className="flex items-center gap-2 mb-2 bg-black text-white p-2 border-2 border-black">
-                                                            <button 
-                                                                onClick={() => setInsightDrillId(null)}
-                                                                className="text-xs font-bold border border-white px-2 py-1 hover:bg-white hover:text-black transition-colors"
-                                                            >
-                                                                &lt; BACK
-                                                            </button>
-                                                            <span className="text-xl">{parentAct.emoji}</span>
-                                                            <span className="font-black text-sm uppercase flex-1">{parentAct.name} Breakdown</span>
-                                                            <span className="text-xs font-mono">{Math.round(parentTotalMins)}m</span>
-                                                        </div>
-
-                                                        <div className="space-y-2">
-                                                            {drillStats.length === 0 || parentTotalMins === 0 ? (
-                                                                <p className="text-center text-xs opacity-40 py-4">No specific logs found.</p>
-                                                            ) : drillStats.map(s => {
-                                                                const pct = parentTotalMins > 0 ? (s.mins / parentTotalMins) * 100 : 0;
-                                                                const isSelf = s.id === parentAct.id;
-
-                                                                if (Math.round(s.mins) === 0) return null;
+                                                                const diff = minsA - minsB;
+                                                                const diffPct = minsB > 0 ? Math.round((diff / minsB) * 100) : (minsA > 0 ? 100 : 0);
+                                                                const isSelf = id === parentAct.id;
 
                                                                 return (
-                                                                    <div key={s.id} className={`relative border-2 border-black h-10 flex items-center overflow-hidden ${isSelf ? 'bg-gray-50' : 'bg-white'}`}>
-                                                                        <div 
-                                                                            className="absolute top-0 left-0 h-full bg-[#FFD60A] opacity-30 z-0 transition-all duration-500 border-r-2 border-[#FFD60A]" 
-                                                                            style={{width: `${pct}%`}}
-                                                                        ></div>
-                                                                        
-                                                                        <div className="flex justify-between items-center w-full px-2 relative z-10">
-                                                                            <div className="flex items-center gap-2">
-                                                                                <span className="text-xl">{s.emoji}</span>
-                                                                                <span className="font-bold text-sm uppercase">{s.name}</span>
-                                                                                {isSelf && <span className="text-[8px] bg-gray-200 px-1 rounded opacity-60">SELF</span>}
-                                                                            </div>
-                                                                            <div className="text-right flex items-center gap-2">
-                                                                                <span className="text-[10px] opacity-50 font-mono">{Math.round(s.mins)}m</span>
-                                                                                <span className="font-black text-sm w-8 text-right">{Math.round(pct)}%</span>
-                                                                            </div>
+                                                                    <div key={id} className={`border-b-2 border-gray-200 py-2 flex justify-between items-center text-xs ${isSelf ? 'bg-gray-50 px-1' : ''}`}>
+                                                                        <div className="flex items-center gap-1 w-1/3 min-w-0">
+                                                                            <span className="flex-shrink-0">{item.emoji}</span>
+                                                                            <span className="font-bold truncate">{item.name}</span>
+                                                                            {isSelf && <span className="text-[8px] bg-gray-200 px-1 rounded opacity-60">SELF</span>}
+                                                                        </div>
+                                                                        <div className="flex gap-2 w-1/3 justify-center font-mono opacity-60">
+                                                                            <span>{Math.round(minsA)}</span>
+                                                                            <span>/</span>
+                                                                            <span>{Math.round(minsB)}</span>
+                                                                        </div>
+                                                                        <div className={`w-1/4 text-right font-black ${diff >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                                                            {diff > 0 ? '+' : ''}{diffPct}%
                                                                         </div>
                                                                     </div>
                                                                 );
                                                             })}
                                                         </div>
-                                                    </>
-                                                );
-                                            })()
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-bold">
-                                            <span>PERIOD A</span>
-                                            <span>PERIOD B</span>
+                                                    );
+                                                }
+                                            })()}
                                         </div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div className="flex flex-col gap-1">
-                                                <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.startA} onChange={e => setCompareDateRange({...compareDateRange, startA: e.target.value})} />
-                                                <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.endA} onChange={e => setCompareDateRange({...compareDateRange, endA: e.target.value})} />
-                                            </div>
-                                            <div className="flex flex-col gap-1">
-                                                <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.startB} onChange={e => setCompareDateRange({...compareDateRange, startB: e.target.value})} />
-                                                <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.endB} onChange={e => setCompareDateRange({...compareDateRange, endB: e.target.value})} />
-                                            </div>
-                                        </div>
+                                    )}
+                                </div>
 
-                                        <div className="border-t-4 border-black my-2"></div>
-
-                                        {(() => {
-                                            const dataA = calculateStats(compareDateRange.startA, compareDateRange.endA);
-                                            const dataB = calculateStats(compareDateRange.startB, compareDateRange.endB);
-                                            
-                                            const allRoots = [...new Set([...dataA.stats.map(s=>s.id), ...dataB.stats.map(s=>s.id)])];
-                                            
-                                            allRoots.sort((id1, id2) => {
-                                                const getMins = (dataSet, id) => dataSet.stats.find(s => s.id === id)?.mins || 0;
-                                                const max1 = Math.max(getMins(dataA, id1), getMins(dataB, id1));
-                                                const max2 = Math.max(getMins(dataA, id2), getMins(dataB, id2));
-                                                return max2 - max1; 
-                                            });
-
-                                            return (
-                                                <div className="space-y-2 max-h-60 overflow-y-auto no-scrollbar">
-                                                    <div className="bg-black text-white p-2 border-2 border-black flex justify-between items-center">
-                                                        <span className="font-bold text-xs">TOTAL TIME</span>
-                                                        <div className="flex gap-4 text-xs font-mono">
-                                                            <span className="opacity-70">{Math.round(dataA.totalPeriodMins)}m</span>
-                                                            <span>vs</span>
-                                                            <span className="opacity-70">{Math.round(dataB.totalPeriodMins)}m</span>
-                                                        </div>
-                                                        <span className={`text-xs font-black ${dataA.totalPeriodMins >= dataB.totalPeriodMins ? 'text-green-400' : 'text-red-400'}`}>
-                                                            {dataB.totalPeriodMins > 0 ? (dataA.totalPeriodMins - dataB.totalPeriodMins > 0 ? '+' : '') + Math.round((dataA.totalPeriodMins - dataB.totalPeriodMins)/dataB.totalPeriodMins*100) + '%' : 'N/A'}
-                                                        </span>
-                                                    </div>
-
-                                                    {allRoots.map(id => {
-                                                        const act = activities.find(a => a.id === id);
-                                                        if (!act) return null;
-                                                        const minsA = dataA.stats.find(s => s.id === id)?.mins || 0;
-                                                        const minsB = dataB.stats.find(s => s.id === id)?.mins || 0;
-                                                        const diff = minsA - minsB;
-                                                        const diffPct = minsB > 0 ? Math.round((diff / minsB) * 100) : (minsA > 0 ? 100 : 0);
-
-                                                        return (
-                                                            <div key={id} className="border-b-2 border-gray-200 py-2 flex justify-between items-center text-xs">
-                                                                <div className="flex items-center gap-1 w-1/3 min-w-0">
-                                                                    <span className="flex-shrink-0">{act.emoji}</span>
-                                                                    <span className="font-bold truncate">{act.name}</span>
-                                                                </div>
-                                                                <div className="flex gap-2 w-1/3 justify-center font-mono opacity-60">
-                                                                    <span>{Math.round(minsA)}</span>
-                                                                    <span>/</span>
-                                                                    <span>{Math.round(minsB)}</span>
-                                                                </div>
-                                                                <div className={`w-1/4 text-right font-black ${diff >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                                                                    {diff > 0 ? '+' : ''}{diffPct}%
-                                                                </div>
-                                                            </div>
-                                                        );
-                                                    })}
-                                                </div>
-                                            );
-                                        })()}
-                                    </div>
-                                )}
+                                <button onClick={saveStatsImage} className="mt-3 bg-[#FFD60A] pixel-border py-3 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-sm active:translate-y-0.5 flex-shrink-0 w-full max-w-sm mx-auto mb-6">
+                                    {PIXEL_ICONS.save} SAVE SNAPSHOT
+                                </button>
                             </div>
                         </div>
                     )}
@@ -1340,7 +1467,6 @@
                                                         })
                                                     )
                                                 ) : (
-                                                    // Daily Goals List (Calculated)
                                                     activities.filter(a => a.dailyGoal > 0).map(act => {
                                                         const start = new Date(archiveFilters.startDate);
                                                         const end = new Date(archiveFilters.endDate);

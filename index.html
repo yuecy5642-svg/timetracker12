@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>时间捕手 TimeCatcher V10.17</title>
+    <title>时间捕手 TimeCatcher 2.0 Dev</title>
     
     <!-- 核心资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -85,14 +85,16 @@
             plus: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z"/></svg>,
             folder: <svg className="w-3 h-3 opacity-40" viewBox="0 0 24 24"><path d="M2 4h8l2 2h10v14H2V4zm2 4v10h16V8H4z"/></svg>,
             trash: <svg className="w-4 h-4 text-white" viewBox="0 0 24 24"><path d="M9 2h6v2H9V2zM5 4h14v2H5V4zm2 2h10v14H7V6zm2 2v10h2V8H9zm4 0v10h2V8h-2z"/></svg>,
-            edit: <svg className="w-4 h-4 text-black" viewBox="0 0 24 24"><path d="M14 2h2v2h-2V2zM12 4h2v2h-2V4zm-2 2h2v2h-2V6zm-2 2h2v2H8V8zm-2 2h2v2H6v-2zm-2 2h2v2H4v-2zm0 2h2v2H4v-2zm0 2h2v2H4v-2zm2 2h2v2H6v-2zm2 2h2v2H8v-2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2z"/></svg>,
+            edit: <svg className="w-4 h-4 text-black" viewBox="0 0 24 24"><path d="M14 2h2v2h-2V2zM12 4h2v2h-2V4zm-2 2h2v2h-2V6zm-2 2h2v2H8V8zm-2 2h2v2H6v-2zm-2 2h2v2H4v-2zm0 2h2v2H4v-2zm0 2h2v2H4v-2zm0 2h2v2H4v-2zm2 2h2v2H6v-2zm2 2h2v2H8v-2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2zm2-2h2v-2h-2v2z"/></svg>,
             up: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M11 6h2v2h-2V6zm-2 2h2v2H9V8zm6 0h2v2h-2V8zm-8 2h2v2H7v-2zm10 0h2v2h-2v-2zm-12 2h2v6h-2v-6zm14 0h2v6h-2v-6zm14 0h2v6h-2v-6z"/></svg>,
             down: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M8 6h8v2H8V6zm-1 2h2v6H7V8zm10 0h2v6h-2V8zm-8 6h2v2H9v-2zm6 0h2v2h-2v-2zm-4 2h2v2h-2v-2z"/></svg>,
             save: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>,
             cal: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5v-5z"/></svg>,
             clear: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>,
             mic: <svg className="icon-svg text-black" viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>,
-            csv: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            csv: <svg className="w-3 h-3" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>,
+            target: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z"/></svg>,
+            chart: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
         };
 
         const COMMON_EMOJIS = ["⚔️", "💻", "📖", "📝", "🧠", "🔥", "🚀", "💡", "🛠️", "🎯", "💪", "🧘", "🏃", "🚶", "🚴", "🏊", "🏀", "⚽", "🥊", "🔋", "🧹", "🍳", "☕", "🚿", "🧺", "🏠", "🪴", "🛌", "🌙", "🧴", "📱", "🎮", "🎧", "🎬", "🎨", "📸", "🎸", "🎤", "🍿", "🍎", "🥗", "🍕", "🍔", "🍦", "🍺", "🍷", "🥂", "🍵", "🍱", "🌍", "🌊", "🌲", "🌸", "☀️", "🚗", "✈️", "🗺️", "🐕", "🐈"];
@@ -113,6 +115,8 @@
             }, []);
 
             const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v10_17_logs') || '[]'));
+            const [customGoals, setCustomGoals] = useState(() => JSON.parse(localStorage.getItem('tc_v2_custom_goals') || '[]'));
+            
             const [currentParentId, setCurrentParentId] = useState(null);
             const [isEditMode, setIsEditMode] = useState(false);
             const [isListening, setIsListening] = useState(false);
@@ -121,15 +125,50 @@
             const [showSummary, setShowSummary] = useState(false);
             const [showBackupModal, setShowBackupModal] = useState(false);
             const [showCalendar, setShowCalendar] = useState(false);
+            const [showGoalModal, setShowGoalModal] = useState(false);
+            const [goalTab, setGoalTab] = useState('active'); // 'active' | 'history'
+            
+            const [showStatsModal, setShowStatsModal] = useState(false);
+            const [statsTab, setStatsTab] = useState('overview'); // 'overview' | 'compare'
+            const [insightDrillId, setInsightDrillId] = useState(null);
+            
+            const [statsDateRange, setStatsDateRange] = useState({
+                start: new Date().toISOString().split('T')[0],
+                end: new Date().toISOString().split('T')[0]
+            });
+            const [compareDateRange, setCompareDateRange] = useState({
+                startA: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                endA: new Date().toISOString().split('T')[0],
+                startB: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                endB: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+            });
+
             const [selectedDate, setSelectedDate] = useState(new Date());
             const [backupString, setBackupString] = useState('');
             const [isCapturing, setIsCapturing] = useState(false); 
             const [activeEditId, setActiveEditId] = useState(null);
-            const [formData, setFormData] = useState({ name: '', emoji: '📍', parentId: '' });
+            
+            const [formData, setFormData] = useState({ name: '', emoji: '📍', parentId: '', dailyGoal: 0 });
+            const [newGoalData, setNewGoalData] = useState({ activityId: '', startDate: '', endDate: '', targetMinutes: '' });
+            const [newDailyData, setNewDailyData] = useState({ activityId: '', targetMinutes: '' });
+            
+            const [archiveFilters, setArchiveFilters] = useState({
+                type: 'custom', 
+                startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0], 
+                endDate: new Date().toISOString().split('T')[0]
+            });
+
             const [msg, setMsg] = useState({ show: false, text: '', type: 'info' });
             
             const [deleteConfirm, setDeleteConfirm] = useState(false);
             const [itemDeleteConfirmId, setItemDeleteConfirmId] = useState(null);
+            const [logDeleteConfirmId, setLogDeleteConfirmId] = useState(null);
+            const [challengeDeleteConfirmId, setChallengeDeleteConfirmId] = useState(null);
+
+            const [isDeleteMode, setIsDeleteMode] = useState(false);
+            const [isRestoreMode, setIsRestoreMode] = useState(false);
+            const [restoreInputValue, setRestoreInputValue] = useState('');
+
             const recognitionRef = useRef(null);
             const activitiesRef = useRef(activities);
 
@@ -142,7 +181,8 @@
                 activitiesRef.current = activities;
                 localStorage.setItem('tc_v10_17_acts', JSON.stringify(activities));
                 localStorage.setItem('tc_v10_17_logs', JSON.stringify(logs));
-            }, [activities, logs]);
+                localStorage.setItem('tc_v2_custom_goals', JSON.stringify(customGoals));
+            }, [activities, logs, customGoals]);
 
             const currentLog = useMemo(() => logs.find(l => l.endTime === null) || null, [logs]);
             const currentEmoji = useMemo(() => activities.find(a => a.name === currentLog?.activityName)?.emoji || '🧊', [currentLog, activities]);
@@ -155,6 +195,336 @@
                 if (!currentLog) return;
                 triggerVibrate();
                 setLogs(prev => prev.map(l => l.endTime === null ? { ...l, endTime: Date.now() } : l));
+            };
+
+            const getTodayProgress = (act) => {
+                const selfAndChildren = [act];
+                const children = activities.filter(a => a.parentId === act.id);
+                children.forEach(c => selfAndChildren.push(c));
+                const targetNames = selfAndChildren.map(a => a.name);
+
+                const today = new Date();
+                const todayLogs = logs.filter(l => {
+                    const d = new Date(l.endTime || l.startTime);
+                    return d.getDate() === today.getDate() && 
+                           d.getMonth() === today.getMonth() && 
+                           d.getFullYear() === today.getFullYear();
+                });
+
+                const totalMs = todayLogs.reduce((acc, l) => {
+                    if (targetNames.includes(l.activityName)) {
+                        const end = l.endTime || Date.now();
+                        return acc + (end - l.startTime);
+                    }
+                    return acc;
+                }, 0);
+
+                return Math.round(totalMs / 60000);
+            };
+
+            const getRangeProgress = (actId, startStr, endStr) => {
+                const activityObj = activities.find(a => a.id === actId);
+                if (!activityObj) return 0;
+
+                const selfAndChildren = [activityObj];
+                const children = activities.filter(a => a.parentId === actId);
+                children.forEach(c => selfAndChildren.push(c));
+                const targetNames = selfAndChildren.map(a => a.name);
+
+                const parseLocalStart = (s) => {
+                    const [y, m, d] = s.split('-').map(Number);
+                    return new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
+                };
+                const parseLocalEnd = (s) => {
+                    const [y, m, d] = s.split('-').map(Number);
+                    return new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
+                };
+
+                const start = parseLocalStart(startStr);
+                const end = parseLocalEnd(endStr);
+
+                const rangeLogs = logs.filter(l => {
+                    const logEnd = l.endTime || Date.now(); 
+                    return logEnd >= start && l.startTime <= end;
+                });
+
+                const totalMs = rangeLogs.reduce((acc, l) => {
+                    if (targetNames.includes(l.activityName)) {
+                        const logEnd = l.endTime || Date.now();
+                        const effectiveStart = Math.max(l.startTime, start);
+                        const effectiveEnd = Math.min(logEnd, end);
+                        if (effectiveEnd > effectiveStart) {
+                            return acc + (effectiveEnd - effectiveStart);
+                        }
+                    }
+                    return acc;
+                }, 0);
+
+                return Math.round(totalMs / 60000);
+            };
+
+            const getStrictProgress = (actName, startStr, endStr) => {
+                const parseLocalStart = (s) => {
+                    const [y, m, d] = s.split('-').map(Number);
+                    return new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
+                };
+                const parseLocalEnd = (s) => {
+                    const [y, m, d] = s.split('-').map(Number);
+                    return new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
+                };
+
+                const start = parseLocalStart(startStr);
+                const end = parseLocalEnd(endStr);
+
+                const rangeLogs = logs.filter(l => {
+                    const logEnd = l.endTime || Date.now(); 
+                    return logEnd >= start && l.startTime <= end;
+                });
+
+                const totalMs = rangeLogs.reduce((acc, l) => {
+                    if (l.activityName === actName) { 
+                        const logEnd = l.endTime || Date.now();
+                        const effectiveStart = Math.max(l.startTime, start);
+                        const effectiveEnd = Math.min(logEnd, end);
+                        if (effectiveEnd > effectiveStart) {
+                            return acc + (effectiveEnd - effectiveStart);
+                        }
+                    }
+                    return acc;
+                }, 0);
+
+                return Math.round(totalMs / 60000);
+            };
+
+            const calculateStats = (startStr, endStr) => {
+                const rootActivities = activities.filter(a => !a.parentId);
+                let totalPeriodMins = 0;
+                
+                const stats = rootActivities.map(root => {
+                    const mins = getRangeProgress(root.id, startStr, endStr);
+                    totalPeriodMins += mins;
+                    return { ...root, mins };
+                });
+
+                stats.sort((a, b) => b.mins - a.mins);
+
+                return { totalPeriodMins, stats };
+            };
+
+            const isChallengeActive = (endDateStr) => {
+                const [y, m, d] = endDateStr.split('-').map(Number);
+                const endTime = new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
+                return endTime >= Date.now();
+            };
+
+            const getChallengeStatus = (startStr, endStr) => {
+                const now = Date.now();
+                const [sy, sm, sd] = startStr.split('-').map(Number);
+                const startTime = new Date(sy, sm - 1, sd, 0, 0, 0, 0).getTime();
+                
+                const [ey, em, ed] = endStr.split('-').map(Number);
+                const endTime = new Date(ey, em - 1, ed, 23, 59, 59, 999).getTime();
+
+                if (now < startTime) return 'upcoming';
+                if (now > endTime) return 'ended';
+                return 'active';
+            };
+
+            const saveArchiveImage = () => {
+                const card = document.getElementById('archive-capture-area');
+                if (!card) return;
+                setIsCapturing(true);
+                setTimeout(() => {
+                    html2canvas(card, { 
+                        backgroundColor: '#FFFFFF', 
+                        scale: 2, 
+                        useCORS: true, 
+                        allowTaint: true,
+                        onclone: (clonedDoc) => {
+                            const clonedCard = clonedDoc.getElementById('archive-capture-area');
+                            if (clonedCard) {
+                                clonedCard.style.maxHeight = 'none';
+                                clonedCard.style.height = 'auto';
+                                clonedCard.style.overflow = 'visible';
+                            }
+                        }
+                    }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = `挑战总结_${new Date().toLocaleDateString()}.png`;
+                        link.click();
+                        setIsCapturing(false);
+                    }).catch(() => setIsCapturing(false));
+                }, 200);
+            };
+
+            const saveSummaryImage = () => {
+                const card = document.getElementById('summary-card');
+                if (!card) return;
+                setIsCapturing(true);
+                setTimeout(() => {
+                    html2canvas(card, { 
+                        backgroundColor: '#E0F2F1', 
+                        scale: 2, 
+                        useCORS: true, 
+                        allowTaint: true,
+                        onclone: (clonedDoc) => {
+                            const clonedCard = clonedDoc.getElementById('summary-card');
+                            const scrollableContent = clonedCard.querySelector('.overflow-y-auto');
+                            if (clonedCard) {
+                                clonedCard.style.maxHeight = 'none';
+                                clonedCard.style.height = 'auto';
+                                clonedCard.style.overflow = 'visible';
+                            }
+                            if (scrollableContent) {
+                                scrollableContent.style.maxHeight = 'none';
+                                scrollableContent.style.height = 'auto';
+                                scrollableContent.style.overflow = 'visible';
+                            }
+                            const truncatedElements = clonedCard.querySelectorAll('.truncate');
+                            truncatedElements.forEach(el => {
+                                el.style.overflow = 'visible'; 
+                                el.style.paddingBottom = '5px'; 
+                            });
+                        }
+                    }).then(canvas => {
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = `战报_${new Date().toLocaleDateString()}.png`;
+                        link.click();
+                        setIsCapturing(false);
+                    }).catch(() => setIsCapturing(false));
+                }, 200);
+            };
+
+            const getDaysInMonth = (date) => {
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                const days = new Date(year, month + 1, 0).getDate();
+                const firstDay = new Date(year, month, 1).getDay();
+                return { days, firstDay };
+            };
+
+            const handleMonthChange = (e) => {
+                const [y, m] = e.target.value.split('-');
+                const newDate = new Date(parseInt(y), parseInt(m) - 1, 1);
+                setSelectedDate(newDate);
+            };
+
+            const renderCalendar = () => {
+                const { days, firstDay } = getDaysInMonth(selectedDate);
+                const monthLogs = logs.filter(l => {
+                    if (!l.endTime) return false;
+                    const d = new Date(l.endTime); 
+                    return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear();
+                });
+
+                const grid = [];
+                for (let i = 0; i < firstDay; i++) grid.push(<div key={`empty-${i}`} className="h-8"></div>);
+                
+                for (let d = 1; d <= days; d++) {
+                    const dateLogs = monthLogs.filter(l => new Date(l.endTime).getDate() === d);
+                    const hasData = dateLogs.length > 0;
+                    const isSelected = selectedDate.getDate() === d;
+                    
+                    grid.push(
+                        <button 
+                            key={d}
+                            onClick={() => {
+                                const newDate = new Date(selectedDate);
+                                newDate.setDate(d);
+                                setSelectedDate(newDate);
+                                setShowCalendar(false);
+                                setShowSummary(true);
+                            }}
+                            className={`h-8 flex flex-col items-center justify-center border font-bold relative ${isSelected ? 'bg-black text-white' : 'bg-white text-black'} ${hasData ? 'border-black' : 'border-gray-200 text-gray-300'}`}
+                        >
+                            {d}
+                            {hasData && <div className="absolute bottom-1 w-1 h-1 bg-[#FFD60A] border border-black"></div>}
+                        </button>
+                    );
+                }
+                return grid;
+            };
+
+            const getExportDisplayName = (log) => {
+                if (!log.parentId) return log.activityName;
+                const parent = activities.find(a => a.id === log.parentId);
+                return parent ? `${parent.name}-${log.activityName}` : log.activityName;
+            };
+
+            const exportCSV = (targetDate = null) => {
+                let targetLogs = logs.filter(l => l.endTime);
+                if (targetDate) {
+                    targetLogs = targetLogs.filter(l => {
+                        const d = new Date(l.endTime);
+                        return d.getDate() === targetDate.getDate() && 
+                               d.getMonth() === targetDate.getMonth() && 
+                               d.getFullYear() === targetDate.getFullYear();
+                    });
+                } else {
+                    const today = new Date();
+                    targetLogs = targetLogs.filter(l => {
+                        const d = new Date(l.endTime);
+                        return d.getDate() === today.getDate() && 
+                               d.getMonth() === today.getMonth() && 
+                               d.getFullYear() === today.getFullYear();
+                    });
+                }
+
+                if (targetLogs.length === 0) return showMsg("暂无数据", "error");
+                
+                let csv = "\ufeff日期,名称,开始时间,结束时间,时长(分)\n";
+                targetLogs.forEach(l => {
+                    const dateStr = new Date(l.endTime).toLocaleDateString();
+                    const startStr = new Date(l.startTime).toLocaleTimeString([],{hour12:false});
+                    const endStr = new Date(l.endTime).toLocaleTimeString([],{hour12:false});
+                    const duration = Math.round((l.endTime-l.startTime)/60000);
+                    const displayName = getExportDisplayName(l);
+                    csv += `${dateStr},${displayName},${startStr},${endStr},${duration}\n`;
+                });
+                
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                const fileNameDate = targetDate ? targetDate.toLocaleDateString().replace(/\//g,'-') : 'Today';
+                link.download = `TimeCatcher_${fileNameDate}.csv`;
+                link.click();
+            };
+
+            const exportICS = (targetLogs) => {
+                const validLogs = targetLogs.filter(l => l.endTime);
+                if (validLogs.length === 0) return;
+                const fmt = (ts) => new Date(ts).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+                let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//TimeCatcher//EN\n";
+                validLogs.forEach(l => { 
+                    const displayName = getExportDisplayName(l);
+                    ics += `BEGIN:VEVENT\nSUMMARY:${displayName}\nDTSTART:${fmt(l.startTime)}\nDTEND:${fmt(l.endTime)}\nEND:VEVENT\n`; 
+                });
+                ics += "END:VCALENDAR";
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(new Blob([ics], {type:'text/calendar'}));
+                link.download = "calendar.ics";
+                link.click();
+            };
+
+            const formatTime = (ts) => new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+
+            const restoreBackup = (str) => {
+                try {
+                    const decoded = JSON.parse(decodeURIComponent(escape(atob(str))));
+                    if (decoded.activities && decoded.logs) {
+                        setActivities(decoded.activities);
+                        setLogs(decoded.logs);
+                        if (decoded.customGoals) setCustomGoals(decoded.customGoals);
+                        showMsg("数据已恢复");
+                        setShowBackupModal(false);
+                    } else {
+                        showMsg("无效的数据格式", "error");
+                    }
+                } catch (e) {
+                    showMsg("解析失败，请检查代码", "error");
+                }
             };
 
             const handleActivityClick = (act) => {
@@ -195,6 +565,20 @@
                     setItemDeleteConfirmId(actId);
                     triggerVibrate(20);
                     setTimeout(() => setItemDeleteConfirmId(null), 3000);
+                }
+            };
+
+            const handleDeleteLog = (e, logId) => {
+                e.stopPropagation();
+                if (logDeleteConfirmId === logId) {
+                    setLogs(prev => prev.filter(l => l.id !== logId));
+                    setLogDeleteConfirmId(null);
+                    triggerVibrate(50);
+                    showMsg("记录已删除");
+                } else {
+                    setLogDeleteConfirmId(logId);
+                    triggerVibrate(20);
+                    setTimeout(() => setLogDeleteConfirmId(null), 3000);
                 }
             };
 
@@ -296,154 +680,7 @@
                 }
             };
 
-            const restoreBackup = (str) => {
-                try {
-                    const decoded = JSON.parse(decodeURIComponent(escape(atob(str))));
-                    if (decoded.activities && decoded.logs) {
-                        setActivities(decoded.activities);
-                        setLogs(decoded.logs);
-                        showMsg("数据已恢复");
-                        setShowBackupModal(false);
-                    } else {
-                        showMsg("无效的数据格式", "error");
-                    }
-                } catch (e) {
-                    showMsg("解析失败，请检查代码", "error");
-                }
-            };
-
-            // 获取导出时使用的显示名称 (处理 父级-子级 逻辑)
-            const getExportDisplayName = (log) => {
-                if (!log.parentId) return log.activityName;
-                // 在所有活动中查找父活动
-                const parent = activities.find(a => a.id === log.parentId);
-                return parent ? `${parent.name}-${log.activityName}` : log.activityName;
-            };
-
-            const exportCSV = (targetDate = null) => {
-                let targetLogs = logs.filter(l => l.endTime);
-                if (targetDate) {
-                    targetLogs = targetLogs.filter(l => {
-                        const d = new Date(l.endTime);
-                        return d.getDate() === targetDate.getDate() && 
-                               d.getMonth() === targetDate.getMonth() && 
-                               d.getFullYear() === targetDate.getFullYear();
-                    });
-                } else {
-                    const today = new Date();
-                    targetLogs = targetLogs.filter(l => {
-                        const d = new Date(l.endTime);
-                        return d.getDate() === today.getDate() && 
-                               d.getMonth() === today.getMonth() && 
-                               d.getFullYear() === today.getFullYear();
-                    });
-                }
-
-                if (targetLogs.length === 0) return showMsg("暂无数据", "error");
-                
-                let csv = "\ufeff日期,名称,开始时间,结束时间,时长(分)\n";
-                targetLogs.forEach(l => {
-                    const dateStr = new Date(l.endTime).toLocaleDateString();
-                    const startStr = new Date(l.startTime).toLocaleTimeString([],{hour12:false});
-                    const endStr = new Date(l.endTime).toLocaleTimeString([],{hour12:false});
-                    const duration = Math.round((l.endTime-l.startTime)/60000);
-                    // 使用新的名称获取函数
-                    const displayName = getExportDisplayName(l);
-                    csv += `${dateStr},${displayName},${startStr},${endStr},${duration}\n`;
-                });
-                
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                const fileNameDate = targetDate ? targetDate.toLocaleDateString().replace(/\//g,'-') : 'Today';
-                link.download = `TimeCatcher_${fileNameDate}.csv`;
-                link.click();
-            };
-
-            const exportICS = (targetLogs) => {
-                const validLogs = targetLogs.filter(l => l.endTime);
-                if (validLogs.length === 0) return;
-                const fmt = (ts) => new Date(ts).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-                let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//TimeCatcher//EN\n";
-                validLogs.forEach(l => { 
-                    // 使用新的名称获取函数
-                    const displayName = getExportDisplayName(l);
-                    ics += `BEGIN:VEVENT\nSUMMARY:[捕手] ${displayName}\nDTSTART:${fmt(l.startTime)}\nDTEND:${fmt(l.endTime)}\nEND:VEVENT\n`; 
-                });
-                ics += "END:VCALENDAR";
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(new Blob([ics], {type:'text/calendar'}));
-                link.download = "calendar.ics";
-                link.click();
-            };
-
-            const formatTime = (ts) => new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
-
-            const saveAsImage = () => {
-                const card = document.getElementById('summary-card');
-                if (!card) return;
-                setIsCapturing(true);
-                setTimeout(() => {
-                    html2canvas(card, { backgroundColor: '#E0F2F1', scale: 2, useCORS: true, allowTaint: true }).then(canvas => {
-                        const link = document.createElement('a');
-                        link.href = canvas.toDataURL('image/png');
-                        link.download = `战报_${new Date().toLocaleDateString()}.png`;
-                        link.click();
-                        setIsCapturing(false);
-                    }).catch(() => setIsCapturing(false));
-                }, 200);
-            };
-
-            const getDaysInMonth = (date) => {
-                const year = date.getFullYear();
-                const month = date.getMonth();
-                const days = new Date(year, month + 1, 0).getDate();
-                const firstDay = new Date(year, month, 1).getDay();
-                return { days, firstDay };
-            };
-
-            const handleMonthChange = (e) => {
-                const [y, m] = e.target.value.split('-');
-                const newDate = new Date(parseInt(y), parseInt(m) - 1, 1);
-                setSelectedDate(newDate);
-            };
-
-            const renderCalendar = () => {
-                const { days, firstDay } = getDaysInMonth(selectedDate);
-                const monthLogs = logs.filter(l => {
-                    if (!l.endTime) return false;
-                    const d = new Date(l.endTime); 
-                    return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear();
-                });
-
-                const grid = [];
-                for (let i = 0; i < firstDay; i++) grid.push(<div key={`empty-${i}`} className="h-8"></div>);
-                
-                for (let d = 1; d <= days; d++) {
-                    const dateLogs = monthLogs.filter(l => new Date(l.endTime).getDate() === d);
-                    const hasData = dateLogs.length > 0;
-                    const isSelected = selectedDate.getDate() === d;
-                    
-                    grid.push(
-                        <button 
-                            key={d}
-                            onClick={() => {
-                                const newDate = new Date(selectedDate);
-                                newDate.setDate(d);
-                                setSelectedDate(newDate);
-                                setShowCalendar(false);
-                                setShowSummary(true);
-                            }}
-                            className={`h-8 flex flex-col items-center justify-center border font-bold relative ${isSelected ? 'bg-black text-white' : 'bg-white text-black'} ${hasData ? 'border-black' : 'border-gray-200 text-gray-300'}`}
-                        >
-                            {d}
-                            {hasData && <div className="absolute bottom-1 w-1 h-1 bg-[#FFD60A] border border-black"></div>}
-                        </button>
-                    );
-                }
-                return grid;
-            };
-
+            // Added back the missing helper function
             const getLogsForDate = (date) => {
                 return logs.filter(l => {
                     if (!l.endTime) return false;
@@ -452,6 +689,18 @@
                            d.getMonth() === date.getMonth() && 
                            d.getFullYear() === date.getFullYear();
                 }).sort((a,b) => a.startTime - b.startTime);
+            };
+
+            // 获取分级活动列表（用于选择器）
+            const getHierarchicalActivities = () => {
+                const roots = activities.filter(a => !a.parentId);
+                const list = [];
+                roots.forEach(root => {
+                    list.push({ ...root, level: 0 });
+                    const children = activities.filter(c => c.parentId === root.id);
+                    children.forEach(child => list.push({ ...child, level: 1 }));
+                });
+                return list;
             };
 
             return (
@@ -486,18 +735,33 @@
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-12 px-1 pb-10">
                                     {activities.filter(a => a.parentId === currentParentId).map((act, idx) => {
                                         const hasChildren = activities.some(child => child.parentId === act.id);
+                                        const currentMins = getTodayProgress(act);
+                                        const goalMins = act.dailyGoal || 0;
+                                        const progressPercent = goalMins > 0 ? Math.min(100, (currentMins / goalMins) * 100) : 0;
+
                                         return (
                                             <div key={act.id} className="relative">
-                                                <button onClick={() => handleActivityClick(act)} className="w-full bg-white pixel-border p-3 pixel-btn-flat flex items-center gap-2 h-20 text-left relative overflow-hidden">
-                                                    <span className="text-3xl leading-none flex-shrink-0 select-none">{act.emoji}</span>
-                                                    <p className="font-black text-lg uppercase leading-none truncate flex-1">{act.name}</p>
-                                                    {/* 编辑模式下依然显示文件夹图标 */}
-                                                    {hasChildren && <div className="absolute bottom-2 right-2">{PIXEL_ICONS.folder}</div>}
+                                                <button onClick={() => handleActivityClick(act)} className="w-full bg-white pixel-border p-3 pixel-btn-flat flex flex-col justify-center gap-1 h-20 text-left relative overflow-hidden">
+                                                    {goalMins > 0 && (
+                                                        <div className="absolute bottom-0 left-0 h-1.5 bg-[#FFD60A] transition-all duration-500 opacity-80" style={{width: `${progressPercent}%`}}></div>
+                                                    )}
+                                                    
+                                                    <div className="flex items-center gap-2 relative z-10 w-full">
+                                                        <span className="text-3xl leading-none flex-shrink-0 select-none">{act.emoji}</span>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-black text-lg uppercase leading-none truncate">{act.name}</p>
+                                                            {goalMins > 0 && (
+                                                                <p className="text-[10px] font-bold text-gray-400 mt-1 flex items-center gap-1">
+                                                                    {currentMins}/{goalMins}m {currentMins >= goalMins && <span className="text-yellow-500">★</span>}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    {hasChildren && <div className="absolute top-2 right-2">{PIXEL_ICONS.folder}</div>}
                                                 </button>
                                                 {isEditMode && (
                                                     <div className="absolute -top-11 left-0 right-0 flex justify-center gap-1.5 z-20">
-                                                        <button onClick={() => { setActiveEditId(act.id); setFormData({name: act.name, emoji: act.emoji, parentId: act.parentId || ''}); setShowEditModal(true); }} className="bg-[#FFD60A] border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.edit}</button>
-                                                        {/* 双击确认删除 */}
+                                                        <button onClick={() => { setActiveEditId(act.id); setFormData({name: act.name, emoji: act.emoji, parentId: act.parentId || '', dailyGoal: act.dailyGoal || 0}); setShowEditModal(true); }} className="bg-[#FFD60A] border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.edit}</button>
                                                         <button onClick={(e) => handleDeleteItem(e, act.id)} className={`border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${itemDeleteConfirmId === act.id ? 'bg-red-600 text-white animate-pulse' : 'bg-red-500 text-white'}`}>{itemDeleteConfirmId === act.id ? <span className="text-[6px] font-black">SURE</span> : PIXEL_ICONS.trash}</button>
                                                         <button onClick={() => moveItem(act.id, -1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.up}</button>
                                                         <button onClick={() => moveItem(act.id, 1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.down}</button>
@@ -509,7 +773,7 @@
                                     {isEditMode && (
                                         <div className="flex flex-col gap-2">
                                             <button onClick={() => { setFormData({name:'', emoji:'📍', parentId:''}); setShowAddModal(true); }} className="border-4 border-dashed border-gray-400 p-3 flex items-center justify-center h-20 text-gray-400 bg-white/30">{PIXEL_ICONS.plus}</button>
-                                            <button onClick={() => { const data = { activities, logs }; const str = btoa(unescape(encodeURIComponent(JSON.stringify(data)))); setBackupString(str); setShowBackupModal(true); }} className="border-2 border-black bg-white p-2 text-[8px] font-bold tracking-tighter shadow-sm uppercase">Backup Vault</button>
+                                            <button onClick={() => { const data = { activities, logs, customGoals }; const str = btoa(unescape(encodeURIComponent(JSON.stringify(data)))); setBackupString(str); setIsRestoreMode(false); setShowBackupModal(true); }} className="border-2 border-black bg-white p-2 text-[8px] font-bold tracking-tighter shadow-sm uppercase">Backup Vault</button>
                                         </div>
                                     )}
                                 </div>
@@ -517,13 +781,669 @@
                         </div>
                     </div>
 
-                    {/* 底部导航 */}
-                    <div className="flex-shrink-0 grid grid-cols-2 gap-5 pb-2">
-                        <button onClick={() => { setSelectedDate(new Date()); setShowSummary(true); }} className="bg-black text-white pixel-border p-3 font-bold text-lg flex items-center justify-center gap-2 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">SUMMARY</button>
-                        <button onClick={() => setShowCalendar(true)} className="bg-white pixel-border p-3 font-bold text-lg active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">HISTORY</button>
+                    {/* 底部导航 - Updated to 4 cols */}
+                    <div className="flex-shrink-0 grid grid-cols-4 gap-2 pb-2">
+                        <button onClick={() => { setSelectedDate(new Date()); setShowSummary(true); }} className="bg-black text-white pixel-border p-3 font-bold text-xs flex items-center justify-center gap-1 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">SUMMARY</button>
+                        <button onClick={() => setShowGoalModal(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">GOAL</button>
+                        <button onClick={() => setShowStatsModal(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm flex items-center justify-center gap-1">STATS</button>
+                        <button onClick={() => setShowCalendar(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">HISTORY</button>
                     </div>
 
-                    {/* 日历弹窗 */}
+                    {/* STATS 弹窗 */}
+                    {showStatsModal && (
+                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
+                            <div className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto no-scrollbar flex flex-col">
+                                <div className="flex justify-between items-center mb-4 border-b-4 border-black pb-2">
+                                    <h2 className="text-2xl font-black uppercase">DATA CENTER</h2>
+                                    <button onClick={() => setShowStatsModal(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
+                                </div>
+
+                                <div className="flex gap-2 mb-4">
+                                    <button onClick={() => { setStatsTab('overview'); setInsightDrillId(null); }} className={`flex-1 font-bold text-xs py-2 uppercase border-2 border-black ${statsTab === 'overview' ? 'bg-[#FFD60A]' : 'bg-white opacity-50'}`}>INSIGHTS</button>
+                                    <button onClick={() => setStatsTab('compare')} className={`flex-1 font-bold text-xs py-2 uppercase border-2 border-black ${statsTab === 'compare' ? 'bg-[#FFD60A]' : 'bg-white opacity-50'}`}>PK MODE</button>
+                                </div>
+
+                                {statsTab === 'overview' ? (
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-2 bg-gray-100 p-2 border-2 border-black">
+                                            <input type="date" className="p-1 text-xs font-bold border-2 border-black text-center" value={statsDateRange.start} onChange={e => setStatsDateRange({...statsDateRange, start: e.target.value})} />
+                                            <input type="date" className="p-1 text-xs font-bold border-2 border-black text-center" value={statsDateRange.end} onChange={e => setStatsDateRange({...statsDateRange, end: e.target.value})} />
+                                        </div>
+
+                                        {!insightDrillId ? (
+                                            (() => {
+                                                const { totalPeriodMins, stats } = calculateStats(statsDateRange.start, statsDateRange.end);
+                                                return (
+                                                    <>
+                                                        <div className="text-center py-4 bg-[#E0F2F1] border-2 border-black">
+                                                            <p className="text-xs font-bold opacity-50 mb-1">TOTAL HOURS</p>
+                                                            <p className="text-4xl font-black">{(totalPeriodMins / 60).toFixed(1)}h</p>
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            {stats.length === 0 ? <p className="text-center text-xs opacity-40 py-4">No data.</p> : stats.map(s => {
+                                                                const pct = totalPeriodMins > 0 ? (s.mins / totalPeriodMins) * 100 : 0;
+                                                                // Conditional: Only show arrow if it has children
+                                                                const hasChildren = activities.some(child => child.parentId === s.id);
+                                                                
+                                                                return (
+                                                                    <div 
+                                                                        key={s.id} 
+                                                                        onClick={() => { if(hasChildren) setInsightDrillId(s.id); }}
+                                                                        className={`relative border-2 border-black bg-white h-10 flex items-center overflow-hidden transition-transform ${hasChildren ? 'active:scale-95 cursor-pointer' : 'cursor-default'}`}
+                                                                    >
+                                                                        <div 
+                                                                            className="absolute top-0 left-0 h-full bg-[#6D83F2] opacity-20 z-0 transition-all duration-500 border-r-2 border-[#6D83F2]" 
+                                                                            style={{width: `${pct}%`}}
+                                                                        ></div>
+                                                                        
+                                                                        <div className="flex justify-between items-center w-full px-2 relative z-10">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="text-xl">{s.emoji}</span>
+                                                                                <span className="font-bold text-sm uppercase">{s.name}</span>
+                                                                                {/* Conditional arrow */}
+                                                                                {hasChildren && <span className="text-[8px] opacity-40">▼</span>}
+                                                                            </div>
+                                                                            <div className="text-right flex items-center gap-2">
+                                                                                <span className="text-[10px] opacity-50 font-mono">{Math.round(s.mins)}m</span>
+                                                                                <span className="font-black text-sm w-8 text-right">{Math.round(pct)}%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </>
+                                                );
+                                            })()
+                                        ) : (
+                                            (() => {
+                                                const parentAct = activities.find(a => a.id === insightDrillId);
+                                                if (!parentAct) { setInsightDrillId(null); return null; }
+
+                                                const subActivities = activities.filter(a => a.parentId === insightDrillId);
+                                                const drillList = [parentAct, ...subActivities];
+
+                                                let drillStats = drillList.map(item => ({
+                                                    ...item,
+                                                    mins: getStrictProgress(item.name, statsDateRange.start, statsDateRange.end)
+                                                }));
+
+                                                drillStats.sort((a, b) => b.mins - a.mins);
+                                                const parentTotalMins = drillStats.reduce((acc, s) => acc + s.mins, 0);
+
+                                                return (
+                                                    <>
+                                                        <div className="flex items-center gap-2 mb-2 bg-black text-white p-2 border-2 border-black">
+                                                            <button 
+                                                                onClick={() => setInsightDrillId(null)}
+                                                                className="text-xs font-bold border border-white px-2 py-1 hover:bg-white hover:text-black transition-colors"
+                                                            >
+                                                                &lt; BACK
+                                                            </button>
+                                                            <span className="text-xl">{parentAct.emoji}</span>
+                                                            <span className="font-black text-sm uppercase flex-1">{parentAct.name} Breakdown</span>
+                                                            <span className="text-xs font-mono">{Math.round(parentTotalMins)}m</span>
+                                                        </div>
+
+                                                        <div className="space-y-2">
+                                                            {drillStats.length === 0 || parentTotalMins === 0 ? (
+                                                                <p className="text-center text-xs opacity-40 py-4">No specific logs found.</p>
+                                                            ) : drillStats.map(s => {
+                                                                const pct = parentTotalMins > 0 ? (s.mins / parentTotalMins) * 100 : 0;
+                                                                const isSelf = s.id === parentAct.id;
+
+                                                                if (Math.round(s.mins) === 0) return null;
+
+                                                                return (
+                                                                    <div key={s.id} className={`relative border-2 border-black h-10 flex items-center overflow-hidden ${isSelf ? 'bg-gray-50' : 'bg-white'}`}>
+                                                                        <div 
+                                                                            className="absolute top-0 left-0 h-full bg-[#FFD60A] opacity-30 z-0 transition-all duration-500 border-r-2 border-[#FFD60A]" 
+                                                                            style={{width: `${pct}%`}}
+                                                                        ></div>
+                                                                        
+                                                                        <div className="flex justify-between items-center w-full px-2 relative z-10">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="text-xl">{s.emoji}</span>
+                                                                                <span className="font-bold text-sm uppercase">{s.name}</span>
+                                                                                {isSelf && <span className="text-[8px] bg-gray-200 px-1 rounded opacity-60">SELF</span>}
+                                                                            </div>
+                                                                            <div className="text-right flex items-center gap-2">
+                                                                                <span className="text-[10px] opacity-50 font-mono">{Math.round(s.mins)}m</span>
+                                                                                <span className="font-black text-sm w-8 text-right">{Math.round(pct)}%</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </>
+                                                );
+                                            })()
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-2 gap-2 text-center text-[10px] font-bold">
+                                            <span>PERIOD A</span>
+                                            <span>PERIOD B</span>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="flex flex-col gap-1">
+                                                <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.startA} onChange={e => setCompareDateRange({...compareDateRange, startA: e.target.value})} />
+                                                <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.endA} onChange={e => setCompareDateRange({...compareDateRange, endA: e.target.value})} />
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.startB} onChange={e => setCompareDateRange({...compareDateRange, startB: e.target.value})} />
+                                                <input type="date" className="p-1 text-[10px] font-bold border-2 border-black text-center" value={compareDateRange.endB} onChange={e => setCompareDateRange({...compareDateRange, endB: e.target.value})} />
+                                            </div>
+                                        </div>
+
+                                        <div className="border-t-4 border-black my-2"></div>
+
+                                        {(() => {
+                                            const dataA = calculateStats(compareDateRange.startA, compareDateRange.endA);
+                                            const dataB = calculateStats(compareDateRange.startB, compareDateRange.endB);
+                                            
+                                            const allRoots = [...new Set([...dataA.stats.map(s=>s.id), ...dataB.stats.map(s=>s.id)])];
+                                            
+                                            allRoots.sort((id1, id2) => {
+                                                const getMins = (dataSet, id) => dataSet.stats.find(s => s.id === id)?.mins || 0;
+                                                const max1 = Math.max(getMins(dataA, id1), getMins(dataB, id1));
+                                                const max2 = Math.max(getMins(dataA, id2), getMins(dataB, id2));
+                                                return max2 - max1; 
+                                            });
+
+                                            return (
+                                                <div className="space-y-2 max-h-60 overflow-y-auto no-scrollbar">
+                                                    <div className="bg-black text-white p-2 border-2 border-black flex justify-between items-center">
+                                                        <span className="font-bold text-xs">TOTAL TIME</span>
+                                                        <div className="flex gap-4 text-xs font-mono">
+                                                            <span className="opacity-70">{Math.round(dataA.totalPeriodMins)}m</span>
+                                                            <span>vs</span>
+                                                            <span className="opacity-70">{Math.round(dataB.totalPeriodMins)}m</span>
+                                                        </div>
+                                                        <span className={`text-xs font-black ${dataA.totalPeriodMins >= dataB.totalPeriodMins ? 'text-green-400' : 'text-red-400'}`}>
+                                                            {dataB.totalPeriodMins > 0 ? (dataA.totalPeriodMins - dataB.totalPeriodMins > 0 ? '+' : '') + Math.round((dataA.totalPeriodMins - dataB.totalPeriodMins)/dataB.totalPeriodMins*100) + '%' : 'N/A'}
+                                                        </span>
+                                                    </div>
+
+                                                    {allRoots.map(id => {
+                                                        const act = activities.find(a => a.id === id);
+                                                        if (!act) return null;
+                                                        const minsA = dataA.stats.find(s => s.id === id)?.mins || 0;
+                                                        const minsB = dataB.stats.find(s => s.id === id)?.mins || 0;
+                                                        const diff = minsA - minsB;
+                                                        const diffPct = minsB > 0 ? Math.round((diff / minsB) * 100) : (minsA > 0 ? 100 : 0);
+
+                                                        return (
+                                                            <div key={id} className="border-b-2 border-gray-200 py-2 flex justify-between items-center text-xs">
+                                                                <div className="flex items-center gap-1 w-1/3 min-w-0">
+                                                                    <span className="flex-shrink-0">{act.emoji}</span>
+                                                                    <span className="font-bold truncate">{act.name}</span>
+                                                                </div>
+                                                                <div className="flex gap-2 w-1/3 justify-center font-mono opacity-60">
+                                                                    <span>{Math.round(minsA)}</span>
+                                                                    <span>/</span>
+                                                                    <span>{Math.round(minsB)}</span>
+                                                                </div>
+                                                                <div className={`w-1/4 text-right font-black ${diff >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                                                    {diff > 0 ? '+' : ''}{diffPct}%
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* GOAL Modal (RESTORED) */}
+                    {showGoalModal && (
+                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
+                            <div className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto no-scrollbar flex flex-col">
+                                <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2">
+                                    <h2 className="text-2xl font-black uppercase">GOAL CENTER</h2>
+                                    <button onClick={() => setShowGoalModal(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
+                                </div>
+
+                                {/* Tabs */}
+                                <div className="flex gap-2 mb-4 border-b-2 border-black/10 pb-2">
+                                    <button onClick={() => setGoalTab('active')} className={`flex-1 font-bold text-xs py-2 uppercase transition-all ${goalTab === 'active' ? 'bg-[#FFD60A] pixel-border' : 'opacity-50'}`}>🛡️ Quests</button>
+                                    <button onClick={() => setGoalTab('history')} className={`flex-1 font-bold text-xs py-2 uppercase transition-all ${goalTab === 'history' ? 'bg-[#6D83F2] text-white pixel-border' : 'opacity-50'}`}>🏆 Reports</button>
+                                </div>
+
+                                {goalTab === 'active' && (
+                                    <div className="space-y-6">
+                                        {/* 1. Daily Challenges */}
+                                        <div>
+                                            <h3 className="text-sm font-black mb-2 uppercase opacity-60">DAILY CHALLENGES</h3>
+                                            
+                                            {/* Add/Edit Daily Goal */}
+                                            <div className="bg-gray-100 pixel-border p-2 mb-2 flex gap-2 items-center">
+                                                <select 
+                                                    className="flex-1 pixel-border p-1.5 font-bold text-[10px] bg-white outline-none"
+                                                    value={newDailyData.activityId}
+                                                    onChange={e => {
+                                                        const act = activities.find(a => a.id === e.target.value);
+                                                        setNewDailyData({
+                                                            activityId: e.target.value,
+                                                            targetMinutes: act ? (act.dailyGoal || '') : ''
+                                                        });
+                                                    }}
+                                                >
+                                                    <option value="">Set Daily Goal...</option>
+                                                    {getHierarchicalActivities().map(a => (
+                                                        <option key={a.id} value={a.id}>
+                                                            {'\u00A0\u00A0'.repeat(a.level)}{a.emoji} {a.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <input 
+                                                    type="number" 
+                                                    placeholder="Min" 
+                                                    className="w-12 pixel-border p-1.5 text-[10px] font-bold text-center outline-none" 
+                                                    value={newDailyData.targetMinutes} 
+                                                    onChange={e => setNewDailyData({...newDailyData, targetMinutes: e.target.value})} 
+                                                />
+                                                <button 
+                                                    onClick={() => {
+                                                        if (!newDailyData.activityId) return;
+                                                        const val = parseInt(newDailyData.targetMinutes) || 0;
+                                                        setActivities(prev => prev.map(a => a.id === newDailyData.activityId ? { ...a, dailyGoal: val } : a));
+                                                        setNewDailyData({ activityId: '', targetMinutes: '' });
+                                                        showMsg(val > 0 ? "Goal Set!" : "Goal Removed");
+                                                    }}
+                                                    className="bg-black text-white px-3 py-1.5 text-[10px] font-bold pixel-border active:scale-95"
+                                                >
+                                                    SET
+                                                </button>
+                                            </div>
+
+                                            {/* List Active Daily Goals */}
+                                            <div className="bg-[#E0F2F1] pixel-border p-3 space-y-2 max-h-40 overflow-y-auto no-scrollbar">
+                                                {activities.filter(a => a.dailyGoal > 0).length === 0 ? (
+                                                    <p className="text-center text-[10px] opacity-40 font-bold">No daily goals set.</p>
+                                                ) : (
+                                                    activities.filter(a => a.dailyGoal > 0).map(act => {
+                                                        const current = getTodayProgress(act);
+                                                        const goal = act.dailyGoal;
+                                                        const pct = Math.min(100, (current / goal) * 100);
+                                                        const isDone = current >= goal;
+                                                        
+                                                        return (
+                                                            <div key={act.id} className="relative">
+                                                                <div className="flex justify-between items-center mb-1 text-[10px] font-bold relative z-10">
+                                                                    <div className="flex items-center gap-1">
+                                                                        <span>{act.emoji}</span>
+                                                                        <span>{act.name}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className={`${isDone ? 'text-green-600' : 'text-blue-600'} opacity-80`}>{Math.round((current / goal) * 100)}%</span>
+                                                                        <span className="opacity-50 text-[9px]">|</span>
+                                                                        <span>{current}/{goal}m</span>
+                                                                        {isDone && <span className="text-sm leading-none animate-bounce">🎉</span>}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="w-full h-1.5 bg-white border border-black relative">
+                                                                    <div className={`h-full ${isDone ? 'bg-[#4CD964]' : 'bg-[#FFD60A]'}`} style={{width: `${pct}%`}}></div>
+                                                                </div>
+                                                                <button 
+                                                                    onClick={() => {
+                                                                        setNewDailyData({ activityId: act.id, targetMinutes: act.dailyGoal });
+                                                                    }}
+                                                                    className="absolute inset-0 opacity-0 hover:opacity-10 bg-black transition-opacity cursor-pointer"
+                                                                    title="Edit"
+                                                                ></button>
+                                                            </div>
+                                                        );
+                                                    })
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* 2. Custom Challenges */}
+                                        <div>
+                                            <h3 className="text-sm font-black mb-2 uppercase opacity-60">CUSTOM CHALLENGES</h3>
+                                            
+                                            {/* Create New Challenge */}
+                                            <div className="bg-gray-100 pixel-border p-3 mb-3">
+                                                <div className="grid grid-cols-2 gap-2 mb-2">
+                                                    <select 
+                                                        className="col-span-2 pixel-border p-2 font-bold text-xs bg-white outline-none"
+                                                        value={newGoalData.activityId}
+                                                        onChange={e => setNewGoalData({...newGoalData, activityId: e.target.value})}
+                                                    >
+                                                        <option value="">Select Target...</option>
+                                                        {getHierarchicalActivities().map(a => (
+                                                            <option key={a.id} value={a.id}>
+                                                                {'\u00A0\u00A0'.repeat(a.level)}{a.emoji} {a.name}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                    <input type="date" className="pixel-border p-1 text-[10px] font-bold" value={newGoalData.startDate} onChange={e => setNewGoalData({...newGoalData, startDate: e.target.value})} />
+                                                    <input type="date" className="pixel-border p-1 text-[10px] font-bold" value={newGoalData.endDate} onChange={e => setNewGoalData({...newGoalData, endDate: e.target.value})} />
+                                                    <div className="col-span-2 flex items-center bg-white pixel-border px-2">
+                                                        <input 
+                                                            type="number" 
+                                                            placeholder="Total Target" 
+                                                            className="flex-1 p-2 text-xs font-bold outline-none" 
+                                                            value={newGoalData.targetMinutes} 
+                                                            onChange={e => setNewGoalData({...newGoalData, targetMinutes: e.target.value})} 
+                                                        />
+                                                        <span className="text-xs font-bold opacity-50">min</span>
+                                                    </div>
+                                                </div>
+                                                <button 
+                                                    onClick={() => {
+                                                        if (newGoalData.activityId && newGoalData.startDate && newGoalData.endDate && newGoalData.targetMinutes > 0) {
+                                                            setCustomGoals(prev => [...prev, { id: Math.random().toString(36).substr(2, 9), ...newGoalData, targetMinutes: parseInt(newGoalData.targetMinutes) }]);
+                                                            setNewGoalData({ activityId: '', startDate: '', endDate: '', targetMinutes: '' });
+                                                            showMsg("CHALLENGE ACCEPTED!");
+                                                        }
+                                                    }}
+                                                    className="w-full bg-black text-white font-bold text-xs py-2 pixel-border active:scale-95 transition-transform"
+                                                >
+                                                    + NEW CHALLENGE
+                                                </button>
+                                            </div>
+
+                                            {/* List Active Challenges */}
+                                            <div className="space-y-3">
+                                                {customGoals.filter(g => isChallengeActive(g.endDate)).map(g => {
+                                                    const act = activities.find(a => a.id === g.activityId);
+                                                    if (!act) return null;
+                                                    
+                                                    const progress = getRangeProgress(g.activityId, g.startDate, g.endDate);
+                                                    const pct = Math.min(100, (progress / g.targetMinutes) * 100);
+                                                    const isDone = progress >= g.targetMinutes;
+                                                    
+                                                    const start = new Date(g.startDate);
+                                                    const end = new Date(g.endDate);
+                                                    const daysTotal = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
+                                                    const dailyAvg = Math.ceil(g.targetMinutes / daysTotal);
+
+                                                    const status = getChallengeStatus(g.startDate, g.endDate);
+
+                                                    return (
+                                                        <div key={g.id} className={`pixel-border p-3 relative group transition-all ${status === 'upcoming' ? 'bg-gray-50 border-dashed border-gray-400' : 'bg-white shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)]'}`}>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    if (challengeDeleteConfirmId === g.id) {
+                                                                        setCustomGoals(prev => prev.filter(item => item.id !== g.id));
+                                                                        setChallengeDeleteConfirmId(null);
+                                                                    } else {
+                                                                        setChallengeDeleteConfirmId(g.id);
+                                                                        setTimeout(() => setChallengeDeleteConfirmId(null), 3000);
+                                                                    }
+                                                                }}
+                                                                className={`absolute -top-1 -right-1 text-[8px] font-bold border border-black px-1.5 transition-all z-20 ${challengeDeleteConfirmId === g.id ? 'bg-red-500 text-white opacity-100' : 'bg-white text-black opacity-0 group-hover:opacity-100'}`}
+                                                            >
+                                                                {challengeDeleteConfirmId === g.id ? 'SURE?' : 'DEL'}
+                                                            </button>
+                                                            
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <div>
+                                                                    <div className="flex items-center gap-1.5">
+                                                                        <span className={`text-sm ${status === 'upcoming' ? 'grayscale opacity-50' : ''}`}>{act.emoji}</span>
+                                                                        <span className={`font-bold text-xs uppercase ${status === 'upcoming' ? 'text-gray-500' : ''}`}>{act.name}</span>
+                                                                        
+                                                                        {status === 'upcoming' && <span className="text-[8px] bg-gray-200 text-gray-500 px-1 py-0.5 rounded border border-gray-300">WAITING</span>}
+                                                                        {status === 'active' && <span className="text-[8px] bg-blue-100 text-blue-600 px-1 py-0.5 rounded border border-blue-200">ACTIVE</span>}
+                                                                    </div>
+                                                                    <p className="text-[9px] font-bold opacity-40">{g.startDate.slice(5)} ~ {g.endDate.slice(5)} ({daysTotal} Days)</p>
+                                                                    <p className="text-[9px] font-bold text-blue-600 mt-0.5">Daily Goal: {dailyAvg}m</p>
+                                                                </div>
+                                                                
+                                                                {status !== 'upcoming' && (
+                                                                    <div className="text-right">
+                                                                        <div className="flex items-center justify-end gap-1">
+                                                                            <p className={`text-lg font-black leading-none ${isDone ? 'text-green-600' : 'text-blue-600'}`}>
+                                                                                {Math.round((progress/g.targetMinutes)*100)}%
+                                                                            </p>
+                                                                            {isDone && <span className="text-lg animate-bounce">🎉</span>}
+                                                                        </div>
+                                                                        <p className="text-[9px] font-bold opacity-60">{progress}/{g.targetMinutes}m</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            
+                                                            {status !== 'upcoming' ? (
+                                                                <div className="w-full h-3 border-2 border-black bg-gray-100 relative">
+                                                                    <div className={`h-full ${isDone ? 'bg-[#4CD964]' : 'bg-[#6D83F2]'}`} style={{width: `${pct}%`}}></div>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="w-full h-3 border-2 border-dashed border-gray-300 bg-transparent flex items-center justify-center">
+                                                                    <span className="text-[8px] text-gray-400 font-bold">STARTS SOON</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                                {customGoals.filter(g => isChallengeActive(g.endDate)).length === 0 && (
+                                                    <p className="text-center text-[10px] opacity-40 font-bold py-4">No active custom challenges.</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* REPORTS TAB */}
+                                {goalTab === 'history' && (
+                                    <div className="flex flex-col h-full">
+                                        <div className="bg-gray-100 pixel-border p-2 mb-3 grid grid-cols-2 gap-2">
+                                            <div className="col-span-2 flex bg-white pixel-border">
+                                                <button onClick={() => setArchiveFilters({...archiveFilters, type: 'daily'})} className={`flex-1 text-[10px] font-bold py-1.5 ${archiveFilters.type === 'daily' ? 'bg-black text-white' : ''}`}>DAILY</button>
+                                                <button onClick={() => setArchiveFilters({...archiveFilters, type: 'custom'})} className={`flex-1 text-[10px] font-bold py-1.5 ${archiveFilters.type === 'custom' ? 'bg-black text-white' : ''}`}>CUSTOM</button>
+                                            </div>
+                                            <input type="date" className="pixel-border p-1 text-[10px] font-bold text-center" value={archiveFilters.startDate} onChange={e => setArchiveFilters({...archiveFilters, startDate: e.target.value})} />
+                                            <input type="date" className="pixel-border p-1 text-[10px] font-bold text-center" value={archiveFilters.endDate} onChange={e => setArchiveFilters({...archiveFilters, endDate: e.target.value})} />
+                                        </div>
+
+                                        <div id="archive-capture-area" className="flex-1 overflow-y-auto no-scrollbar bg-white p-2 border-2 border-dashed border-gray-300">
+                                            <div className="text-center mb-4 border-b-2 border-black pb-2">
+                                                <h3 className="text-xl font-black uppercase">QUEST REPORT</h3>
+                                                <p className="text-[10px] font-bold opacity-50">{archiveFilters.startDate} ~ {archiveFilters.endDate}</p>
+                                                
+                                                {(() => {
+                                                    let totalGoals = 0;
+                                                    let totalAchieved = 0;
+                                                    
+                                                    if (archiveFilters.type === 'custom') {
+                                                        const validGoals = customGoals.filter(g => 
+                                                            g.startDate <= archiveFilters.endDate && g.endDate >= archiveFilters.startDate
+                                                        );
+                                                        totalGoals = validGoals.length;
+                                                        totalAchieved = validGoals.filter(g => {
+                                                            const p = getRangeProgress(g.activityId, g.startDate, g.endDate);
+                                                            return p >= g.targetMinutes;
+                                                        }).length;
+                                                    } else {
+                                                        const dailyActs = activities.filter(a => a.dailyGoal > 0);
+                                                        totalGoals = dailyActs.length;
+                                                        const start = new Date(archiveFilters.startDate);
+                                                        const end = new Date(archiveFilters.endDate);
+                                                        const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
+                                                        
+                                                        totalAchieved = dailyActs.filter(a => {
+                                                            const p = getRangeProgress(a.id, archiveFilters.startDate, archiveFilters.endDate);
+                                                            return p >= (a.dailyGoal * days);
+                                                        }).length;
+                                                    }
+                                                    
+                                                    const rate = totalGoals > 0 ? Math.round((totalAchieved / totalGoals) * 100) : 0;
+                                                    const isPerfect = rate >= 100;
+                                                    
+                                                    return (
+                                                        <div className={`mt-2 py-1 px-2 inline-block pixel-border transform -rotate-2 ${isPerfect ? 'bg-[#4CD964] text-white' : 'bg-[#FFE4B5] text-black'}`}>
+                                                            <span className="text-[10px] font-bold mr-2">OVERALL RATE</span>
+                                                            <span className="text-lg font-black">{rate}%</span>
+                                                        </div>
+                                                    );
+                                                })()}
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                {archiveFilters.type === 'custom' ? (
+                                                    customGoals.filter(g => g.startDate <= archiveFilters.endDate && g.endDate >= archiveFilters.startDate).length === 0 ? (
+                                                        <p className="text-center text-[10px] opacity-30 py-4 font-bold">No records in this period.</p>
+                                                    ) : (
+                                                        customGoals.filter(g => g.startDate <= archiveFilters.endDate && g.endDate >= archiveFilters.startDate)
+                                                        .sort((a,b) => new Date(b.endDate) - new Date(a.endDate))
+                                                        .map(g => {
+                                                            const act = activities.find(a => a.id === g.activityId);
+                                                            if (!act) return null;
+                                                            const progress = getRangeProgress(g.activityId, g.startDate, g.endDate);
+                                                            const success = progress >= g.targetMinutes;
+                                                            const status = getChallengeStatus(g.startDate, g.endDate);
+
+                                                            let bgClass = 'bg-gray-50';
+                                                            let statusText = 'FAILED';
+                                                            let statusColor = 'text-red-500';
+
+                                                            if (status === 'upcoming') {
+                                                                bgClass = 'bg-gray-50 border-dashed opacity-70';
+                                                                statusText = 'WAITING';
+                                                                statusColor = 'text-gray-400';
+                                                            } else if (status === 'active') {
+                                                                bgClass = 'bg-white border-dashed';
+                                                                statusText = `${Math.round((progress/g.targetMinutes)*100)}%`;
+                                                                statusColor = 'text-blue-600';
+                                                            } else {
+                                                                statusText = success ? 'SUCCESS' : 'FAILED';
+                                                                statusColor = success ? 'text-green-600' : 'text-red-500';
+                                                            }
+
+                                                            return (
+                                                                <div key={g.id} className={`pixel-border p-2 flex justify-between items-center ${bgClass}`}>
+                                                                    <div>
+                                                                        <div className="flex items-center gap-1">
+                                                                            <span>{act.emoji}</span>
+                                                                            <span className="text-xs font-bold uppercase">{act.name}</span>
+                                                                            {status === 'active' && <span className="text-[8px] bg-blue-100 text-blue-600 px-1 py-0.5 rounded border border-blue-200">ACTIVE</span>}
+                                                                            {status === 'upcoming' && <span className="text-[8px] bg-gray-200 text-gray-500 px-1 py-0.5 rounded border border-gray-300">WAITING</span>}
+                                                                        </div>
+                                                                        <div className="text-[9px] font-bold opacity-50 flex gap-2">
+                                                                            <span>{g.startDate.slice(5)}~{g.endDate.slice(5)}</span>
+                                                                            {status !== 'upcoming' && <span>{progress}/{g.targetMinutes}m</span>}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className={`text-xs font-black ${statusColor}`}>
+                                                                        {statusText}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })
+                                                    )
+                                                ) : (
+                                                    // Daily Goals List (Calculated)
+                                                    activities.filter(a => a.dailyGoal > 0).map(act => {
+                                                        const start = new Date(archiveFilters.startDate);
+                                                        const end = new Date(archiveFilters.endDate);
+                                                        const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
+                                                        const targetTotal = act.dailyGoal * days;
+                                                        const progress = getRangeProgress(act.id, archiveFilters.startDate, archiveFilters.endDate);
+                                                        const success = progress >= targetTotal;
+                                                        
+                                                        return (
+                                                            <div key={act.id} className="bg-gray-50 pixel-border p-2 flex justify-between items-center">
+                                                                <div>
+                                                                    <div className="flex items-center gap-1">
+                                                                        <span>{act.emoji}</span>
+                                                                        <span className="text-xs font-bold uppercase">{act.name}</span>
+                                                                    </div>
+                                                                    <div className="text-[9px] font-bold opacity-50">Total: {progress}/{targetTotal}m</div>
+                                                                </div>
+                                                                <div className={`text-xs font-black ${success ? 'text-green-600' : 'text-red-500'}`}>
+                                                                    {Math.round((progress/targetTotal)*100)}%
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <button onClick={saveArchiveImage} className="mt-3 bg-[#FFD60A] pixel-border py-3 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-sm active:translate-y-0.5">
+                                            {PIXEL_ICONS.save} SAVE SNAPSHOT
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* ... (Other Modals) ... */}
+                    {/* Summary Modal (Restored) */}
+                    {showSummary && (
+                        <div className={`fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm ${isCapturing ? 'is-capturing' : ''}`}>
+                            <div id="summary-card" className="bg-[#E0F2F1] pixel-border p-6 w-full max-w-sm flex flex-col overflow-hidden max-h-[85vh] text-left">
+                                <div className="flex justify-between items-center mb-5 border-b-4 border-black pb-2">
+                                    <div><h2 className="text-3xl font-black italic uppercase tracking-tighter">Mission Clear</h2><p className="text-[10px] font-bold opacity-40 mt-1">Date: {selectedDate.toLocaleDateString()}</p></div>
+                                    <button onClick={() => setShowSummary(false)} className="hide-in-capture text-xl font-bold border-4 border-black px-4 py-1 bg-white mb-2 shadow-sm shadow-black">X</button>
+                                </div>
+                                <div className="flex-1 space-y-1 overflow-y-auto no-scrollbar pr-1 pb-4">
+                                    {getLogsForDate(selectedDate).length === 0 ? (
+                                        <p className="text-center font-bold opacity-30 py-20 italic uppercase tracking-tight">No Data Found</p>
+                                    ) : (
+                                        getLogsForDate(selectedDate).map((l, i) => {
+                                            const activityObj = activities.find(a => a.name === l.activityName);
+                                            const parentObj = activityObj?.parentId ? activities.find(a => a.id === activityObj.parentId) : null;
+                                            const displayName = parentObj ? `${parentObj.name}-${l.activityName}` : l.activityName;
+                                            return (
+                                                <div key={l.id} className="bg-white border-b-2 border-black/10 p-2 flex justify-between items-center text-left">
+                                                    <div className="flex items-center gap-1.5 min-w-0">
+                                                        <span className="text-lg flex-shrink-0">{l.activityEmoji || '📍'}</span>
+                                                        <div className="flex items-center gap-1.5 truncate py-1">
+                                                            <span className="font-black text-[13px] uppercase truncate leading-relaxed">{displayName}</span>
+                                                            <span className="text-[9px] font-bold text-blue-600 opacity-60 flex-shrink-0">[{formatTime(l.startTime)}-{formatTime(l.endTime)}]</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="font-black text-xs flex-shrink-0">{Math.round((l.endTime-l.startTime)/60000)}M</div>
+                                                        {isDeleteMode && (
+                                                            <button 
+                                                                onClick={(e) => handleDeleteLog(e, l.id)}
+                                                                className={`hide-in-capture w-5 h-5 flex items-center justify-center border-2 border-black text-[10px] font-bold transition-all shadow-sm ${logDeleteConfirmId === l.id ? 'bg-red-500 text-white border-red-800' : 'bg-white text-gray-400 border-gray-200'}`}
+                                                            >
+                                                                {logDeleteConfirmId === l.id ? '?' : 'x'}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                                <div className="mt-2 pt-4 border-t-4 border-black flex justify-between items-end flex-shrink-0 text-left">
+                                    <div className="flex-1">
+                                        <p className="text-[10px] font-bold opacity-40 uppercase mb-1">Total XP</p>
+                                        <p className="text-5xl font-black leading-relaxed pb-2">
+                                            {Math.round(getLogsForDate(selectedDate).reduce((acc, l) => acc + (l.endTime ? (l.endTime - l.startTime) / 60000 : 0), 0))}0
+                                        </p>
+                                    </div>
+                                    <div className="hide-in-capture grid grid-cols-2 gap-2 w-32">
+                                        <button onClick={saveSummaryImage} className="bg-[#FFD60A] border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Save Image">{PIXEL_ICONS.save} PNG</button>
+                                        <button onClick={() => exportICS(getLogsForDate(selectedDate))} className="bg-[#6D83F2] text-white border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Sync Calendar">{PIXEL_ICONS.cal} CAL</button>
+                                        <button onClick={() => exportCSV(selectedDate)} className="bg-white text-black border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Export CSV">{PIXEL_ICONS.csv} CSV</button>
+                                        <button 
+                                            onClick={() => setIsDeleteMode(!isDeleteMode)} 
+                                            className={`border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1 transition-colors ${isDeleteMode ? 'bg-black text-white' : 'bg-white text-red-600'}`} 
+                                            title="Toggle Delete Mode"
+                                        >
+                                            {PIXEL_ICONS.trash} {isDeleteMode ? 'DONE' : 'DEL'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Show Calendar Modal (Restored) */}
                     {showCalendar && (
                         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
                             <div className="bg-white pixel-border p-6 w-full max-w-sm">
@@ -550,63 +1470,43 @@
                         </div>
                     )}
 
-                    {/* 总结页面 */}
-                    {showSummary && (
-                        <div className={`fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm ${isCapturing ? 'is-capturing' : ''}`}>
-                            <div id="summary-card" className="bg-[#E0F2F1] pixel-border p-6 w-full max-w-sm flex flex-col overflow-hidden max-h-[85vh] text-left">
-                                <div className="flex justify-between items-center mb-5 border-b-4 border-black pb-2">
-                                    <div><h2 className="text-3xl font-black italic uppercase tracking-tighter">Mission Clear</h2><p className="text-[10px] font-bold opacity-40 mt-1">Date: {selectedDate.toLocaleDateString()}</p></div>
-                                    <button onClick={() => setShowSummary(false)} className="hide-in-capture text-xl font-bold border-4 border-black px-4 py-1 bg-white mb-2 shadow-sm shadow-black">X</button>
-                                </div>
-                                <div className="flex-1 space-y-1 overflow-y-auto no-scrollbar pr-1 pb-4">
-                                    {getLogsForDate(selectedDate).length === 0 ? (
-                                        <p className="text-center font-bold opacity-30 py-20 italic uppercase tracking-tight">No Data Found</p>
-                                    ) : (
-                                        getLogsForDate(selectedDate).map((l, i) => {
-                                            const activityObj = activities.find(a => a.name === l.activityName);
-                                            const parentObj = activityObj?.parentId ? activities.find(a => a.id === activityObj.parentId) : null;
-                                            const displayName = parentObj ? `${parentObj.name}-${l.activityName}` : l.activityName;
-                                            return (
-                                                <div key={i} className="bg-white border-b-2 border-black/10 p-2 flex justify-between items-center text-left">
-                                                    <div className="flex items-center gap-1.5 min-w-0">
-                                                        <span className="text-lg flex-shrink-0">{l.activityEmoji || '📍'}</span>
-                                                        <div className="flex items-baseline gap-1.5 truncate">
-                                                            <span className="font-black text-[13px] uppercase truncate leading-none">{displayName}</span>
-                                                            <span className="text-[9px] font-bold text-blue-600 opacity-60 flex-shrink-0">[{formatTime(l.startTime)}-{formatTime(l.endTime)}]</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="font-black text-xs flex-shrink-0 ml-2">{Math.round((l.endTime-l.startTime)/60000)}M</div>
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
-                                <div className="mt-2 pt-4 border-t-4 border-black flex justify-between items-end flex-shrink-0 text-left">
-                                    <div className="flex-1">
-                                        <p className="text-[10px] font-bold opacity-40 uppercase mb-1">Total XP</p>
-                                        <p className="text-5xl font-black leading-none">
-                                            {Math.round(getLogsForDate(selectedDate).reduce((acc, l) => acc + (l.endTime ? (l.endTime - l.startTime) / 60000 : 0), 0))}0
-                                        </p>
-                                    </div>
-                                    <div className="hide-in-capture grid grid-cols-2 gap-2 w-32">
-                                        <button onClick={saveAsImage} className="bg-[#FFD60A] border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Save Image">{PIXEL_ICONS.save} PNG</button>
-                                        <button onClick={() => exportICS(getLogsForDate(selectedDate))} className="bg-[#6D83F2] text-white border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Sync Calendar">{PIXEL_ICONS.cal} CAL</button>
-                                        <button onClick={() => exportCSV(selectedDate)} className="bg-white text-black border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Export CSV">{PIXEL_ICONS.csv} CSV</button>
-                                        <button onClick={clearAllData} className={`border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1 transition-colors ${deleteConfirm ? 'bg-red-600 text-white' : 'bg-white text-red-600'}`} title="Clear Data">{PIXEL_ICONS.trash} {deleteConfirm ? '?' : 'CLR'}</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    {/* 其他弹窗保持一致... */}
+                    {/* Backup Modal (Restored) */}
                     {showBackupModal && (
                         <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left">
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
-                                <h2 className="text-2xl font-black mb-4 border-b-4 border-black uppercase">Vault</h2>
-                                <textarea readOnly className="w-full h-40 pixel-border p-3 text-[9px] font-mono mb-4 break-all bg-gray-50 outline-none" value={backupString}></textarea>
+                                <h2 className="text-2xl font-black mb-4 border-b-4 border-black uppercase">{isRestoreMode ? 'RESTORE' : 'VAULT'}</h2>
+                                
+                                {isRestoreMode ? (
+                                    <textarea 
+                                        className="w-full h-40 pixel-border p-3 text-[9px] font-mono mb-4 break-all bg-yellow-50 outline-none placeholder-gray-400" 
+                                        placeholder="Paste backup code here..." 
+                                        value={restoreInputValue}
+                                        onChange={(e) => setRestoreInputValue(e.target.value)}
+                                    ></textarea>
+                                ) : (
+                                    <textarea id="backup-output" readOnly className="w-full h-40 pixel-border p-3 text-[9px] font-mono mb-4 break-all bg-gray-50 outline-none" value={backupString}></textarea>
+                                )}
+
                                 <div className="flex flex-col gap-3">
-                                    <button onClick={() => { document.execCommand('copy'); showMsg("Copied"); }} className="bg-[#FFD60A] p-4 font-black">COPY CODE</button>
-                                    <button onClick={() => { const i = prompt("Paste:"); if(i) restoreBackup(i); }} className="bg-[#6D83F2] text-white p-4 font-black">RESTORE</button>
+                                    {isRestoreMode ? (
+                                        <>
+                                            <button onClick={() => restoreBackup(restoreInputValue)} className="bg-[#6D83F2] text-white p-4 font-black">CONFIRM RESTORE</button>
+                                            <button onClick={() => setIsRestoreMode(false)} className="bg-white border-2 border-black p-3 font-black text-xs">CANCEL</button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <button onClick={() => { 
+                                                const el = document.getElementById('backup-output');
+                                                if (el) {
+                                                    el.select();
+                                                    el.setSelectionRange(0, 99999);
+                                                    document.execCommand('copy');
+                                                    showMsg("Copied");
+                                                }
+                                            }} className="bg-[#FFD60A] p-4 font-black">COPY CODE</button>
+                                            <button onClick={() => { setIsRestoreMode(true); setRestoreInputValue(''); }} className="bg-[#6D83F2] text-white p-4 font-black">ENTER RESTORE MODE</button>
+                                        </>
+                                    )}
                                     <button onClick={() => setShowBackupModal(false)} className="bg-black text-white p-3 font-black text-xs">EXIT</button>
                                 </div>
                             </div>
@@ -618,6 +1518,24 @@
                                 <h2 className="text-3xl font-black mb-6 uppercase border-b-4 border-black">{showEditModal ? 'Edit' : 'New'}</h2>
                                 <div className="space-y-5 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">
                                     <input type="text" placeholder="Name..." className="w-full pixel-border p-4 font-bold text-xl outline-none focus:bg-yellow-50" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                                    
+                                    {/* 升级点: 编辑弹窗中保留 Goal 输入，作为备用入口 */}
+                                    <div className="flex items-center gap-3 bg-gray-50 p-2 pixel-border">
+                                        <div className="flex-1">
+                                            <label className="text-[10px] font-bold uppercase text-gray-400 mb-1 block">Daily Goal (Mins)</label>
+                                            <div className="flex items-center gap-2">
+                                                <input 
+                                                    type="number" 
+                                                    placeholder="0 = No Goal" 
+                                                    className="w-full pixel-border p-2 font-bold text-lg outline-none text-center bg-white focus:bg-yellow-50" 
+                                                    value={formData.dailyGoal} 
+                                                    onChange={e => setFormData({...formData, dailyGoal: parseInt(e.target.value) || 0})} 
+                                                />
+                                                <span className="text-xs font-bold">MIN</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <div className="pixel-border p-4 bg-gray-50">
                                         <div className="grid grid-cols-5 gap-3 h-28 overflow-y-auto pr-1 no-scrollbar text-3xl text-center">
                                             {COMMON_EMOJIS.map(e => <button key={e} onClick={() => setFormData({...formData, emoji: e})} className={`p-1 border-2 transition-all ${formData.emoji === e ? 'border-black bg-yellow-100 shadow-[3px_3px_0px_0px_black]' : 'border-transparent'}`}>{e}</button>)}
@@ -632,8 +1550,8 @@
                                     <button onClick={() => {setShowAddModal(false); setShowEditModal(false);}} className="flex-1 pixel-border p-4 font-black uppercase text-xs text-center">Abort</button>
                                     <button onClick={() => {
                                         if(!formData.name) return;
-                                        if(showEditModal) setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, name: formData.name, emoji: formData.emoji, parentId: formData.parentId || null } : a));
-                                        else setActivities([...activities, { id: Math.random().toString(36).substr(2, 9), ...formData, parentId: formData.parentId || null }]);
+                                        if(showEditModal) setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, name: formData.name, emoji: formData.emoji, parentId: formData.parentId || null, dailyGoal: formData.dailyGoal } : a));
+                                        else setActivities([...activities, { id: Math.random().toString(36).substr(2, 9), ...formData, parentId: formData.parentId || null, dailyGoal: formData.dailyGoal }]);
                                         setShowAddModal(false); setShowEditModal(false);
                                         triggerVibrate(30);
                                     }} className="flex-1 bg-black text-white p-4 font-black uppercase text-xs text-center">Save</button>

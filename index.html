@@ -210,16 +210,22 @@
             };
 
             const openSummary = (keepDate = false) => {
+                console.log('Action Triggered');
+                triggerVibrate(10);
                 console.log('Opening Summary...');
                 if (!keepDate) setSelectedDate(new Date());
                 setShowSummary(true);
                 window.scrollTo(0, 0);
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
             };
 
             const openCalendar = () => {
+                console.log('Action Triggered');
+                triggerVibrate(10);
                 console.log('Opening Calendar...');
                 setShowCalendar(true);
                 window.scrollTo(0, 0);
+                setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
             };
 
             useEffect(() => {
@@ -239,17 +245,17 @@
             const stopCurrent = () => {
                 if (!currentLog) return;
                 triggerVibrate();
-                setLogs(prev => prev.map(l => l.endTime === null ? { ...l, endTime: Date.now() } : l));
+                setLogs(prev => (prev || []).map(l => l.endTime === null ? { ...l, endTime: Date.now() } : l));
             };
 
             const getTodayProgress = (act) => {
                 const selfAndChildren = [act];
-                const children = activities.filter(a => a.parentId === act.id);
+                const children = (activities || []).filter(a => a.parentId === act.id);
                 children.forEach(c => selfAndChildren.push(c));
                 const targetNames = selfAndChildren.map(a => a.name);
 
                 const today = new Date();
-                const todayLogs = logs.filter(l => {
+                const todayLogs = (logs || []).filter(l => {
                     const d = new Date(l.endTime || l.startTime);
                     return d.getDate() === today.getDate() && 
                            d.getMonth() === today.getMonth() && 
@@ -268,27 +274,27 @@
             };
 
             const getRangeProgress = (actId, startStr, endStr) => {
-                const activityObj = activities.find(a => a.id === actId);
+                const activityObj = (activities || []).find(a => a.id === actId);
                 if (!activityObj) return 0;
 
                 const selfAndChildren = [activityObj];
-                const children = activities.filter(a => a.parentId === actId);
+                const children = (activities || []).filter(a => a.parentId === actId);
                 children.forEach(c => selfAndChildren.push(c));
                 const targetNames = selfAndChildren.map(a => a.name);
 
                 const parseLocalStart = (s) => {
-                    const [y, m, d] = s.split('-').map(Number);
+                    const [y, m, d] = (s||'').split('-').map(Number);
                     return new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
                 };
                 const parseLocalEnd = (s) => {
-                    const [y, m, d] = s.split('-').map(Number);
+                    const [y, m, d] = (s||'').split('-').map(Number);
                     return new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
                 };
 
                 const start = parseLocalStart(startStr);
                 const end = parseLocalEnd(endStr);
 
-                const rangeLogs = logs.filter(l => {
+                const rangeLogs = (logs || []).filter(l => {
                     const logEnd = l.endTime || Date.now(); 
                     return logEnd >= start && l.startTime <= end;
                 });
@@ -310,18 +316,18 @@
 
             const getStrictProgress = (actName, startStr, endStr) => {
                 const parseLocalStart = (s) => {
-                    const [y, m, d] = s.split('-').map(Number);
+                    const [y, m, d] = (s||'').split('-').map(Number);
                     return new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
                 };
                 const parseLocalEnd = (s) => {
-                    const [y, m, d] = s.split('-').map(Number);
+                    const [y, m, d] = (s||'').split('-').map(Number);
                     return new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
                 };
 
                 const start = parseLocalStart(startStr);
                 const end = parseLocalEnd(endStr);
 
-                const rangeLogs = logs.filter(l => {
+                const rangeLogs = (logs || []).filter(l => {
                     const logEnd = l.endTime || Date.now(); 
                     return logEnd >= start && l.startTime <= end;
                 });
@@ -343,18 +349,18 @@
 
             const calculateStats = (startStr, endStr) => {
                 const parseLocalStart = (s) => {
-                    const [y, m, d] = s.split('-').map(Number);
+                    const [y, m, d] = (s||'').split('-').map(Number);
                     return new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
                 };
                 const parseLocalEnd = (s) => {
-                    const [y, m, d] = s.split('-').map(Number);
+                    const [y, m, d] = (s||'').split('-').map(Number);
                     return new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
                 };
 
                 const start = parseLocalStart(startStr);
                 const end = parseLocalEnd(endStr);
 
-                const logsInRange = logs.filter(l => {
+                const logsInRange = (logs || []).filter(l => {
                     const logEnd = l.endTime || Date.now();
                     return logEnd >= start && l.startTime <= end;
                 });
@@ -414,17 +420,17 @@
             };
 
             const isChallengeActive = (endDateStr) => {
-                const [y, m, d] = endDateStr.split('-').map(Number);
+                const [y, m, d] = (endDateStr||'').split('-').map(Number);
                 const endTime = new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
                 return endTime >= Date.now();
             };
 
             const getChallengeStatus = (startStr, endStr) => {
                 const now = Date.now();
-                const [sy, sm, sd] = startStr.split('-').map(Number);
+                const [sy, sm, sd] = (startStr||'').split('-').map(Number);
                 const startTime = new Date(sy, sm - 1, sd, 0, 0, 0, 0).getTime();
                 
-                const [ey, em, ed] = endStr.split('-').map(Number);
+                const [ey, em, ed] = (endStr||'').split('-').map(Number);
                 const endTime = new Date(ey, em - 1, ed, 23, 59, 59, 999).getTime();
 
                 if (now < startTime) return 'upcoming';
@@ -602,15 +608,21 @@
                     console.error('Invalid Date Detect!');
                     return null;
                 }
-                const { days, firstDay } = getDaysInMonth(selectedDate);
-                const monthLogs = logs.filter(l => {
+                const year = selectedDate.getFullYear();
+                const month = selectedDate.getMonth(); // 0-11
+                
+                // iOS Fix: Use integer constructor
+                const days = new Date(year, month + 1, 0).getDate();
+                const firstDay = new Date(year, month, 1).getDay();
+
+                const monthLogs = (logs || []).filter(l => {
                     if (!l.endTime) return false;
                     const d = new Date(l.endTime); 
-                    return d.getMonth() === selectedDate.getMonth() && d.getFullYear() === selectedDate.getFullYear();
+                    return d.getMonth() === month && d.getFullYear() === year;
                 });
 
                 const grid = [];
-                for (let i = 0; i < firstDay; i++) grid.push(<div key={`empty-${i}`} className="h-8"></div>);
+                for (let i = 0; i < firstDay; i++) grid.push(<div key={`empty-${month}-${i}`} className="h-8"></div>);
                 
                 for (let d = 1; d <= days; d++) {
                     const dateLogs = monthLogs.filter(l => new Date(l.endTime).getDate() === d);
@@ -619,15 +631,18 @@
                     
                     grid.push(
                         <button 
-                            key={d}
+                            key={`day-${month}-${d}`}
                             onClick={() => {
-                                const newDate = new Date(selectedDate);
-                                newDate.setDate(d);
+                                console.log('Action Triggered');
+                                triggerVibrate(10);
+                                // iOS Fix: Use integer constructor
+                                const newDate = new Date(year, month, d);
                                 setSelectedDate(newDate);
                                 setShowCalendar(false);
                                 console.log('Opening Summary...');
                                 setShowSummary(true);
                                 window.scrollTo(0, 0);
+                                setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
                             }}
                             className={`h-8 flex flex-col items-center justify-center border font-bold relative ${isSelected ? 'bg-black text-white' : 'bg-white text-black'} ${hasData ? 'border-black' : 'border-gray-200 text-gray-300'}`}
                         >
@@ -646,7 +661,7 @@
             };
 
             const exportCSV = (targetDate = null) => {
-                let targetLogs = logs.filter(l => l.endTime);
+                let targetLogs = (logs || []).filter(l => l.endTime);
                 if (targetDate) {
                     targetLogs = targetLogs.filter(l => {
                         const d = new Date(l.endTime);
@@ -685,7 +700,7 @@
             };
 
             const exportICS = (targetLogs) => {
-                const validLogs = targetLogs.filter(l => l.endTime);
+                const validLogs = (targetLogs || []).filter(l => l.endTime);
                 if (validLogs.length === 0) return;
                 const fmt = (ts) => new Date(ts).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
                 let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//TimeCatcher//EN\n";
@@ -721,14 +736,14 @@
 
             const handleActivityClick = (act) => {
                 if (isEditMode) {
-                    const children = activities.filter(a => a.parentId === act.id);
+                    const children = (activities || []).filter(a => a.parentId === act.id);
                     if (children.length > 0) { 
                         setCurrentParentId(act.id);
                         triggerVibrate(20);
                     }
                     return;
                 }
-                const children = activities.filter(a => a.parentId === act.id);
+                const children = (activities || []).filter(a => a.parentId === act.id);
                 if (children.length > 0) { 
                     setCurrentParentId(act.id);
                     triggerVibrate(30);
@@ -736,7 +751,7 @@
                 else {
                     const now = Date.now();
                     triggerVibrate(40);
-                    setLogs(prev => [...prev.map(l => l.endTime === null ? { ...l, endTime: now } : l), { 
+                    setLogs(prev => [...(prev || []).map(l => l.endTime === null ? { ...l, endTime: now } : l), { 
                         id: Math.random().toString(36).substr(2, 9), 
                         activityName: act.name, 
                         activityEmoji: act.emoji, 
@@ -750,7 +765,7 @@
             const handleDeleteItem = (e, actId) => {
                 e.stopPropagation();
                 if (itemDeleteConfirmId === actId) {
-                    setActivities(prev => prev.filter(a => a.id !== actId && a.parentId !== actId));
+                    setActivities(prev => (prev || []).filter(a => a.id !== actId && a.parentId !== actId));
                     setItemDeleteConfirmId(null);
                     triggerVibrate(50);
                 } else {
@@ -763,7 +778,7 @@
             const handleDeleteLog = (e, logId) => {
                 e.stopPropagation();
                 if (logDeleteConfirmId === logId) {
-                    setLogs(prev => prev.filter(l => l.id !== logId));
+                    setLogs(prev => (prev || []).filter(l => l.id !== logId));
                     setLogDeleteConfirmId(null);
                     triggerVibrate(50);
                     showMsg("记录已删除");
@@ -810,7 +825,7 @@
                         const now = Date.now();
                         triggerVibrate(40);
                         setLogs(prev => {
-                            const newLogs = prev.map(l => l.endTime === null ? { ...l, endTime: now } : l);
+                            const newLogs = (prev || []).map(l => l.endTime === null ? { ...l, endTime: now } : l);
                             newLogs.push({ 
                                 id: Math.random().toString(36).substr(2, 9), 
                                 activityName: match.name, 
@@ -845,13 +860,13 @@
             };
 
             const moveItem = (actId, direction) => {
-                const currentList = activities.filter(a => a.parentId === currentParentId);
+                const currentList = (activities || []).filter(a => a.parentId === currentParentId);
                 const currentIndex = currentList.findIndex(a => a.id === actId);
                 if (currentIndex === -1) return;
                 const targetIndex = currentIndex + direction;
                 if (targetIndex < 0 || targetIndex >= currentList.length) return;
                 const targetActivity = currentList[targetIndex];
-                const newActivities = [...activities];
+                const newActivities = [...(activities || [])];
                 const realIndexA = newActivities.findIndex(a => a.id === actId);
                 const realIndexB = newActivities.findIndex(a => a.id === targetActivity.id);
                 [newActivities[realIndexA], newActivities[realIndexB]] = [newActivities[realIndexB], newActivities[realIndexA]];
@@ -878,22 +893,24 @@
                     console.error('Invalid Date Detect!');
                     return [];
                 }
-                return logs.filter(l => {
+                // iOS Fix: Use integer comparison instead of string/date object methods
+                const targetInt = date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate();
+                
+                return (logs || []).filter(l => {
                     if (!l.endTime) return false;
                     const d = new Date(l.endTime); 
-                    return d.getDate() === date.getDate() && 
-                           d.getMonth() === date.getMonth() && 
-                           d.getFullYear() === date.getFullYear();
+                    const logInt = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+                    return logInt === targetInt;
                 }).sort((a,b) => a.startTime - b.startTime);
             };
 
             // 获取分级活动列表（用于选择器）
             const getHierarchicalActivities = () => {
-                const roots = activities.filter(a => !a.parentId);
+                const roots = (activities || []).filter(a => !a.parentId);
                 const list = [];
                 roots.forEach(root => {
                     list.push({ ...root, level: 0 });
-                    const children = activities.filter(c => c.parentId === root.id);
+                    const children = (activities || []).filter(c => c.parentId === root.id);
                     children.forEach(child => list.push({ ...child, level: 1 }));
                 });
                 return list;
@@ -929,8 +946,8 @@
                             <div className={`transition-all duration-300 ${isEditMode ? 'pt-14' : 'pt-2'}`}>
                                 {currentParentId && <button onClick={() => setCurrentParentId(null)} className="mb-8 px-1 text-xs font-black flex items-center gap-2 underline underline-offset-4 decoration-4 uppercase tracking-tighter">{PIXEL_ICONS.back} Back to menu</button>}
                                 <div className="grid grid-cols-2 gap-x-6 gap-y-12 px-1 pb-10">
-                                    {activities.filter(a => a.parentId === currentParentId).map((act, idx) => {
-                                        const hasChildren = activities.some(child => child.parentId === act.id);
+                                    {(activities || []).filter(a => a.parentId === currentParentId).map((act, idx) => {
+                                        const hasChildren = (activities || []).some(child => child.parentId === act.id);
                                         const currentMins = getTodayProgress(act);
                                         const goalMins = act.dailyGoal || 0;
                                         const progressPercent = goalMins > 0 ? Math.min(100, (currentMins / goalMins) * 100) : 0;
@@ -979,19 +996,19 @@
 
                     {/* 底部导航 - Updated to 4 cols */}
                     <div className="flex-shrink-0 grid grid-cols-4 gap-2 pb-2">
-                        <button onClick={() => { console.log('Opening Summary...'); setSelectedDate(new Date()); setShowSummary(true); window.scrollTo(0,0); }} className="bg-black text-white pixel-border p-3 font-bold text-xs flex items-center justify-center gap-1 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">SUMMARY</button>
+                        <button onClick={openSummary} className="bg-black text-white pixel-border p-3 font-bold text-xs flex items-center justify-center gap-1 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">SUMMARY</button>
                         <button onClick={() => setShowGoalModal(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">GOAL</button>
                         <button onClick={() => {
                             const iso = selectedDate.toISOString().split('T')[0];
                             setStatsDateRange({ start: iso, end: iso });
                             setShowStatsModal(true);
                         }} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm flex items-center justify-center gap-1">STATS</button>
-                        <button onClick={() => { console.log('Opening Calendar...'); setShowCalendar(true); window.scrollTo(0,0); }} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">HISTORY</button>
+                        <button onClick={openCalendar} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">HISTORY</button>
                     </div>
 
                     {/* STATS 弹窗 */}
                     {showStatsModal && (
-                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
+                        <div className="fixed inset-0 z-[1000] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
                             <div id="stats-card" className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
                                 <div className="flex justify-between items-center mb-4 border-b-4 border-black pb-2 flex-shrink-0">
                                     <h2 className="text-2xl font-black uppercase">DATA CENTER</h2>
@@ -1022,7 +1039,7 @@
                                                             </div>
 
                                                             <div className="space-y-2">
-                                                                {stats.length === 0 ? <p className="text-center text-xs opacity-40 py-4">No data.</p> : stats.map(s => {
+                                                                {(stats||[]).length === 0 ? <p className="text-center text-xs opacity-40 py-4">No data.</p> : (stats||[]).map(s => {
                                                                     const pct = totalPeriodMins > 0 ? (s.mins / totalPeriodMins) * 100 : 0;
                                                                     // Conditional: Only show arrow if it has children
                                                                     const hasChildren = activities.some(child => child.parentId === s.id);
@@ -1062,7 +1079,7 @@
                                                     const parentAct = activities.find(a => a.id === insightDrillId);
                                                     if (!parentAct) { setInsightDrillId(null); return null; }
 
-                                                    const subActivities = activities.filter(a => a.parentId === insightDrillId);
+                                                    const subActivities = (activities || []).filter(a => a.parentId === insightDrillId);
                                                     const drillList = [parentAct, ...subActivities];
 
                                                     let drillStats = drillList.map(item => ({
@@ -1149,7 +1166,7 @@
                                                 // PK Mode Drill Down Logic
                                                 // Case 1: Overview (pkDrillId is null)
                                                 if (!pkDrillId) {
-                                                    const allRoots = [...new Set([...dataA.stats.map(s=>s.id), ...dataB.stats.map(s=>s.id)])];
+                                                    const allRoots = [...new Set([...(dataA.stats||[]).map(s=>s.id), ...(dataB.stats||[]).map(s=>s.id)])];
                                                     
                                                     allRoots.sort((id1, id2) => {
                                                         const getMins = (dataSet, id) => dataSet.stats.find(s => s.id === id)?.mins || 0;
@@ -1173,7 +1190,7 @@
                                                             </div>
 
                                                             {allRoots.map(id => {
-                                                                const act = activities.find(a => a.id === id);
+                                                                const act = (activities || []).find(a => a.id === id);
                                                                 if (!act) return null;
                                                                 const minsA = dataA.stats.find(s => s.id === id)?.mins || 0;
                                                                 const minsB = dataB.stats.find(s => s.id === id)?.mins || 0;
@@ -1208,7 +1225,7 @@
                                                 } else {
                                                     // Case 2: Drill Down (pkDrillId is set)
                                                     const parentAct = activities.find(a => a.id === pkDrillId);
-                                                    const subActivities = activities.filter(a => a.parentId === pkDrillId);
+                                                    const subActivities = (activities || []).filter(a => a.parentId === pkDrillId);
                                                     const drillList = [parentAct, ...subActivities];
                                                     
                                                     // Helper to get strict mins for drill list
@@ -1299,7 +1316,7 @@
 
                     {/* GOAL Modal (RESTORED) */}
                     {showGoalModal && (
-                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
+                        <div className="fixed inset-0 z-[1000] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
                             <div id="goal-card" className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
                                 <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2 flex-shrink-0">
                                     <h2 className="text-2xl font-black uppercase">GOAL CENTER</h2>
@@ -1324,7 +1341,7 @@
                                                     className="flex-1 pixel-border p-1.5 font-bold text-[10px] bg-white outline-none min-w-0"
                                                     value={newDailyData.activityId}
                                                     onChange={e => {
-                                                        const act = activities.find(a => a.id === e.target.value);
+                                                        const act = (activities || []).find(a => a.id === e.target.value);
                                                         setNewDailyData({
                                                             activityId: e.target.value,
                                                             targetMinutes: act ? (act.dailyGoal || '') : ''
@@ -1349,7 +1366,7 @@
                                                     onClick={() => {
                                                         if (!newDailyData.activityId) return;
                                                         const val = parseInt(newDailyData.targetMinutes) || 0;
-                                                        setActivities(prev => prev.map(a => a.id === newDailyData.activityId ? { ...a, dailyGoal: val } : a));
+                                                        setActivities(prev => (prev || []).map(a => a.id === newDailyData.activityId ? { ...a, dailyGoal: val } : a));
                                                         setNewDailyData({ activityId: '', targetMinutes: '' });
                                                         showMsg(val > 0 ? "Goal Set!" : "Goal Removed");
                                                     }}
@@ -1361,10 +1378,10 @@
 
                                             {/* List Active Daily Goals */}
                                             <div className="bg-[#E0F2F1] pixel-border p-3 space-y-2 max-h-40 overflow-y-auto no-scrollbar">
-                                                {activities.filter(a => a.dailyGoal > 0).length === 0 ? (
+                                                {(activities || []).filter(a => a.dailyGoal > 0).length === 0 ? (
                                                     <p className="text-center text-[10px] opacity-40 font-bold">No daily goals set.</p>
                                                 ) : (
-                                                    activities.filter(a => a.dailyGoal > 0).map(act => {
+                                                    (activities || []).filter(a => a.dailyGoal > 0).map(act => {
                                                         const current = getTodayProgress(act);
                                                         const goal = act.dailyGoal;
                                                         const pct = Math.min(100, (current / goal) * 100);
@@ -1449,7 +1466,7 @@
                                                 <button 
                                                     onClick={() => {
                                                         if (newGoalData.activityId && newGoalData.startDate && newGoalData.endDate && newGoalData.targetMinutes > 0) {
-                                                            setCustomGoals(prev => [...prev, { id: Math.random().toString(36).substr(2, 9), ...newGoalData, targetMinutes: parseInt(newGoalData.targetMinutes) }]);
+                                                            setCustomGoals(prev => ([...(prev || []), { id: Math.random().toString(36).substr(2, 9), ...newGoalData, targetMinutes: parseInt(newGoalData.targetMinutes) }]));
                                                             setNewGoalData({ activityId: '', startDate: '', endDate: '', targetMinutes: '' });
                                                             showMsg("CHALLENGE ACCEPTED!");
                                                         }
@@ -1462,16 +1479,16 @@
 
                                             {/* List Active Challenges */}
                                             <div className="space-y-3">
-                                                {customGoals.filter(g => isChallengeActive(g.endDate)).map(g => {
-                                                    const act = activities.find(a => a.id === g.activityId);
+                                                {(customGoals || []).filter(g => isChallengeActive(g.endDate)).map(g => {
+                                                    const act = (activities || []).find(a => a.id === g.activityId);
                                                     if (!act) return null;
                                                     
                                                     const progress = getRangeProgress(g.activityId, g.startDate, g.endDate);
                                                     const pct = Math.min(100, (progress / g.targetMinutes) * 100);
                                                     const isDone = progress >= g.targetMinutes;
                                                     
-                                                    const [sy, sm, sd] = g.startDate.split('-').map(Number);
-                                                    const [ey, em, ed] = g.endDate.split('-').map(Number);
+                                                    const [sy, sm, sd] = (g.startDate||'').split('-').map(Number);
+                                                    const [ey, em, ed] = (g.endDate||'').split('-').map(Number);
                                                     const start = new Date(sy, sm - 1, sd);
                                                     const end = new Date(ey, em - 1, ed);
                                                     const daysTotal = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
@@ -1484,7 +1501,7 @@
                                                             <button 
                                                                 onClick={() => {
                                                                     if (challengeDeleteConfirmId === g.id) {
-                                                                        setCustomGoals(prev => prev.filter(item => item.id !== g.id));
+                                                                        setCustomGoals(prev => (prev || []).filter(item => item.id !== g.id));
                                                                         setChallengeDeleteConfirmId(null);
                                                                     } else {
                                                                         setChallengeDeleteConfirmId(g.id);
@@ -1511,7 +1528,7 @@
                                                                 
                                                                 {status !== 'upcoming' && (
                                                                     <div className="text-right">
-                                                                        <div className="flex items-center justify-end gap-1">
+                                                                    <div className="flex items-center justify-end gap-1">
                                                                             <p className={`text-lg font-black leading-none ${isDone ? 'text-green-600' : 'text-blue-600'}`}>
                                                                                 {Math.round((progress/g.targetMinutes)*100)}%
                                                                             </p>
@@ -1534,7 +1551,7 @@
                                                         </div>
                                                     );
                                                 })}
-                                                {customGoals.filter(g => isChallengeActive(g.endDate)).length === 0 && (
+                                                {(customGoals || []).filter(g => isChallengeActive(g.endDate)).length === 0 && (
                                                     <p className="text-center text-[10px] opacity-40 font-bold py-4">No active custom challenges.</p>
                                                 )}
                                             </div>
@@ -1564,7 +1581,7 @@
                                                     let totalAchieved = 0;
                                                     
                                                     if (archiveFilters.type === 'custom') {
-                                                        const validGoals = customGoals.filter(g => 
+                                                        const validGoals = (customGoals || []).filter(g => 
                                                             g.startDate <= archiveFilters.endDate && g.endDate >= archiveFilters.startDate
                                                         );
                                                         totalGoals = validGoals.length;
@@ -1573,10 +1590,10 @@
                                                             return p >= g.targetMinutes;
                                                         }).length;
                                                     } else {
-                                                        const dailyActs = activities.filter(a => a.dailyGoal > 0);
+                                                        const dailyActs = (activities || []).filter(a => a.dailyGoal > 0);
                                                         totalGoals = dailyActs.length;
-                                                        const [sy, sm, sd] = archiveFilters.startDate.split('-').map(Number);
-                                                        const [ey, em, ed] = archiveFilters.endDate.split('-').map(Number);
+                                                        const [sy, sm, sd] = (archiveFilters.startDate||'').split('-').map(Number);
+                                                        const [ey, em, ed] = (archiveFilters.endDate||'').split('-').map(Number);
                                                         const start = new Date(sy, sm - 1, sd);
                                                         const end = new Date(ey, em - 1, ed);
                                                         const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
@@ -1600,18 +1617,18 @@
                                             </div>
 
                                             <div className="space-y-2">
-                                                {archiveFilters.type === 'custom' ? (
-                                                    customGoals.filter(g => g.startDate <= archiveFilters.endDate && g.endDate >= archiveFilters.startDate).length === 0 ? (
+                                                    {archiveFilters.type === 'custom' ? (
+                                                    (customGoals || []).filter(g => g.startDate <= archiveFilters.endDate && g.endDate >= archiveFilters.startDate).length === 0 ? (
                                                         <p className="text-center text-[10px] opacity-30 py-4 font-bold">No records in this period.</p>
                                                     ) : (
-                                                        customGoals.filter(g => g.startDate <= archiveFilters.endDate && g.endDate >= archiveFilters.startDate)
+                                                        (customGoals || []).filter(g => g.startDate <= archiveFilters.endDate && g.endDate >= archiveFilters.startDate)
                                                         .sort((a,b) => {
-                                                            const [by, bm, bd] = b.endDate.split('-').map(Number);
-                                                            const [ay, am, ad] = a.endDate.split('-').map(Number);
+                                                            const [by, bm, bd] = (b.endDate||'').split('-').map(Number);
+                                                            const [ay, am, ad] = (a.endDate||'').split('-').map(Number);
                                                             return new Date(by, bm - 1, bd) - new Date(ay, am - 1, ad);
                                                         })
                                                         .map(g => {
-                                                            const act = activities.find(a => a.id === g.activityId);
+                                                            const act = (activities || []).find(a => a.id === g.activityId);
                                                             if (!act) return null;
                                                             const progress = getRangeProgress(g.activityId, g.startDate, g.endDate);
                                                             const success = progress >= g.targetMinutes;
@@ -1656,11 +1673,11 @@
                                                             );
                                                         })
                                                     )
-                                                ) : (
+                                                    ) : (
                                                     // Daily Goals List (Calculated)
-                                                    activities.filter(a => a.dailyGoal > 0).map(act => {
-                                                        const [sy, sm, sd] = archiveFilters.startDate.split('-').map(Number);
-                                                        const [ey, em, ed] = archiveFilters.endDate.split('-').map(Number);
+                                                    (activities || []).filter(a => a.dailyGoal > 0).map(act => {
+                                                        const [sy, sm, sd] = (archiveFilters.startDate||'').split('-').map(Number);
+                                                        const [ey, em, ed] = (archiveFilters.endDate||'').split('-').map(Number);
                                                         const start = new Date(sy, sm - 1, sd);
                                                         const end = new Date(ey, em - 1, ed);
                                                         const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
@@ -1699,7 +1716,7 @@
                     {/* ... (Other Modals) ... */}
                     {/* Backup Modal (Restored) */}
                     {showBackupModal && (
-                        <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
+                        <div className="fixed inset-0 z-[1000] bg-black/90 flex items-center justify-center p-6 text-left cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
                                 <h2 className="text-2xl font-black mb-4 border-b-4 border-black uppercase">{isRestoreMode ? 'RESTORE' : 'VAULT'}</h2>
                                 
@@ -1740,7 +1757,7 @@
                         </div>
                     )}
                     {(showAddModal || showEditModal) && (
-                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-6 backdrop-blur-md text-left cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
+                        <div className="fixed inset-0 z-[1000] bg-black/80 flex items-center justify-center p-6 backdrop-blur-md text-left cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
                                 <h2 className="text-3xl font-black mb-6 uppercase border-b-4 border-black">{showEditModal ? 'Edit' : 'New'}</h2>
                                 <div className="space-y-5 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">
@@ -1770,7 +1787,7 @@
                                     </div>
                                     <select className="w-full pixel-border p-4 font-bold bg-white text-lg outline-none" value={formData.parentId} onChange={e => setFormData({...formData, parentId: e.target.value})}>
                                         <option value="">Top Category</option>
-                                        {activities.filter(a => !a.parentId && a.id !== activeEditId).map(a => <option key={a.id} value={a.id}>Under: {a.name}</option>)}
+                                        {(activities || []).filter(a => !a.parentId && a.id !== activeEditId).map(a => <option key={a.id} value={a.id}>Under: {a.name}</option>)}
                                     </select>
                                 </div>
                                 <div className="flex gap-4 mt-8">

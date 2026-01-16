@@ -70,6 +70,17 @@
         /* 截图专用 */
         .hide-in-capture { display: flex; }
         .is-capturing .hide-in-capture { display: none !important; }
+
+        /* 修复日期输入框在 iOS 上的默认样式 */
+        input[type="date"] {
+            -webkit-appearance: none;
+            min-width: 0; 
+            background-color: white;
+            display: block; /* 强制块级显示 */
+            width: 100%;
+            padding-top: 8px; /* 增加点击区域 */
+            padding-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -298,21 +309,75 @@
             };
 
             const calculateStats = (startStr, endStr) => {
-                const rootActivities = activities.filter(a => !a.parentId);
-                let totalPeriodMins = 0;
-                
-                const stats = rootActivities.map(root => {
-                    const mins = getRangeProgress(root.id, startStr, endStr);
-                    totalPeriodMins += mins;
-                    return { ...root, mins };
+                const parseLocalStart = (s) => {
+                    const [y, m, d] = s.split('-').map(Number);
+                    return new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
+                };
+                const parseLocalEnd = (s) => {
+                    const [y, m, d] = s.split('-').map(Number);
+                    return new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
+                };
+
+                const start = parseLocalStart(startStr);
+                const end = parseLocalEnd(endStr);
+
+                const logsInRange = logs.filter(l => {
+                    const logEnd = l.endTime || Date.now();
+                    return logEnd >= start && l.startTime <= end;
                 });
 
-                // Filter out 0 mins
-                const filteredStats = stats.filter(s => s.mins > 0);
+                const aggByName = {};
+                logsInRange.forEach(l => {
+                    const logEnd = l.endTime || Date.now();
+                    const effectiveStart = Math.max(l.startTime, start);
+                    const effectiveEnd = Math.min(logEnd, end);
+                    if (effectiveEnd <= effectiveStart) return;
+                    const key = l.activityName || 'UNKNOWN';
+                    const durationMs = effectiveEnd - effectiveStart;
+                    if (!aggByName[key]) {
+                        aggByName[key] = { name: key, totalMs: 0 };
+                    }
+                    aggByName[key].totalMs += durationMs;
+                });
 
-                filteredStats.sort((a, b) => b.mins - a.mins);
+                const rootMap = new Map();
+                const orphanStats = [];
 
-                return { totalPeriodMins, stats: filteredStats };
+                Object.values(aggByName).forEach(entry => {
+                    const { name, totalMs } = entry;
+                    const mins = totalMs / 60000;
+                    const act = activities.find(a => a.name === name);
+                    if (!act) {
+                        orphanStats.push({
+                            id: `orphan_${name}`,
+                            name,
+                            emoji: '❓',
+                            mins,
+                            parentId: null,
+                            isOrphan: true
+                        });
+                        return;
+                    }
+                    let rootAct = act;
+                    while (rootAct.parentId) {
+                        const parent = activities.find(a => a.id === rootAct.parentId);
+                        if (!parent) break;
+                        rootAct = parent;
+                    }
+                    const rootId = rootAct.id;
+                    if (!rootMap.has(rootId)) {
+                        rootMap.set(rootId, { ...rootAct, mins: 0 });
+                    }
+                    const current = rootMap.get(rootId);
+                    current.mins += mins;
+                });
+
+                const stats = [...rootMap.values(), ...orphanStats].filter(s => Math.round(s.mins) > 0);
+                stats.sort((a, b) => b.mins - a.mins);
+
+                const totalPeriodMins = stats.reduce((acc, s) => acc + s.mins, 0);
+
+                return { totalPeriodMins, stats };
             };
 
             const isChallengeActive = (endDateStr) => {
@@ -336,21 +401,47 @@
 
             const saveArchiveImage = () => {
                 const card = document.getElementById('archive-capture-area');
+                const parent = document.getElementById('goal-card');
                 if (!card) return;
+                
+                // 截图时截取整个 goal-card，以包含标题
+                const targetToCapture = document.getElementById('goal-card');
+                
                 setIsCapturing(true);
                 setTimeout(() => {
-                    html2canvas(card, { 
+                    html2canvas(targetToCapture, { 
                         backgroundColor: '#FFFFFF', 
                         scale: 2, 
                         useCORS: true, 
                         allowTaint: true,
                         onclone: (clonedDoc) => {
-                            const clonedCard = clonedDoc.getElementById('archive-capture-area');
+                            const clonedCard = clonedDoc.getElementById('goal-card');
+                            const scrollableContent = clonedDoc.getElementById('archive-capture-area');
+                            
                             if (clonedCard) {
                                 clonedCard.style.maxHeight = 'none';
                                 clonedCard.style.height = 'auto';
                                 clonedCard.style.overflow = 'visible';
+                                clonedCard.style.display = 'block'; 
                             }
+                            if (scrollableContent) {
+                                scrollableContent.style.maxHeight = 'none';
+                                scrollableContent.style.height = 'auto';
+                                scrollableContent.style.overflow = 'visible';
+                            }
+                            
+                            const buttonsToHide = clonedCard.querySelectorAll('button, .hide-in-capture');
+                            buttonsToHide.forEach(btn => btn.style.display = 'none');
+                            
+                            const truncatedElements = clonedCard.querySelectorAll('.truncate');
+                            truncatedElements.forEach(el => {
+                                el.style.overflow = 'visible'; 
+                                el.style.whiteSpace = 'normal';
+                                el.style.textOverflow = 'clip';
+                                el.style.paddingBottom = '5px'; 
+                                el.style.wordBreak = 'break-all';
+                                el.style.height = 'auto';
+                            });
                         }
                     }).then(canvas => {
                         const link = document.createElement('a');
@@ -363,22 +454,44 @@
             };
 
             const saveStatsImage = () => {
-                const card = document.getElementById('stats-capture-area');
-                if (!card) return;
+                const targetToCapture = document.getElementById('stats-card'); 
+                if (!targetToCapture) return;
+                
                 setIsCapturing(true);
                 setTimeout(() => {
-                    html2canvas(card, { 
+                    html2canvas(targetToCapture, { 
                         backgroundColor: '#FFFFFF', 
                         scale: 2, 
                         useCORS: true, 
                         allowTaint: true,
                         onclone: (clonedDoc) => {
-                            const clonedCard = clonedDoc.getElementById('stats-capture-area');
+                            const clonedCard = clonedDoc.getElementById('stats-card');
+                            const scrollableContent = clonedCard.querySelector('.overflow-y-auto'); 
+                            
                             if (clonedCard) {
                                 clonedCard.style.maxHeight = 'none';
                                 clonedCard.style.height = 'auto';
                                 clonedCard.style.overflow = 'visible';
+                                clonedCard.style.display = 'block';
                             }
+                            if (scrollableContent) {
+                                scrollableContent.style.maxHeight = 'none';
+                                scrollableContent.style.height = 'auto';
+                                scrollableContent.style.overflow = 'visible';
+                            }
+                            
+                            const buttonsToHide = clonedCard.querySelectorAll('button, .hide-in-capture');
+                            buttonsToHide.forEach(btn => btn.style.display = 'none');
+                            
+                            const truncatedElements = clonedCard.querySelectorAll('.truncate');
+                            truncatedElements.forEach(el => {
+                                el.style.overflow = 'visible'; 
+                                el.style.whiteSpace = 'normal';
+                                el.style.textOverflow = 'clip';
+                                el.style.paddingBottom = '5px'; 
+                                el.style.wordBreak = 'break-all';
+                                el.style.height = 'auto';
+                            });
                         }
                     }).then(canvas => {
                         const link = document.createElement('a');
@@ -416,7 +529,11 @@
                             const truncatedElements = clonedCard.querySelectorAll('.truncate');
                             truncatedElements.forEach(el => {
                                 el.style.overflow = 'visible'; 
+                                el.style.whiteSpace = 'normal';
+                                el.style.textOverflow = 'clip';
                                 el.style.paddingBottom = '5px'; 
+                                el.style.wordBreak = 'break-all';
+                                el.style.height = 'auto';
                             });
                         }
                     }).then(canvas => {
@@ -817,17 +934,21 @@
                     <div className="flex-shrink-0 grid grid-cols-4 gap-2 pb-2">
                         <button onClick={() => { setSelectedDate(new Date()); setShowSummary(true); }} className="bg-black text-white pixel-border p-3 font-bold text-xs flex items-center justify-center gap-1 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">SUMMARY</button>
                         <button onClick={() => setShowGoalModal(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">GOAL</button>
-                        <button onClick={() => setShowStatsModal(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm flex items-center justify-center gap-1">STATS</button>
+                        <button onClick={() => {
+                            const iso = selectedDate.toISOString().split('T')[0];
+                            setStatsDateRange({ start: iso, end: iso });
+                            setShowStatsModal(true);
+                        }} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm flex items-center justify-center gap-1">STATS</button>
                         <button onClick={() => setShowCalendar(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">HISTORY</button>
                     </div>
 
                     {/* STATS 弹窗 */}
                     {showStatsModal && (
                         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
-                            <div className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto no-scrollbar flex flex-col">
+                            <div id="stats-card" className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
                                 <div className="flex justify-between items-center mb-4 border-b-4 border-black pb-2 flex-shrink-0">
                                     <h2 className="text-2xl font-black uppercase">DATA CENTER</h2>
-                                    <button onClick={() => setShowStatsModal(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
+                                    <button onClick={() => setShowStatsModal(false)} className="text-xl font-bold border-2 border-black px-3 hide-in-capture">X</button>
                                 </div>
 
                                 <div className="flex gap-2 mb-4 flex-shrink-0">
@@ -1122,7 +1243,7 @@
                                     )}
                                 </div>
 
-                                <button onClick={saveStatsImage} className="mt-3 bg-[#FFD60A] pixel-border py-3 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-sm active:translate-y-0.5 flex-shrink-0 w-full max-w-sm mx-auto mb-6">
+                                <button onClick={saveStatsImage} className="mt-3 bg-[#FFD60A] pixel-border py-3 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-sm active:translate-y-0.5 flex-shrink-0 w-full max-w-sm mx-auto mb-6 hide-in-capture">
                                     {PIXEL_ICONS.save} SAVE SNAPSHOT
                                 </button>
                             </div>
@@ -1132,28 +1253,28 @@
                     {/* GOAL Modal (RESTORED) */}
                     {showGoalModal && (
                         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
-                            <div className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto no-scrollbar flex flex-col">
-                                <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2">
+                            <div id="goal-card" className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
+                                <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2 flex-shrink-0">
                                     <h2 className="text-2xl font-black uppercase">GOAL CENTER</h2>
-                                    <button onClick={() => setShowGoalModal(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
+                                    <button onClick={() => setShowGoalModal(false)} className="text-xl font-bold border-2 border-black px-3 hide-in-capture">X</button>
                                 </div>
 
                                 {/* Tabs */}
-                                <div className="flex gap-2 mb-4 border-b-2 border-black/10 pb-2">
+                                <div className="flex gap-2 mb-4 border-b-2 border-black/10 pb-2 flex-shrink-0">
                                     <button onClick={() => setGoalTab('active')} className={`flex-1 font-bold text-xs py-2 uppercase transition-all ${goalTab === 'active' ? 'bg-[#FFD60A] pixel-border' : 'opacity-50'}`}>🛡️ Quests</button>
                                     <button onClick={() => setGoalTab('history')} className={`flex-1 font-bold text-xs py-2 uppercase transition-all ${goalTab === 'history' ? 'bg-[#6D83F2] text-white pixel-border' : 'opacity-50'}`}>🏆 Reports</button>
                                 </div>
 
                                 {goalTab === 'active' && (
-                                    <div className="space-y-6">
+                                    <div className="space-y-6 flex-1 overflow-y-auto no-scrollbar">
                                         {/* 1. Daily Challenges */}
-                                        <div>
+                                        <div className="relative z-0">
                                             <h3 className="text-sm font-black mb-2 uppercase opacity-60">DAILY CHALLENGES</h3>
                                             
                                             {/* Add/Edit Daily Goal */}
-                                            <div className="bg-gray-100 pixel-border p-2 mb-2 flex gap-2 items-center">
+                                            <div className="bg-gray-100 pixel-border p-2 mb-2 flex gap-2 items-center hide-in-capture">
                                                 <select 
-                                                    className="flex-1 pixel-border p-1.5 font-bold text-[10px] bg-white outline-none"
+                                                    className="flex-1 pixel-border p-1.5 font-bold text-[10px] bg-white outline-none min-w-0"
                                                     value={newDailyData.activityId}
                                                     onChange={e => {
                                                         const act = activities.find(a => a.id === e.target.value);
@@ -1173,7 +1294,7 @@
                                                 <input 
                                                     type="number" 
                                                     placeholder="Min" 
-                                                    className="w-12 pixel-border p-1.5 text-[10px] font-bold text-center outline-none" 
+                                                    className="w-20 pixel-border p-1.5 text-[10px] font-bold text-center outline-none flex-shrink-0" 
                                                     value={newDailyData.targetMinutes} 
                                                     onChange={e => setNewDailyData({...newDailyData, targetMinutes: e.target.value})} 
                                                 />
@@ -1185,7 +1306,7 @@
                                                         setNewDailyData({ activityId: '', targetMinutes: '' });
                                                         showMsg(val > 0 ? "Goal Set!" : "Goal Removed");
                                                     }}
-                                                    className="bg-black text-white px-3 py-1.5 text-[10px] font-bold pixel-border active:scale-95"
+                                                    className="bg-black text-white px-3 py-1.5 text-[10px] font-bold pixel-border active:scale-95 flex-shrink-0"
                                                 >
                                                     SET
                                                 </button>
@@ -1234,36 +1355,49 @@
                                         </div>
 
                                         {/* 2. Custom Challenges */}
-                                        <div>
+                                        <div className="relative z-0">
                                             <h3 className="text-sm font-black mb-2 uppercase opacity-60">CUSTOM CHALLENGES</h3>
                                             
-                                            {/* Create New Challenge */}
-                                            <div className="bg-gray-100 pixel-border p-3 mb-3">
-                                                <div className="grid grid-cols-2 gap-2 mb-2">
-                                                    <select 
-                                                        className="col-span-2 pixel-border p-2 font-bold text-xs bg-white outline-none"
-                                                        value={newGoalData.activityId}
-                                                        onChange={e => setNewGoalData({...newGoalData, activityId: e.target.value})}
-                                                    >
-                                                        <option value="">Select Target...</option>
-                                                        {getHierarchicalActivities().map(a => (
-                                                            <option key={a.id} value={a.id}>
-                                                                {'\u00A0\u00A0'.repeat(a.level)}{a.emoji} {a.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                    <input type="date" className="pixel-border p-1 text-[10px] font-bold" value={newGoalData.startDate} onChange={e => setNewGoalData({...newGoalData, startDate: e.target.value})} />
-                                                    <input type="date" className="pixel-border p-1 text-[10px] font-bold" value={newGoalData.endDate} onChange={e => setNewGoalData({...newGoalData, endDate: e.target.value})} />
-                                                    <div className="col-span-2 flex items-center bg-white pixel-border px-2">
-                                                        <input 
-                                                            type="number" 
-                                                            placeholder="Total Target" 
-                                                            className="flex-1 p-2 text-xs font-bold outline-none" 
-                                                            value={newGoalData.targetMinutes} 
-                                                            onChange={e => setNewGoalData({...newGoalData, targetMinutes: e.target.value})} 
-                                                        />
-                                                        <span className="text-xs font-bold opacity-50">min</span>
-                                                    </div>
+                                            {/* Create New Challenge - Flex Layout Fixed */}
+                                            <div className="bg-gray-100 pixel-border p-3 mb-3 hide-in-capture flex flex-col gap-2">
+                                                <select 
+                                                    className="w-full pixel-border p-2 font-bold text-xs bg-white outline-none"
+                                                    value={newGoalData.activityId}
+                                                    onChange={e => setNewGoalData({...newGoalData, activityId: e.target.value})}
+                                                >
+                                                    <option value="">Select Target...</option>
+                                                    {getHierarchicalActivities().map(a => (
+                                                        <option key={a.id} value={a.id}>
+                                                            {'\u00A0\u00A0'.repeat(a.level)}{a.emoji} {a.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                
+                                                {/* 布局修改：将两个日期输入框放入一个 flex 容器中并排显示 */}
+                                                <div className="flex flex-row gap-2">
+                                                    <input 
+                                                        type="date" 
+                                                        className="flex-1 pixel-border p-1 text-xs font-bold appearance-none bg-white min-w-0" 
+                                                        value={newGoalData.startDate} 
+                                                        onChange={e => setNewGoalData({...newGoalData, startDate: e.target.value})} 
+                                                    />
+                                                    <input 
+                                                        type="date" 
+                                                        className="flex-1 pixel-border p-1 text-xs font-bold appearance-none bg-white min-w-0" 
+                                                        value={newGoalData.endDate} 
+                                                        onChange={e => setNewGoalData({...newGoalData, endDate: e.target.value})} 
+                                                    />
+                                                </div>
+
+                                                <div className="w-full flex items-center bg-white pixel-border px-2">
+                                                    <input 
+                                                        type="number" 
+                                                        placeholder="Total Target" 
+                                                        className="flex-1 p-2 text-xs font-bold outline-none" 
+                                                        value={newGoalData.targetMinutes} 
+                                                        onChange={e => setNewGoalData({...newGoalData, targetMinutes: e.target.value})} 
+                                                    />
+                                                    <span className="text-xs font-bold opacity-50 flex-shrink-0">min</span>
                                                 </div>
                                                 <button 
                                                     onClick={() => {
@@ -1308,7 +1442,7 @@
                                                                         setTimeout(() => setChallengeDeleteConfirmId(null), 3000);
                                                                     }
                                                                 }}
-                                                                className={`absolute -top-1 -right-1 text-[8px] font-bold border border-black px-1.5 transition-all z-20 ${challengeDeleteConfirmId === g.id ? 'bg-red-500 text-white opacity-100' : 'bg-white text-black opacity-0 group-hover:opacity-100'}`}
+                                                                className={`absolute -top-1 -right-1 text-[8px] font-bold border border-black px-1.5 transition-all z-20 hide-in-capture ${challengeDeleteConfirmId === g.id ? 'bg-red-500 text-white opacity-100' : 'bg-white text-black opacity-0 group-hover:opacity-100'}`}
                                                             >
                                                                 {challengeDeleteConfirmId === g.id ? 'SURE?' : 'DEL'}
                                                             </button>
@@ -1367,8 +1501,8 @@
                                                 <button onClick={() => setArchiveFilters({...archiveFilters, type: 'daily'})} className={`flex-1 text-[10px] font-bold py-1.5 ${archiveFilters.type === 'daily' ? 'bg-black text-white' : ''}`}>DAILY</button>
                                                 <button onClick={() => setArchiveFilters({...archiveFilters, type: 'custom'})} className={`flex-1 text-[10px] font-bold py-1.5 ${archiveFilters.type === 'custom' ? 'bg-black text-white' : ''}`}>CUSTOM</button>
                                             </div>
-                                            <input type="date" className="pixel-border p-1 text-[10px] font-bold text-center" value={archiveFilters.startDate} onChange={e => setArchiveFilters({...archiveFilters, startDate: e.target.value})} />
-                                            <input type="date" className="pixel-border p-1 text-[10px] font-bold text-center" value={archiveFilters.endDate} onChange={e => setArchiveFilters({...archiveFilters, endDate: e.target.value})} />
+                                            <input type="date" className="pixel-border p-1 text-xs font-bold text-center appearance-none bg-white min-w-0" value={archiveFilters.startDate} onChange={e => setArchiveFilters({...archiveFilters, startDate: e.target.value})} />
+                                            <input type="date" className="pixel-border p-1 text-xs font-bold text-center appearance-none bg-white min-w-0" value={archiveFilters.endDate} onChange={e => setArchiveFilters({...archiveFilters, endDate: e.target.value})} />
                                         </div>
 
                                         <div id="archive-capture-area" className="flex-1 overflow-y-auto no-scrollbar bg-white p-2 border-2 border-dashed border-gray-300">
@@ -1451,6 +1585,7 @@
                                                                         <div className="flex items-center gap-1">
                                                                             <span>{act.emoji}</span>
                                                                             <span className="text-xs font-bold uppercase">{act.name}</span>
+                                                                            {/* 明确的状态标签 */}
                                                                             {status === 'active' && <span className="text-[8px] bg-blue-100 text-blue-600 px-1 py-0.5 rounded border border-blue-200">ACTIVE</span>}
                                                                             {status === 'upcoming' && <span className="text-[8px] bg-gray-200 text-gray-500 px-1 py-0.5 rounded border border-gray-300">WAITING</span>}
                                                                         </div>
@@ -1467,6 +1602,7 @@
                                                         })
                                                     )
                                                 ) : (
+                                                    // Daily Goals List (Calculated)
                                                     activities.filter(a => a.dailyGoal > 0).map(act => {
                                                         const start = new Date(archiveFilters.startDate);
                                                         const end = new Date(archiveFilters.endDate);
@@ -1494,7 +1630,7 @@
                                             </div>
                                         </div>
 
-                                        <button onClick={saveArchiveImage} className="mt-3 bg-[#FFD60A] pixel-border py-3 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-sm active:translate-y-0.5">
+                                        <button onClick={saveArchiveImage} className="mt-3 bg-[#FFD60A] pixel-border py-3 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-sm active:translate-y-0.5 flex-shrink-0 w-full max-w-sm mx-auto mb-6 hide-in-capture">
                                             {PIXEL_ICONS.save} SAVE SNAPSHOT
                                         </button>
                                     </div>
@@ -1504,98 +1640,6 @@
                     )}
                     
                     {/* ... (Other Modals) ... */}
-                    {/* Summary Modal (Restored) */}
-                    {showSummary && (
-                        <div className={`fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm ${isCapturing ? 'is-capturing' : ''}`}>
-                            <div id="summary-card" className="bg-[#E0F2F1] pixel-border p-6 w-full max-w-sm flex flex-col overflow-hidden max-h-[85vh] text-left">
-                                <div className="flex justify-between items-center mb-5 border-b-4 border-black pb-2">
-                                    <div><h2 className="text-3xl font-black italic uppercase tracking-tighter">Mission Clear</h2><p className="text-[10px] font-bold opacity-40 mt-1">Date: {selectedDate.toLocaleDateString()}</p></div>
-                                    <button onClick={() => setShowSummary(false)} className="hide-in-capture text-xl font-bold border-4 border-black px-4 py-1 bg-white mb-2 shadow-sm shadow-black">X</button>
-                                </div>
-                                <div className="flex-1 space-y-1 overflow-y-auto no-scrollbar pr-1 pb-4">
-                                    {getLogsForDate(selectedDate).length === 0 ? (
-                                        <p className="text-center font-bold opacity-30 py-20 italic uppercase tracking-tight">No Data Found</p>
-                                    ) : (
-                                        getLogsForDate(selectedDate).map((l, i) => {
-                                            const activityObj = activities.find(a => a.name === l.activityName);
-                                            const parentObj = activityObj?.parentId ? activities.find(a => a.id === activityObj.parentId) : null;
-                                            const displayName = parentObj ? `${parentObj.name}-${l.activityName}` : l.activityName;
-                                            return (
-                                                <div key={l.id} className="bg-white border-b-2 border-black/10 p-2 flex justify-between items-center text-left">
-                                                    <div className="flex items-center gap-1.5 min-w-0">
-                                                        <span className="text-lg flex-shrink-0">{l.activityEmoji || '📍'}</span>
-                                                        <div className="flex items-center gap-1.5 truncate py-1">
-                                                            <span className="font-black text-[13px] uppercase truncate leading-relaxed">{displayName}</span>
-                                                            <span className="text-[9px] font-bold text-blue-600 opacity-60 flex-shrink-0">[{formatTime(l.startTime)}-{formatTime(l.endTime)}]</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="font-black text-xs flex-shrink-0">{Math.round((l.endTime-l.startTime)/60000)}M</div>
-                                                        {isDeleteMode && (
-                                                            <button 
-                                                                onClick={(e) => handleDeleteLog(e, l.id)}
-                                                                className={`hide-in-capture w-5 h-5 flex items-center justify-center border-2 border-black text-[10px] font-bold transition-all shadow-sm ${logDeleteConfirmId === l.id ? 'bg-red-500 text-white border-red-800' : 'bg-white text-gray-400 border-gray-200'}`}
-                                                            >
-                                                                {logDeleteConfirmId === l.id ? '?' : 'x'}
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
-                                <div className="mt-2 pt-4 border-t-4 border-black flex justify-between items-end flex-shrink-0 text-left">
-                                    <div className="flex-1">
-                                        <p className="text-[10px] font-bold opacity-40 uppercase mb-1">Total XP</p>
-                                        <p className="text-5xl font-black leading-relaxed pb-2">
-                                            {Math.round(getLogsForDate(selectedDate).reduce((acc, l) => acc + (l.endTime ? (l.endTime - l.startTime) / 60000 : 0), 0))}0
-                                        </p>
-                                    </div>
-                                    <div className="hide-in-capture grid grid-cols-2 gap-2 w-32">
-                                        <button onClick={saveSummaryImage} className="bg-[#FFD60A] border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Save Image">{PIXEL_ICONS.save} PNG</button>
-                                        <button onClick={() => exportICS(getLogsForDate(selectedDate))} className="bg-[#6D83F2] text-white border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Sync Calendar">{PIXEL_ICONS.cal} CAL</button>
-                                        <button onClick={() => exportCSV(selectedDate)} className="bg-white text-black border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Export CSV">{PIXEL_ICONS.csv} CSV</button>
-                                        <button 
-                                            onClick={() => setIsDeleteMode(!isDeleteMode)} 
-                                            className={`border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1 transition-colors ${isDeleteMode ? 'bg-black text-white' : 'bg-white text-red-600'}`} 
-                                            title="Toggle Delete Mode"
-                                        >
-                                            {PIXEL_ICONS.trash} {isDeleteMode ? 'DONE' : 'DEL'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Show Calendar Modal (Restored) */}
-                    {showCalendar && (
-                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
-                            <div className="bg-white pixel-border p-6 w-full max-w-sm">
-                                <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2">
-                                    <h2 className="text-2xl font-black uppercase">TIME TRAVEL</h2>
-                                    <button onClick={() => setShowCalendar(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
-                                </div>
-                                <div className="flex justify-center items-center mb-4">
-                                    <input 
-                                        type="month" 
-                                        value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth()+1).padStart(2,'0')}`}
-                                        onChange={handleMonthChange}
-                                        className="font-black text-xl text-center bg-[#E0F2F1] border-2 border-black p-2 outline-none uppercase"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-7 gap-2 mb-6">
-                                    {['S','M','T','W','T','F','S'].map((d,i) => <div key={i} className="text-center text-xs font-bold opacity-40">{d}</div>)}
-                                    {renderCalendar()}
-                                </div>
-                                <div className="border-t-4 border-dashed border-gray-300 pt-4">
-                                    <button onClick={() => exportCSV(null)} className="w-full bg-[#E0F2F1] pixel-border p-3 font-bold text-xs uppercase shadow-sm active:bg-gray-200">EXPORT ALL HISTORY (CSV)</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     {/* Backup Modal (Restored) */}
                     {showBackupModal && (
                         <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left">
@@ -1676,8 +1720,24 @@
                                     <button onClick={() => {setShowAddModal(false); setShowEditModal(false);}} className="flex-1 pixel-border p-4 font-black uppercase text-xs text-center">Abort</button>
                                     <button onClick={() => {
                                         if(!formData.name) return;
-                                        if(showEditModal) setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, name: formData.name, emoji: formData.emoji, parentId: formData.parentId || null, dailyGoal: formData.dailyGoal } : a));
-                                        else setActivities([...activities, { id: Math.random().toString(36).substr(2, 9), ...formData, parentId: formData.parentId || null, dailyGoal: formData.dailyGoal }]);
+                                        if(showEditModal) {
+                                            const oldAct = activities.find(a => a.id === activeEditId);
+                                            if (oldAct && (oldAct.name !== formData.name || oldAct.emoji !== formData.emoji)) {
+                                                setLogs(prevLogs => prevLogs.map(log => {
+                                                    if (log.activityName === oldAct.name) {
+                                                        return {
+                                                            ...log,
+                                                            activityName: formData.name,
+                                                            activityEmoji: formData.emoji
+                                                        };
+                                                    }
+                                                    return log;
+                                                }));
+                                            }
+                                            setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, name: formData.name, emoji: formData.emoji, parentId: formData.parentId || null, dailyGoal: formData.dailyGoal } : a));
+                                        } else {
+                                            setActivities([...activities, { id: Math.random().toString(36).substr(2, 9), ...formData, parentId: formData.parentId || null, dailyGoal: formData.dailyGoal }]);
+                                        }
                                         setShowAddModal(false); setShowEditModal(false);
                                         triggerVibrate(30);
                                     }} className="flex-1 bg-black text-white p-4 font-black uppercase text-xs text-center">Save</button>

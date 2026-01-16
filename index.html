@@ -6,9 +6,14 @@
     <title>时间捕手 TimeCatcher 2.0 Dev</title>
     
     <!-- 核心资源 -->
-    <script>tailwind.config = { theme: { extend: {} } }</script>
-    <script>window.tailwind.config = { corePlugins: { preflight: true } }</script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
+            theme: { extend: {} },
+            corePlugins: { preflight: true }
+        };
+    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
@@ -1823,8 +1828,13 @@
             );
         };
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        window.addEventListener('DOMContentLoaded', () => {
+            const rootElement = document.getElementById('root');
+            if (rootElement) {
+                const root = ReactDOM.createRoot(rootElement);
+                root.render(<App />);
+            }
+        });
     </script>
 </body>
 </html>

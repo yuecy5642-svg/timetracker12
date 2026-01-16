@@ -6,11 +6,13 @@
     <title>时间捕手 TimeCatcher 2.0 Dev</title>
     
     <!-- 核心资源 -->
+    <script>tailwind.config = { theme: { extend: {} } }</script>
+    <script>window.tailwind.config = { corePlugins: { preflight: true } }</script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.24.4/babel.min.js" data-presets="react"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Silkscreen:wght@400;700&display=swap');
@@ -86,7 +88,7 @@
 <body>
     <div id="root"></div>
 
-    <script type="text/babel">
+    <script type="text/babel" data-presets="react" data-type="module">
         const { useState, useEffect, useMemo, useRef } = React;
 
         const PIXEL_ICONS = {
@@ -111,7 +113,13 @@
         const COMMON_EMOJIS = ["⚔️", "💻", "📖", "📝", "🧠", "🔥", "🚀", "💡", "🛠️", "🎯", "💪", "🧘", "🏃", "🚶", "🚴", "🏊", "🏀", "⚽", "🥊", "🔋", "🧹", "🍳", "☕", "🚿", "🧺", "🏠", "🪴", "🛌", "🌙", "🧴", "📱", "🎮", "🎧", "🎬", "🎨", "📸", "🎸", "🎤", "🍿", "🍎", "🥗", "🍕", "🍔", "🍦", "🍺", "🍷", "🥂", "🍵", "🍱", "🌍", "🌊", "🌲", "🌸", "☀️", "🚗", "✈️", "🗺️", "🐕", "🐈"];
 
         const App = () => {
-            const [activities, setActivities] = useState(() => JSON.parse(localStorage.getItem('tc_v10_17_acts') || '[]'));
+            const [activities, setActivities] = useState(() => {
+                try {
+                    return JSON.parse(localStorage.getItem('tc_v10_17_acts') || '[]');
+                } catch (e) {
+                    return [];
+                }
+            });
             useEffect(() => {
                 if (activities.length === 0) {
                     setActivities([
@@ -125,8 +133,20 @@
                 }
             }, []);
 
-            const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v10_17_logs') || '[]'));
-            const [customGoals, setCustomGoals] = useState(() => JSON.parse(localStorage.getItem('tc_v2_custom_goals') || '[]'));
+            const [logs, setLogs] = useState(() => {
+                try {
+                    return JSON.parse(localStorage.getItem('tc_v10_17_logs') || '[]');
+                } catch (e) {
+                    return [];
+                }
+            });
+            const [customGoals, setCustomGoals] = useState(() => {
+                try {
+                    return JSON.parse(localStorage.getItem('tc_v2_custom_goals') || '[]');
+                } catch (e) {
+                    return [];
+                }
+            });
             
             const [currentParentId, setCurrentParentId] = useState(null);
             const [isEditMode, setIsEditMode] = useState(false);
@@ -187,6 +207,19 @@
             const showMsg = (text, type = 'info') => {
                 setMsg({ show: true, text, type });
                 setTimeout(() => setMsg(prev => ({ ...prev, show: false })), 4000);
+            };
+
+            const openSummary = (keepDate = false) => {
+                console.log('Opening Summary...');
+                if (!keepDate) setSelectedDate(new Date());
+                setShowSummary(true);
+                window.scrollTo(0, 0);
+            };
+
+            const openCalendar = () => {
+                console.log('Opening Calendar...');
+                setShowCalendar(true);
+                window.scrollTo(0, 0);
             };
 
             useEffect(() => {
@@ -557,10 +590,18 @@
             const handleMonthChange = (e) => {
                 const [y, m] = e.target.value.split('-');
                 const newDate = new Date(parseInt(y), parseInt(m) - 1, 1);
+                if (isNaN(newDate.getTime())) {
+                    console.error('Invalid Date Detect!');
+                    return;
+                }
                 setSelectedDate(newDate);
             };
 
             const renderCalendar = () => {
+                if (isNaN(selectedDate.getTime())) {
+                    console.error('Invalid Date Detect!');
+                    return null;
+                }
                 const { days, firstDay } = getDaysInMonth(selectedDate);
                 const monthLogs = logs.filter(l => {
                     if (!l.endTime) return false;
@@ -584,7 +625,9 @@
                                 newDate.setDate(d);
                                 setSelectedDate(newDate);
                                 setShowCalendar(false);
+                                console.log('Opening Summary...');
                                 setShowSummary(true);
+                                window.scrollTo(0, 0);
                             }}
                             className={`h-8 flex flex-col items-center justify-center border font-bold relative ${isSelected ? 'bg-black text-white' : 'bg-white text-black'} ${hasData ? 'border-black' : 'border-gray-200 text-gray-300'}`}
                         >
@@ -831,6 +874,10 @@
 
             // Added back the missing helper function
             const getLogsForDate = (date) => {
+                if (!(date instanceof Date) || isNaN(date.getTime())) {
+                    console.error('Invalid Date Detect!');
+                    return [];
+                }
                 return logs.filter(l => {
                     if (!l.endTime) return false;
                     const d = new Date(l.endTime); 
@@ -932,19 +979,19 @@
 
                     {/* 底部导航 - Updated to 4 cols */}
                     <div className="flex-shrink-0 grid grid-cols-4 gap-2 pb-2">
-                        <button onClick={() => { setSelectedDate(new Date()); setShowSummary(true); }} className="bg-black text-white pixel-border p-3 font-bold text-xs flex items-center justify-center gap-1 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">SUMMARY</button>
+                        <button onClick={() => { console.log('Opening Summary...'); setSelectedDate(new Date()); setShowSummary(true); window.scrollTo(0,0); }} className="bg-black text-white pixel-border p-3 font-bold text-xs flex items-center justify-center gap-1 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">SUMMARY</button>
                         <button onClick={() => setShowGoalModal(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">GOAL</button>
                         <button onClick={() => {
                             const iso = selectedDate.toISOString().split('T')[0];
                             setStatsDateRange({ start: iso, end: iso });
                             setShowStatsModal(true);
                         }} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm flex items-center justify-center gap-1">STATS</button>
-                        <button onClick={() => setShowCalendar(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">HISTORY</button>
+                        <button onClick={() => { console.log('Opening Calendar...'); setShowCalendar(true); window.scrollTo(0,0); }} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">HISTORY</button>
                     </div>
 
                     {/* STATS 弹窗 */}
                     {showStatsModal && (
-                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
+                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
                             <div id="stats-card" className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
                                 <div className="flex justify-between items-center mb-4 border-b-4 border-black pb-2 flex-shrink-0">
                                     <h2 className="text-2xl font-black uppercase">DATA CENTER</h2>
@@ -1252,7 +1299,7 @@
 
                     {/* GOAL Modal (RESTORED) */}
                     {showGoalModal && (
-                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
+                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
                             <div id="goal-card" className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
                                 <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2 flex-shrink-0">
                                     <h2 className="text-2xl font-black uppercase">GOAL CENTER</h2>
@@ -1423,8 +1470,10 @@
                                                     const pct = Math.min(100, (progress / g.targetMinutes) * 100);
                                                     const isDone = progress >= g.targetMinutes;
                                                     
-                                                    const start = new Date(g.startDate);
-                                                    const end = new Date(g.endDate);
+                                                    const [sy, sm, sd] = g.startDate.split('-').map(Number);
+                                                    const [ey, em, ed] = g.endDate.split('-').map(Number);
+                                                    const start = new Date(sy, sm - 1, sd);
+                                                    const end = new Date(ey, em - 1, ed);
                                                     const daysTotal = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
                                                     const dailyAvg = Math.ceil(g.targetMinutes / daysTotal);
 
@@ -1526,8 +1575,10 @@
                                                     } else {
                                                         const dailyActs = activities.filter(a => a.dailyGoal > 0);
                                                         totalGoals = dailyActs.length;
-                                                        const start = new Date(archiveFilters.startDate);
-                                                        const end = new Date(archiveFilters.endDate);
+                                                        const [sy, sm, sd] = archiveFilters.startDate.split('-').map(Number);
+                                                        const [ey, em, ed] = archiveFilters.endDate.split('-').map(Number);
+                                                        const start = new Date(sy, sm - 1, sd);
+                                                        const end = new Date(ey, em - 1, ed);
                                                         const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
                                                         
                                                         totalAchieved = dailyActs.filter(a => {
@@ -1554,7 +1605,11 @@
                                                         <p className="text-center text-[10px] opacity-30 py-4 font-bold">No records in this period.</p>
                                                     ) : (
                                                         customGoals.filter(g => g.startDate <= archiveFilters.endDate && g.endDate >= archiveFilters.startDate)
-                                                        .sort((a,b) => new Date(b.endDate) - new Date(a.endDate))
+                                                        .sort((a,b) => {
+                                                            const [by, bm, bd] = b.endDate.split('-').map(Number);
+                                                            const [ay, am, ad] = a.endDate.split('-').map(Number);
+                                                            return new Date(by, bm - 1, bd) - new Date(ay, am - 1, ad);
+                                                        })
                                                         .map(g => {
                                                             const act = activities.find(a => a.id === g.activityId);
                                                             if (!act) return null;
@@ -1604,8 +1659,10 @@
                                                 ) : (
                                                     // Daily Goals List (Calculated)
                                                     activities.filter(a => a.dailyGoal > 0).map(act => {
-                                                        const start = new Date(archiveFilters.startDate);
-                                                        const end = new Date(archiveFilters.endDate);
+                                                        const [sy, sm, sd] = archiveFilters.startDate.split('-').map(Number);
+                                                        const [ey, em, ed] = archiveFilters.endDate.split('-').map(Number);
+                                                        const start = new Date(sy, sm - 1, sd);
+                                                        const end = new Date(ey, em - 1, ed);
                                                         const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1);
                                                         const targetTotal = act.dailyGoal * days;
                                                         const progress = getRangeProgress(act.id, archiveFilters.startDate, archiveFilters.endDate);
@@ -1642,7 +1699,7 @@
                     {/* ... (Other Modals) ... */}
                     {/* Backup Modal (Restored) */}
                     {showBackupModal && (
-                        <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left">
+                        <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
                                 <h2 className="text-2xl font-black mb-4 border-b-4 border-black uppercase">{isRestoreMode ? 'RESTORE' : 'VAULT'}</h2>
                                 
@@ -1683,7 +1740,7 @@
                         </div>
                     )}
                     {(showAddModal || showEditModal) && (
-                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-6 backdrop-blur-md text-left">
+                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-6 backdrop-blur-md text-left cursor-pointer" style={{ WebkitTapHighlightColor: 'transparent' }}>
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
                                 <h2 className="text-3xl font-black mb-6 uppercase border-b-4 border-black">{showEditModal ? 'Edit' : 'New'}</h2>
                                 <div className="space-y-5 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">

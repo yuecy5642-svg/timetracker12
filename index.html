@@ -161,7 +161,11 @@
             const [activeEditId, setActiveEditId] = useState(null);
             
             const [formData, setFormData] = useState({ name: '', emoji: '📍', parentId: '', dailyGoal: 0 });
-            const [newGoalData, setNewGoalData] = useState({ activityId: '', startDate: '', endDate: '', targetMinutes: '' });
+            // 修复1：初始化 newGoalData 时给日期赋默认值（今天），解决日期不显示的问题
+            const [newGoalData, setNewGoalData] = useState(() => {
+                const today = new Date().toISOString().split('T')[0];
+                return { activityId: '', startDate: today, endDate: today, targetMinutes: '' };
+            });
             const [newDailyData, setNewDailyData] = useState({ activityId: '', targetMinutes: '' });
             
             const [archiveFilters, setArchiveFilters] = useState({
@@ -1466,17 +1470,22 @@
                                                     <input 
                                                         type="number" 
                                                         placeholder="Total Target" 
-                                                        className="flex-1 p-2 text-xs font-bold outline-none" 
+                                                        // 修复2：添加 min-w-0 防止挤出，min 改为 Min
+                                                        className="flex-1 p-2 text-xs font-bold outline-none min-w-0" 
                                                         value={newGoalData.targetMinutes} 
                                                         onChange={e => setNewGoalData({...newGoalData, targetMinutes: e.target.value})} 
                                                     />
-                                                    <span className="text-xs font-bold opacity-50 flex-shrink-0">min</span>
+                                                    <span className="text-xs font-bold opacity-50 flex-shrink-0 ml-1">Min</span>
                                                 </div>
                                                 <button 
                                                     onClick={() => {
                                                         if (newGoalData.activityId && newGoalData.startDate && newGoalData.endDate && newGoalData.targetMinutes > 0) {
                                                             setCustomGoals(prev => [...prev, { id: Math.random().toString(36).substr(2, 9), ...newGoalData, targetMinutes: parseInt(newGoalData.targetMinutes) }]);
-                                                            setNewGoalData({ activityId: '', startDate: '', endDate: '', targetMinutes: '' });
+                                                            
+                                                            // 修复1补充：提交后重置时，日期也重置为今天，而不是清空
+                                                            const today = new Date().toISOString().split('T')[0];
+                                                            setNewGoalData({ activityId: '', startDate: today, endDate: today, targetMinutes: '' });
+                                                            
                                                             showMsg("CHALLENGE ACCEPTED!");
                                                         }
                                                     }}

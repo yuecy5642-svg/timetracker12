@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>时间捕手 TimeCatcher 2.0 Dev</title>
     
-    <!-- 核心资源 -->
+    <!-- 核心资源：更换为更稳定的 cdnjs 源，并添加 crossorigin 属性 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Silkscreen:wght@400;700&display=swap');
@@ -70,6 +70,17 @@
         /* 截图专用 */
         .hide-in-capture { display: flex; }
         .is-capturing .hide-in-capture { display: none !important; }
+
+        /* 修复日期输入框在 iOS 上的默认样式 */
+        input[type="date"] {
+            -webkit-appearance: none;
+            min-width: 0; 
+            background-color: white;
+            display: block; /* 强制块级显示 */
+            width: 100%;
+            padding-top: 8px; /* 增加点击区域 */
+            padding-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -298,21 +309,78 @@
             };
 
             const calculateStats = (startStr, endStr) => {
-                const rootActivities = activities.filter(a => !a.parentId);
-                let totalPeriodMins = 0;
-                
-                const stats = rootActivities.map(root => {
-                    const mins = getRangeProgress(root.id, startStr, endStr);
-                    totalPeriodMins += mins;
-                    return { ...root, mins };
+                // 精准手术：重构为“日志优先”算法，确保不漏掉任何历史数据
+                const parseLocalStart = (s) => {
+                    const [y, m, d] = s.split('-').map(Number);
+                    return new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
+                };
+                const parseLocalEnd = (s) => {
+                    const [y, m, d] = s.split('-').map(Number);
+                    return new Date(y, m - 1, d, 23, 59, 59, 999).getTime();
+                };
+
+                const start = parseLocalStart(startStr);
+                const end = parseLocalEnd(endStr);
+
+                // 1. 先抓取所有落在日期范围内的有效日志
+                const validLogs = logs.filter(l => {
+                    const logEnd = l.endTime || Date.now();
+                    return l.endTime && logEnd >= start && l.startTime <= end;
                 });
 
-                // Filter out 0 mins
-                const filteredStats = stats.filter(s => s.mins > 0);
+                let totalPeriodMins = 0;
+                const statsMap = new Map(); // Key: ActivityID (or Orphan Name), Value: { ...activityDef, mins: 0 }
 
-                filteredStats.sort((a, b) => b.mins - a.mins);
+                validLogs.forEach(l => {
+                    // 计算每条日志的时长
+                    const logEnd = l.endTime || Date.now();
+                    const effectiveStart = Math.max(l.startTime, start);
+                    const effectiveEnd = Math.min(logEnd, end);
+                    if (effectiveEnd <= effectiveStart) return;
+                    
+                    const durationMins = (effectiveEnd - effectiveStart) / 60000;
+                    totalPeriodMins += durationMins;
 
-                return { totalPeriodMins, stats: filteredStats };
+                    // 匹配归属活动：尝试通过名字反查当前活动定义
+                    let actDef = activities.find(a => a.name === l.activityName);
+                    
+                    // 确定归属的根节点 (Root Activity)
+                    let rootAct;
+                    if (actDef) {
+                        if (actDef.parentId) {
+                            // 如果是子活动，找到它的父级
+                            rootAct = activities.find(a => a.id === actDef.parentId);
+                            // 如果父级找不到（僵尸数据），暂且归为孤儿显示
+                            if (!rootAct) rootAct = actDef; 
+                        } else {
+                            // 它是根活动
+                            rootAct = actDef;
+                        }
+                    } else {
+                        // 孤儿活动：定义已删或改名未同步，直接用日志里的快照信息创建临时根节点
+                        rootAct = {
+                            id: `orphan-${l.activityName}`,
+                            name: l.activityName,
+                            emoji: l.activityEmoji || '❓',
+                            isOrphan: true
+                        };
+                    }
+
+                    // 累加数据
+                    const key = rootAct.id; 
+                    
+                    if (!statsMap.has(key)) {
+                        statsMap.set(key, { ...rootAct, mins: 0 });
+                    }
+                    
+                    const entry = statsMap.get(key);
+                    entry.mins += durationMins;
+                });
+
+                // 转为数组并按时长排序
+                const sortedStats = Array.from(statsMap.values()).sort((a, b) => b.mins - a.mins);
+
+                return { totalPeriodMins, stats: sortedStats };
             };
 
             const isChallengeActive = (endDateStr) => {
@@ -336,21 +404,79 @@
 
             const saveArchiveImage = () => {
                 const card = document.getElementById('archive-capture-area');
+                const parent = document.getElementById('goal-card');
                 if (!card) return;
+                
+                // 截图时截取整个 goal-card，以包含标题
+                const targetToCapture = document.getElementById('goal-card');
+                
                 setIsCapturing(true);
                 setTimeout(() => {
-                    html2canvas(card, { 
+                    html2canvas(targetToCapture, { 
                         backgroundColor: '#FFFFFF', 
                         scale: 2, 
                         useCORS: true, 
                         allowTaint: true,
                         onclone: (clonedDoc) => {
-                            const clonedCard = clonedDoc.getElementById('archive-capture-area');
+                            const clonedCard = clonedDoc.getElementById('goal-card');
+                            const scrollableContent = clonedDoc.getElementById('archive-capture-area');
+                            
                             if (clonedCard) {
                                 clonedCard.style.maxHeight = 'none';
                                 clonedCard.style.height = 'auto';
                                 clonedCard.style.overflow = 'visible';
+                                clonedCard.style.display = 'block'; 
+                                
+                                // --- 核心修复：Input 替身法 ---
+                                // 将所有 input 替换为 div，彻底解决 html2canvas 渲染 input 文字截断和对齐问题
+                                const inputs = clonedCard.querySelectorAll('input');
+                                inputs.forEach(input => {
+                                    const div = clonedDoc.createElement('div');
+                                    div.textContent = input.value; // 获取日期文字
+                                    div.className = input.className; // 继承原有样式（边框、背景等）
+                                    
+                                    // 强制样式修正：
+                                    div.style.display = 'flex';           // 使用 Flex 布局
+                                    div.style.alignItems = 'center';      // 垂直居中
+                                    div.style.justifyContent = 'center';  // 水平居中
+                                    div.style.height = 'auto';            // 高度自适应
+                                    div.style.minHeight = input.offsetHeight + 'px'; // 保持原有最小高度
+                                    div.style.padding = '4px 0';          // 增加内边距防止文字贴边被切
+                                    div.style.fontFamily = 'Arial, sans-serif'; // 使用系统字体避免像素字体度量偏差
+                                    div.style.lineHeight = '1.2';
+                                    div.style.overflow = 'visible';
+                                    
+                                    if(input.parentNode) {
+                                        input.parentNode.replaceChild(div, input);
+                                    }
+                                });
+
+                                // 修复大数字 (Total XP 等) 的截断
+                                const bigNumbers = clonedCard.querySelectorAll('.text-5xl, .text-3xl, .text-xl');
+                                bigNumbers.forEach(el => {
+                                    el.style.fontFamily = 'Arial, sans-serif'; 
+                                    el.style.lineHeight = '1.2'; 
+                                    el.style.overflow = 'visible'; 
+                                    el.style.paddingBottom = '5px'; 
+                                });
                             }
+                            if (scrollableContent) {
+                                scrollableContent.style.maxHeight = 'none';
+                                scrollableContent.style.height = 'auto';
+                                scrollableContent.style.overflow = 'visible';
+                            }
+                            
+                            const buttonsToHide = clonedCard.querySelectorAll('button, .hide-in-capture');
+                            buttonsToHide.forEach(btn => btn.style.display = 'none');
+                            
+                            // Apply truncation fix for Goal card elements if any
+                            const truncatedElements = clonedCard.querySelectorAll('.truncate');
+                            truncatedElements.forEach(el => {
+                                el.style.overflow = 'visible'; 
+                                el.style.whiteSpace = 'normal'; // Force wrap
+                                el.style.textOverflow = 'clip';
+                                el.style.paddingBottom = '5px'; 
+                            });
                         }
                     }).then(canvas => {
                         const link = document.createElement('a');
@@ -363,22 +489,74 @@
             };
 
             const saveStatsImage = () => {
-                const card = document.getElementById('stats-capture-area');
-                if (!card) return;
+                const targetToCapture = document.getElementById('stats-card'); 
+                if (!targetToCapture) return;
+                
                 setIsCapturing(true);
                 setTimeout(() => {
-                    html2canvas(card, { 
+                    html2canvas(targetToCapture, { 
                         backgroundColor: '#FFFFFF', 
                         scale: 2, 
                         useCORS: true, 
                         allowTaint: true,
                         onclone: (clonedDoc) => {
-                            const clonedCard = clonedDoc.getElementById('stats-capture-area');
+                            const clonedCard = clonedDoc.getElementById('stats-card');
+                            const scrollableContent = clonedCard.querySelector('.overflow-y-auto'); 
+                            
                             if (clonedCard) {
                                 clonedCard.style.maxHeight = 'none';
                                 clonedCard.style.height = 'auto';
                                 clonedCard.style.overflow = 'visible';
+                                clonedCard.style.display = 'block';
+
+                                // --- 核心修复：Input 替身法 (Stats) ---
+                                const inputs = clonedCard.querySelectorAll('input');
+                                inputs.forEach(input => {
+                                    const div = clonedDoc.createElement('div');
+                                    div.textContent = input.value;
+                                    div.className = input.className;
+                                    
+                                    div.style.display = 'flex';
+                                    div.style.alignItems = 'center';
+                                    div.style.justifyContent = 'center';
+                                    div.style.height = 'auto';
+                                    div.style.minHeight = input.offsetHeight + 'px';
+                                    div.style.padding = '4px 0';
+                                    div.style.fontFamily = 'Arial, sans-serif';
+                                    div.style.lineHeight = '1.2';
+                                    div.style.overflow = 'visible';
+
+                                    if(input.parentNode) {
+                                        input.parentNode.replaceChild(div, input);
+                                    }
+                                });
+
+                                // 修复大数字 (Total Hours) 的截断
+                                const bigNumbers = clonedCard.querySelectorAll('.text-4xl, .text-2xl');
+                                bigNumbers.forEach(el => {
+                                    el.style.fontFamily = 'Arial, sans-serif';
+                                    el.style.lineHeight = '1.2';
+                                    el.style.overflow = 'visible';
+                                    el.style.paddingBottom = '5px';
+                                });
                             }
+                            if (scrollableContent) {
+                                scrollableContent.style.maxHeight = 'none';
+                                scrollableContent.style.height = 'auto';
+                                scrollableContent.style.overflow = 'visible';
+                            }
+                            
+                            const buttonsToHide = clonedCard.querySelectorAll('button, .hide-in-capture');
+                            buttonsToHide.forEach(btn => btn.style.display = 'none');
+                            
+                            // Apply truncation fix for Stats card elements
+                            const truncatedElements = clonedCard.querySelectorAll('.truncate');
+                            truncatedElements.forEach(el => {
+                                el.style.overflow = 'visible'; 
+                                el.style.whiteSpace = 'normal'; // Force wrap
+                                el.style.textOverflow = 'clip';
+                                el.style.paddingBottom = '5px'; 
+                            });
                         }
                     }).then(canvas => {
                         const link = document.createElement('a');
@@ -413,9 +591,12 @@
                                 scrollableContent.style.height = 'auto';
                                 scrollableContent.style.overflow = 'visible';
                             }
+                            // Apply font fix
                             const truncatedElements = clonedCard.querySelectorAll('.truncate');
                             truncatedElements.forEach(el => {
                                 el.style.overflow = 'visible'; 
+                                el.style.whiteSpace = 'normal'; // Force wrap
+                                el.style.textOverflow = 'clip';
                                 el.style.paddingBottom = '5px'; 
                             });
                         }
@@ -817,17 +998,28 @@
                     <div className="flex-shrink-0 grid grid-cols-4 gap-2 pb-2">
                         <button onClick={() => { setSelectedDate(new Date()); setShowSummary(true); }} className="bg-black text-white pixel-border p-3 font-bold text-xs flex items-center justify-center gap-1 active:bg-gray-800 uppercase italic tracking-tighter shadow-sm">SUMMARY</button>
                         <button onClick={() => setShowGoalModal(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">GOAL</button>
-                        <button onClick={() => setShowStatsModal(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm flex items-center justify-center gap-1">STATS</button>
+                        <button onClick={() => {
+                            const year = selectedDate.getFullYear();
+                            const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                            const day = String(selectedDate.getDate()).padStart(2, '0');
+                            const dateStr = `${year}-${month}-${day}`;
+                            
+                            setStatsDateRange({ start: dateStr, end: dateStr });
+                            setShowStatsModal(true);
+                        }} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm flex items-center justify-center gap-1">STATS</button>
                         <button onClick={() => setShowCalendar(true)} className="bg-white pixel-border p-3 font-bold text-xs active:bg-gray-100 uppercase italic tracking-tighter shadow-sm">HISTORY</button>
                     </div>
 
                     {/* STATS 弹窗 */}
                     {showStatsModal && (
                         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
-                            <div className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto no-scrollbar flex flex-col">
+                            <div id="stats-card" className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
                                 <div className="flex justify-between items-center mb-4 border-b-4 border-black pb-2 flex-shrink-0">
                                     <h2 className="text-2xl font-black uppercase">DATA CENTER</h2>
-                                    <button onClick={() => setShowStatsModal(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
+                                    <div className="flex gap-2 hide-in-capture">
+                                        <button onClick={saveStatsImage} className="border-2 border-black w-9 h-9 flex items-center justify-center bg-[#FFD60A] shadow-sm active:translate-y-0.5">{PIXEL_ICONS.save}</button>
+                                        <button onClick={() => setShowStatsModal(false)} className="text-xl font-bold border-2 border-black w-9 h-9 flex items-center justify-center shadow-sm active:translate-y-0.5 bg-white">X</button>
+                                    </div>
                                 </div>
 
                                 <div className="flex gap-2 mb-4 flex-shrink-0">
@@ -835,7 +1027,7 @@
                                     <button onClick={() => setStatsTab('compare')} className={`flex-1 font-bold text-xs py-2 uppercase border-2 border-black ${statsTab === 'compare' ? 'bg-[#FFD60A]' : 'bg-white opacity-50'}`}>PK MODE</button>
                                 </div>
 
-                                <div id="stats-capture-area" className="flex-1 overflow-y-auto no-scrollbar space-y-4 bg-white p-1">
+                                <div id="stats-capture-area" className="flex-1 overflow-y-auto no-scrollbar space-y-4 bg-white p-1 mb-2">
                                     {statsTab === 'overview' ? (
                                         <div className="space-y-4">
                                             <div className="grid grid-cols-2 gap-2 bg-gray-100 p-2 border-2 border-black">
@@ -1121,10 +1313,6 @@
                                         </div>
                                     )}
                                 </div>
-
-                                <button onClick={saveStatsImage} className="mt-3 bg-[#FFD60A] pixel-border py-3 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-sm active:translate-y-0.5 flex-shrink-0 w-full max-w-sm mx-auto mb-6">
-                                    {PIXEL_ICONS.save} SAVE SNAPSHOT
-                                </button>
                             </div>
                         </div>
                     )}
@@ -1132,28 +1320,33 @@
                     {/* GOAL Modal (RESTORED) */}
                     {showGoalModal && (
                         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
-                            <div className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-y-auto no-scrollbar flex flex-col">
-                                <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2">
+                            <div id="goal-card" className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
+                                <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2 flex-shrink-0">
                                     <h2 className="text-2xl font-black uppercase">GOAL CENTER</h2>
-                                    <button onClick={() => setShowGoalModal(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
+                                    <div className="flex gap-2 hide-in-capture">
+                                        {goalTab === 'history' && (
+                                            <button onClick={saveArchiveImage} className="border-2 border-black w-9 h-9 flex items-center justify-center bg-[#FFD60A] shadow-sm active:translate-y-0.5">{PIXEL_ICONS.save}</button>
+                                        )}
+                                        <button onClick={() => setShowGoalModal(false)} className="text-xl font-bold border-2 border-black w-9 h-9 flex items-center justify-center bg-white shadow-sm active:translate-y-0.5">X</button>
+                                    </div>
                                 </div>
 
                                 {/* Tabs */}
-                                <div className="flex gap-2 mb-4 border-b-2 border-black/10 pb-2">
+                                <div className="flex gap-2 mb-4 border-b-2 border-black/10 pb-2 flex-shrink-0">
                                     <button onClick={() => setGoalTab('active')} className={`flex-1 font-bold text-xs py-2 uppercase transition-all ${goalTab === 'active' ? 'bg-[#FFD60A] pixel-border' : 'opacity-50'}`}>🛡️ Quests</button>
                                     <button onClick={() => setGoalTab('history')} className={`flex-1 font-bold text-xs py-2 uppercase transition-all ${goalTab === 'history' ? 'bg-[#6D83F2] text-white pixel-border' : 'opacity-50'}`}>🏆 Reports</button>
                                 </div>
 
                                 {goalTab === 'active' && (
-                                    <div className="space-y-6">
+                                    <div className="space-y-6 flex-1 overflow-y-auto no-scrollbar">
                                         {/* 1. Daily Challenges */}
-                                        <div>
+                                        <div className="relative z-0">
                                             <h3 className="text-sm font-black mb-2 uppercase opacity-60">DAILY CHALLENGES</h3>
                                             
                                             {/* Add/Edit Daily Goal */}
-                                            <div className="bg-gray-100 pixel-border p-2 mb-2 flex gap-2 items-center">
+                                            <div className="bg-gray-100 pixel-border p-2 mb-2 flex gap-2 items-center hide-in-capture">
                                                 <select 
-                                                    className="flex-1 pixel-border p-1.5 font-bold text-[10px] bg-white outline-none"
+                                                    className="flex-1 pixel-border p-1.5 font-bold text-[10px] bg-white outline-none min-w-0"
                                                     value={newDailyData.activityId}
                                                     onChange={e => {
                                                         const act = activities.find(a => a.id === e.target.value);
@@ -1170,10 +1363,11 @@
                                                         </option>
                                                     ))}
                                                 </select>
+                                                {/* Width fixed to w-16 and flex-shrink-0 to prevent squeezing */}
                                                 <input 
                                                     type="number" 
                                                     placeholder="Min" 
-                                                    className="w-12 pixel-border p-1.5 text-[10px] font-bold text-center outline-none" 
+                                                    className="w-16 pixel-border p-1.5 text-[10px] font-bold text-center outline-none flex-shrink-0" 
                                                     value={newDailyData.targetMinutes} 
                                                     onChange={e => setNewDailyData({...newDailyData, targetMinutes: e.target.value})} 
                                                 />
@@ -1185,7 +1379,7 @@
                                                         setNewDailyData({ activityId: '', targetMinutes: '' });
                                                         showMsg(val > 0 ? "Goal Set!" : "Goal Removed");
                                                     }}
-                                                    className="bg-black text-white px-3 py-1.5 text-[10px] font-bold pixel-border active:scale-95"
+                                                    className="bg-black text-white px-3 py-1.5 text-[10px] font-bold pixel-border active:scale-95 flex-shrink-0"
                                                 >
                                                     SET
                                                 </button>
@@ -1234,36 +1428,49 @@
                                         </div>
 
                                         {/* 2. Custom Challenges */}
-                                        <div>
+                                        <div className="relative z-0">
                                             <h3 className="text-sm font-black mb-2 uppercase opacity-60">CUSTOM CHALLENGES</h3>
                                             
-                                            {/* Create New Challenge */}
-                                            <div className="bg-gray-100 pixel-border p-3 mb-3">
-                                                <div className="grid grid-cols-2 gap-2 mb-2">
-                                                    <select 
-                                                        className="col-span-2 pixel-border p-2 font-bold text-xs bg-white outline-none"
-                                                        value={newGoalData.activityId}
-                                                        onChange={e => setNewGoalData({...newGoalData, activityId: e.target.value})}
-                                                    >
-                                                        <option value="">Select Target...</option>
-                                                        {getHierarchicalActivities().map(a => (
-                                                            <option key={a.id} value={a.id}>
-                                                                {'\u00A0\u00A0'.repeat(a.level)}{a.emoji} {a.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                    <input type="date" className="pixel-border p-1 text-[10px] font-bold" value={newGoalData.startDate} onChange={e => setNewGoalData({...newGoalData, startDate: e.target.value})} />
-                                                    <input type="date" className="pixel-border p-1 text-[10px] font-bold" value={newGoalData.endDate} onChange={e => setNewGoalData({...newGoalData, endDate: e.target.value})} />
-                                                    <div className="col-span-2 flex items-center bg-white pixel-border px-2">
-                                                        <input 
-                                                            type="number" 
-                                                            placeholder="Total Target" 
-                                                            className="flex-1 p-2 text-xs font-bold outline-none" 
-                                                            value={newGoalData.targetMinutes} 
-                                                            onChange={e => setNewGoalData({...newGoalData, targetMinutes: e.target.value})} 
-                                                        />
-                                                        <span className="text-xs font-bold opacity-50">min</span>
-                                                    </div>
+                                            {/* Create New Challenge - Flex Layout Fixed */}
+                                            <div className="bg-gray-100 pixel-border p-3 mb-3 hide-in-capture flex flex-col gap-2">
+                                                <select 
+                                                    className="w-full pixel-border p-2 font-bold text-xs bg-white outline-none"
+                                                    value={newGoalData.activityId}
+                                                    onChange={e => setNewGoalData({...newGoalData, activityId: e.target.value})}
+                                                >
+                                                    <option value="">Select Target...</option>
+                                                    {getHierarchicalActivities().map(a => (
+                                                        <option key={a.id} value={a.id}>
+                                                            {'\u00A0\u00A0'.repeat(a.level)}{a.emoji} {a.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                
+                                                {/* 布局修改：将两个日期输入框放入一个 flex 容器中并排显示 */}
+                                                <div className="flex gap-2">
+                                                    <input 
+                                                        type="date" 
+                                                        className="flex-1 pixel-border p-1 text-xs font-bold appearance-none bg-white min-w-0" 
+                                                        value={newGoalData.startDate} 
+                                                        onChange={e => setNewGoalData({...newGoalData, startDate: e.target.value})} 
+                                                    />
+                                                    <input 
+                                                        type="date" 
+                                                        className="flex-1 pixel-border p-1 text-xs font-bold appearance-none bg-white min-w-0" 
+                                                        value={newGoalData.endDate} 
+                                                        onChange={e => setNewGoalData({...newGoalData, endDate: e.target.value})} 
+                                                    />
+                                                </div>
+
+                                                <div className="w-full flex items-center bg-white pixel-border px-2">
+                                                    <input 
+                                                        type="number" 
+                                                        placeholder="Total Target" 
+                                                        className="flex-1 p-2 text-xs font-bold outline-none" 
+                                                        value={newGoalData.targetMinutes} 
+                                                        onChange={e => setNewGoalData({...newGoalData, targetMinutes: e.target.value})} 
+                                                    />
+                                                    <span className="text-xs font-bold opacity-50 flex-shrink-0">min</span>
                                                 </div>
                                                 <button 
                                                     onClick={() => {
@@ -1308,7 +1515,7 @@
                                                                         setTimeout(() => setChallengeDeleteConfirmId(null), 3000);
                                                                     }
                                                                 }}
-                                                                className={`absolute -top-1 -right-1 text-[8px] font-bold border border-black px-1.5 transition-all z-20 ${challengeDeleteConfirmId === g.id ? 'bg-red-500 text-white opacity-100' : 'bg-white text-black opacity-0 group-hover:opacity-100'}`}
+                                                                className={`absolute -top-1 -right-1 text-[8px] font-bold border border-black px-1.5 transition-all z-20 hide-in-capture ${challengeDeleteConfirmId === g.id ? 'bg-red-500 text-white opacity-100' : 'bg-white text-black opacity-0 group-hover:opacity-100'}`}
                                                             >
                                                                 {challengeDeleteConfirmId === g.id ? 'SURE?' : 'DEL'}
                                                             </button>
@@ -1361,14 +1568,14 @@
 
                                 {/* REPORTS TAB */}
                                 {goalTab === 'history' && (
-                                    <div className="flex flex-col h-full">
+                                    <div className="flex flex-col flex-1 min-h-0">
                                         <div className="bg-gray-100 pixel-border p-2 mb-3 grid grid-cols-2 gap-2">
                                             <div className="col-span-2 flex bg-white pixel-border">
                                                 <button onClick={() => setArchiveFilters({...archiveFilters, type: 'daily'})} className={`flex-1 text-[10px] font-bold py-1.5 ${archiveFilters.type === 'daily' ? 'bg-black text-white' : ''}`}>DAILY</button>
                                                 <button onClick={() => setArchiveFilters({...archiveFilters, type: 'custom'})} className={`flex-1 text-[10px] font-bold py-1.5 ${archiveFilters.type === 'custom' ? 'bg-black text-white' : ''}`}>CUSTOM</button>
                                             </div>
-                                            <input type="date" className="pixel-border p-1 text-[10px] font-bold text-center" value={archiveFilters.startDate} onChange={e => setArchiveFilters({...archiveFilters, startDate: e.target.value})} />
-                                            <input type="date" className="pixel-border p-1 text-[10px] font-bold text-center" value={archiveFilters.endDate} onChange={e => setArchiveFilters({...archiveFilters, endDate: e.target.value})} />
+                                            <input type="date" className="pixel-border p-1 text-xs font-bold text-center appearance-none bg-white min-w-0" value={archiveFilters.startDate} onChange={e => setArchiveFilters({...archiveFilters, startDate: e.target.value})} />
+                                            <input type="date" className="pixel-border p-1 text-xs font-bold text-center appearance-none bg-white min-w-0" value={archiveFilters.endDate} onChange={e => setArchiveFilters({...archiveFilters, endDate: e.target.value})} />
                                         </div>
 
                                         <div id="archive-capture-area" className="flex-1 overflow-y-auto no-scrollbar bg-white p-2 border-2 border-dashed border-gray-300">
@@ -1451,6 +1658,7 @@
                                                                         <div className="flex items-center gap-1">
                                                                             <span>{act.emoji}</span>
                                                                             <span className="text-xs font-bold uppercase">{act.name}</span>
+                                                                            {/* 明确的状态标签 */}
                                                                             {status === 'active' && <span className="text-[8px] bg-blue-100 text-blue-600 px-1 py-0.5 rounded border border-blue-200">ACTIVE</span>}
                                                                             {status === 'upcoming' && <span className="text-[8px] bg-gray-200 text-gray-500 px-1 py-0.5 rounded border border-gray-300">WAITING</span>}
                                                                         </div>
@@ -1467,6 +1675,7 @@
                                                         })
                                                     )
                                                 ) : (
+                                                    // Daily Goals List (Calculated)
                                                     activities.filter(a => a.dailyGoal > 0).map(act => {
                                                         const start = new Date(archiveFilters.startDate);
                                                         const end = new Date(archiveFilters.endDate);
@@ -1493,17 +1702,12 @@
                                                 )}
                                             </div>
                                         </div>
-
-                                        <button onClick={saveArchiveImage} className="mt-3 bg-[#FFD60A] pixel-border py-3 font-black text-xs uppercase flex items-center justify-center gap-2 shadow-sm active:translate-y-0.5">
-                                            {PIXEL_ICONS.save} SAVE SNAPSHOT
-                                        </button>
                                     </div>
                                 )}
                             </div>
                         </div>
                     )}
                     
-                    {/* ... (Other Modals) ... */}
                     {/* Summary Modal (Restored) */}
                     {showSummary && (
                         <div className={`fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm ${isCapturing ? 'is-capturing' : ''}`}>
@@ -1676,7 +1880,28 @@
                                     <button onClick={() => {setShowAddModal(false); setShowEditModal(false);}} className="flex-1 pixel-border p-4 font-black uppercase text-xs text-center">Abort</button>
                                     <button onClick={() => {
                                         if(!formData.name) return;
-                                        if(showEditModal) setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, name: formData.name, emoji: formData.emoji, parentId: formData.parentId || null, dailyGoal: formData.dailyGoal } : a));
+                                        if(showEditModal) {
+                                            // 1. 获取旧活动数据（用于级联同步）
+                                            const oldActivity = activities.find(a => a.id === activeEditId);
+                                            
+                                            // 2. 更新活动列表
+                                            setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, name: formData.name, emoji: formData.emoji, parentId: formData.parentId || null, dailyGoal: formData.dailyGoal } : a));
+                                            
+                                            // 3. 级联同步引擎：更新历史日志中的名称和图标
+                                            if (oldActivity) {
+                                                setLogs(prevLogs => prevLogs.map(log => {
+                                                    // 仅当日志名称与旧名称完全匹配时才更新，确保 ID 锚定逻辑（通过名称桥接）不断裂
+                                                    if (log.activityName === oldActivity.name) {
+                                                        return {
+                                                            ...log,
+                                                            activityName: formData.name,
+                                                            activityEmoji: formData.emoji
+                                                        };
+                                                    }
+                                                    return log;
+                                                }));
+                                            }
+                                        }
                                         else setActivities([...activities, { id: Math.random().toString(36).substr(2, 9), ...formData, parentId: formData.parentId || null, dailyGoal: formData.dailyGoal }]);
                                         setShowAddModal(false); setShowEditModal(false);
                                         triggerVibrate(30);
@@ -1694,5 +1919,3 @@
     </script>
 </body>
 </html>
-
-

@@ -1480,7 +1480,29 @@
                                                         onClick={() => {
                                                             if (!newDailyData.activityId) return;
                                                             const val = parseInt(newDailyData.targetMinutes) || 0;
-                                                            setActivities(prev => prev.map(a => a.id === newDailyData.activityId ? { ...a, dailyGoal: val } : a));
+                                                            const todayStr = new Date().toISOString().split('T')[0];
+                                                            
+                                                            setActivities(prev => prev.map(a => {
+                                                                if (a.id === newDailyData.activityId) {
+                                                                    // 逻辑升级：记录目标生效日期
+                                                                    // 1. 如果是新开启的目标 (val > 0 且之前没目标)，设为今天
+                                                                    // 2. 如果是修改已有目标，保留原有开始日期；如果原有日期丢失，补录为今天
+                                                                    // 3. 如果关闭目标 (val = 0)，清除日期
+                                                                    const currentGoal = a.dailyGoal || 0;
+                                                                    let startDate = a.goalStartDate;
+                                                                    
+                                                                    if (val > 0) {
+                                                                        if (currentGoal === 0 || !startDate) {
+                                                                            startDate = todayStr;
+                                                                        }
+                                                                    } else {
+                                                                        startDate = null;
+                                                                    }
+
+                                                                    return { ...a, dailyGoal: val, goalStartDate: startDate };
+                                                                }
+                                                                return a;
+                                                            }));
                                                             setNewDailyData({ activityId: '', targetMinutes: '' });
                                                             showMsg(val > 0 ? "Goal Set!" : "Goal Removed");
                                                         }}
@@ -1853,19 +1875,36 @@
                                                     ) : (
                                                         // Daily Goals List (Calculated with Pause Logic)
                                                         activities.filter(a => a.dailyGoal > 0).map(act => {
-                                                            const start = new Date(archiveFilters.startDate);
-                                                            const end = new Date(archiveFilters.endDate);
+                                                            const reportStart = new Date(archiveFilters.startDate);
+                                                            const reportEnd = new Date(archiveFilters.endDate);
+                                                            
+                                                            // 核心修复：确定计算的起始点
+                                                            // 取 "报表开始时间" 和 "目标生效时间" 的较晚者
+                                                            // 如果 goalStartDate 不存在（老数据），默认从报表开始时间算（兼容旧行为，或者建议用户重设）
+                                                            const goalStart = act.goalStartDate ? new Date(act.goalStartDate) : new Date(0); 
+                                                            // 如果 goalStart 比 reportStart 晚，就用 goalStart；否则用 reportStart
+                                                            // 注意：new Date(0) 肯定比 reportStart 早，所以兼容了老数据
+                                                            let calcStart = reportStart > goalStart ? reportStart : goalStart;
+                                                            
+                                                            // 如果计算起始点晚于结束点，说明该目标在这个时间段内尚未生效，直接跳过不显示
+                                                            if (calcStart > reportEnd) return null;
+
                                                             let effectiveDays = 0;
                                                             
-                                                            // 循环计算每一天是否暂停
-                                                            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                                                            // 循环计算每一天是否暂停，且仅计算生效日期之后的日子
+                                                            // 注意：这里必须创建一个新的日期对象进行迭代，不能修改 calcStart 本身
+                                                            for (let d = new Date(calcStart); d <= reportEnd; d.setDate(d.getDate() + 1)) {
                                                                 const dateStr = d.toISOString().split('T')[0];
                                                                 const isPaused = dailyPauses.some(p => p.activityId === act.id && p.date === dateStr);
                                                                 if (!isPaused) effectiveDays++;
                                                             }
 
                                                             const targetTotal = act.dailyGoal * effectiveDays;
-                                                            const progress = getRangeProgress(act.id, archiveFilters.startDate, archiveFilters.endDate);
+                                                            
+                                                            // 进度统计同样需要遵循 calcStart 限制
+                                                            // getRangeProgress 需要传入字符串，我们将 calcStart 转回字符串
+                                                            const calcStartStr = calcStart.toISOString().split('T')[0];
+                                                            const progress = getRangeProgress(act.id, calcStartStr, archiveFilters.endDate);
                                                             
                                                             // Daily Report 翻转
                                                             let success = false;
@@ -1873,7 +1912,7 @@
                                                             let statusText = '';
                                                             
                                                             if (effectiveDays === 0) {
-                                                                statusText = 'PAUSED';
+                                                                statusText = 'PAUSED'; // 全程暂停或无有效日期
                                                             } else {
                                                                 if (act.nature === 'negative') {
                                                                     success = progress <= targetTotal;

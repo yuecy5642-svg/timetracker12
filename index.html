@@ -1048,8 +1048,8 @@
                                                     {hasChildren && !isEditMode && (
                                                         <div 
                                                             onClick={(e) => { e.stopPropagation(); startActivity(act); }}
-                                                            // 修改：缩小按钮尺寸至 w-6 h-6，调整位置至 bottom-1.5 right-1.5，并强制缩小内部 SVG 图标
-                                                            className="absolute bottom-1.5 right-1.5 w-6 h-6 bg-[#FFD60A] pixel-border flex items-center justify-center z-20 shadow-sm active:translate-y-0.5 hover:bg-yellow-300 transition-colors [&>svg]:w-3 [&>svg]:h-3"
+                                                            // 修改：缩小按钮尺寸至 w-4 h-4，调整位置至 bottom-1.5 right-1.5，并强制缩小内部 SVG 图标
+                                                            className="absolute bottom-1.5 right-1.5 w-4 h-4 bg-[#FFD60A] pixel-border flex items-center justify-center z-20 shadow-sm active:translate-y-0.5 hover:bg-yellow-300 transition-colors [&>svg]:w-3 [&>svg]:h-3"
                                                             title={`Start ${act.name}`}
                                                         >
                                                             {PIXEL_ICONS.play}

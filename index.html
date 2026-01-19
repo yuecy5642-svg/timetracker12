@@ -2032,17 +2032,17 @@
                                                             const reportEnd = new Date(archiveFilters.endDate);
                                                             
                                                             // 核心修复：应用时间旅行逻辑
-                                                            // 1. 获取目标生效日，若无则默认为远古时间(1970)以兼容旧数据
+                                                            // 1. 获取目标生效日 (默认 1970 兼容旧数据)
                                                             const goalStart = act.goalStartDate ? new Date(act.goalStartDate) : new Date(0);
                                                             
-                                                            // 2. 计算实际有效开始时间：取 "报表开始时间" 和 "目标生效时间" 的较晚者
-                                                            // 例如：报表查 1号~30号，目标是 15号设的。则 calcStart = 15号。
+                                                            // 2. 确定有效计算起始日：取 (报表开始日, 目标生效日) 的较晚者
+                                                            // 避免“未出生”的目标被过早统计
                                                             let calcStart = reportStart > goalStart ? reportStart : goalStart;
                                                             
-                                                            // 3. 边界检查：如果 "有效开始时间" 晚于 "报表结束时间"，说明这段时间内目标还没存在，直接隐藏
+                                                            // 3. 边界检查：如果计算起始日晚于报表结束日，说明该目标在此期间不存在
                                                             if (calcStart > reportEnd) return null;
 
-                                                            // 4. 重置时分秒，确保日期比较准确
+                                                            // 4. 重置时间部分，确保日期迭代准确
                                                             calcStart.setHours(0,0,0,0);
                                                             reportEnd.setHours(23,59,59,999);
 
@@ -2056,8 +2056,11 @@
                                                             }
 
                                                             const targetTotal = act.dailyGoal * effectiveDays;
-                                                            // 进度统计也必须只统计 calcStart 之后的
-                                                            const progress = getRangeProgress(act.id, calcStart.toISOString().split('T')[0], archiveFilters.endDate);
+                                                            
+                                                            // 修复：进度统计必须使用 calcStart，防止“历史数据偷跑”
+                                                            // 之前错误写法：archiveFilters.startDate，导致统计了目标生效前的历史数据
+                                                            const calcStartStr = calcStart.toISOString().split('T')[0];
+                                                            const progress = getRangeProgress(act.id, calcStartStr, archiveFilters.endDate);
                                                             
                                                             // Daily Report 翻转
                                                             let success = false;

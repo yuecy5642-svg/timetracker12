@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>时间捕手 TimeCatcher 2.3 Final Fixed</title>
+    <title>TimeCatcher 2.3 Final Fixed</title>
     
     <!-- 核心资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -90,6 +90,14 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo, useRef } = React;
 
+        // 核心工具函数：获取本地日期字符串 (YYYY-MM-DD)，避免 toISOString 的时区回退问题
+        const toLocalDateStr = (date = new Date()) => {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        };
+
         const PIXEL_ICONS = {
             stop: <svg className="icon-svg text-red-600" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>,
             gear: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M11 2h2v4h-2V2zm6 2l1.4 1.4-2.8 2.8-1.4-1.4L17 4zM7 4L5.6 5.4l2.8 2.8 1.4-1.4L7 4zm13 7v2h-4v-2h4zM8 11v2H4v-2h4zm9 8l-1.4 1.4-2.8-2.8 1.4-1.4 2.8 2.8zM7 19l1.4-1.4 2.8 2.8-1.4 1.4L7 19zm4 1h2v4h-2v-4zm1-11a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>,
@@ -126,13 +134,11 @@
                         { id: '6', name: '体力锻炼', emoji: '💪', parentId: null, nature: 'positive' }
                     ];
                 }
-                // 恢复：旧数据迁移时，默认补全为 neutral，不强制转 positive，保护原有逻辑
                 return saved.map(a => ({ nature: 'neutral', ...a })); 
             });
 
             const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v10_17_logs') || '[]'));
             const [customGoals, setCustomGoals] = useState(() => JSON.parse(localStorage.getItem('tc_v2_custom_goals') || '[]'));
-            // 新增：暂停记录状态 (TC v2.1)
             const [dailyPauses, setDailyPauses] = useState(() => JSON.parse(localStorage.getItem('tc_v2_pauses') || '[]'));
             
             const [currentParentId, setCurrentParentId] = useState(null);
@@ -151,15 +157,16 @@
             const [insightDrillId, setInsightDrillId] = useState(null);
             const [pkDrillId, setPkDrillId] = useState(null);
             
+            // 修复：使用 toLocalDateStr 初始化日期范围，避免默认显示为昨天
             const [statsDateRange, setStatsDateRange] = useState({
-                start: new Date().toISOString().split('T')[0],
-                end: new Date().toISOString().split('T')[0]
+                start: toLocalDateStr(),
+                end: toLocalDateStr()
             });
             const [compareDateRange, setCompareDateRange] = useState({
-                startA: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                endA: new Date().toISOString().split('T')[0],
-                startB: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-                endB: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+                startA: toLocalDateStr(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)),
+                endA: toLocalDateStr(),
+                startB: toLocalDateStr(new Date(Date.now() - 14 * 24 * 60 * 60 * 1000)),
+                endB: toLocalDateStr(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
             });
 
             const [selectedDate, setSelectedDate] = useState(new Date());
@@ -167,20 +174,20 @@
             const [isCapturing, setIsCapturing] = useState(false); 
             const [activeEditId, setActiveEditId] = useState(null);
             
-            // 恢复：新建活动默认属性改回 neutral
             const [formData, setFormData] = useState({ name: '', emoji: '📍', parentId: '', dailyGoal: 0, nature: 'neutral' });
             
-            // 自定义挑战增加 isNegativeOverride
+            // 修复：使用 toLocalDateStr 初始化新建目标日期
             const [newGoalData, setNewGoalData] = useState(() => {
-                const today = new Date().toISOString().split('T')[0];
+                const today = toLocalDateStr();
                 return { activityId: '', startDate: today, endDate: today, targetMinutes: '', isNegativeOverride: false };
             });
             const [newDailyData, setNewDailyData] = useState({ activityId: '', targetMinutes: '' });
             
+            // 修复：使用 toLocalDateStr 初始化归档过滤器
             const [archiveFilters, setArchiveFilters] = useState({
                 type: 'custom', 
-                startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0], 
-                endDate: new Date().toISOString().split('T')[0]
+                startDate: toLocalDateStr(new Date(new Date().getFullYear(), new Date().getMonth(), 1)), 
+                endDate: toLocalDateStr()
             });
 
             const [msg, setMsg] = useState({ show: false, text: '', type: 'info' });
@@ -783,14 +790,6 @@
             };
 
             const formatTime = (ts) => new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
-            
-            // 新增：安全的本地日期格式化函数，防止时区回退导致偷跑昨天的数据
-            const toLocalDateStr = (date) => {
-                const y = date.getFullYear();
-                const m = String(date.getMonth() + 1).padStart(2, '0');
-                const d = String(date.getDate()).padStart(2, '0');
-                return `${y}-${m}-${d}`;
-            };
 
             const restoreBackup = (str) => {
                 try {
@@ -1568,8 +1567,8 @@
                             </div>
                         </div>
                     )}
-
-                    {/* GOAL Modal (RESTORED) */}
+                    
+                    {/* GOAL Modal (Restored from v2.2) */}
                     {showGoalModal && (
                         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
                             <div id="goal-card" className="bg-white pixel-border p-6 w-full max-w-sm max-h-[85vh] overflow-hidden flex flex-col">
@@ -1626,17 +1625,12 @@
                                                         onClick={() => {
                                                             if (!newDailyData.activityId) return;
                                                             const val = parseInt(newDailyData.targetMinutes) || 0;
-                                                            const todayStr = new Date().toISOString().split('T')[0];
+                                                            // 修复：设定目标时使用本地日期
+                                                            const todayStr = toLocalDateStr();
                                                             
                                                             setActivities(prev => prev.map(a => {
                                                                 if (a.id === newDailyData.activityId) {
                                                                     // 核心修复：写入 goalStartDate
-                                                                    // 逻辑：如果设定了新目标(val>0)，且之前没有开始日期(或之前是0)，则打上今天的时间戳
-                                                                    // 如果只是修改数字(比如30改60)，通常保持原开始日期？这里简化为：只要设置就更新/保持
-                                                                    // 为了稳妥：如果已经有日期且只是修改数值，保留原日期；如果是新设，用今天。
-                                                                    
-                                                                    // 如果 val 是 0 (移除目标)，可以保留日期或清空，这里不清空以便未来恢复，或者清空？
-                                                                    // 建议：移除目标时清空日期，下次设时重新开始
                                                                     const startDate = (a.dailyGoal > 0 && a.goalStartDate) ? a.goalStartDate : todayStr;
                                                                     const finalDate = val > 0 ? startDate : null;
 
@@ -1664,7 +1658,8 @@
                                                             const goal = act.dailyGoal;
                                                             const pct = Math.min(100, (current / goal) * 100);
                                                             
-                                                            const isPaused = dailyPauses.some(p => p.activityId === act.id && p.date === new Date().toISOString().split('T')[0]);
+                                                            // 修复：暂停判定使用本地日期
+                                                            const isPaused = dailyPauses.some(p => p.activityId === act.id && p.date === toLocalDateStr());
 
                                                             // 判定逻辑 - 视觉翻转
                                                             const isNegative = act.nature === 'negative';
@@ -1698,7 +1693,7 @@
                                                                             </div>
                                                                             <div className="flex items-center gap-2">
                                                                                 <button 
-                                                                                    onClick={(e) => { e.stopPropagation(); togglePause(act.id, new Date().toISOString().split('T')[0]); }} 
+                                                                                    onClick={(e) => { e.stopPropagation(); togglePause(act.id, toLocalDateStr()); }} 
                                                                                     className={`w-4 h-4 flex items-center justify-center rounded border border-gray-300 ${isPaused ? 'bg-blue-100 text-blue-500' : 'bg-white text-gray-300 hover:text-blue-400'}`}
                                                                                     title={isPaused ? "Unfreeze" : "Freeze/Pause"}
                                                                                 >
@@ -1786,7 +1781,8 @@
                                                             if (newGoalData.activityId && newGoalData.startDate && newGoalData.endDate && newGoalData.targetMinutes > 0) {
                                                                 setCustomGoals(prev => [...prev, { id: Math.random().toString(36).substr(2, 9), ...newGoalData, targetMinutes: parseInt(newGoalData.targetMinutes) }]);
                                                                 
-                                                                const today = new Date().toISOString().split('T')[0];
+                                                                // 修复：新建挑战后重置为本地日期
+                                                                const today = toLocalDateStr();
                                                                 setNewGoalData({ activityId: '', startDate: today, endDate: today, targetMinutes: '', isNegativeOverride: false });
                                                                 
                                                                 showMsg("CHALLENGE ACCEPTED!");
@@ -1930,36 +1926,31 @@
                                                                 const reportStart = new Date(archiveFilters.startDate);
                                                                 const reportEnd = new Date(archiveFilters.endDate);
                                                                 
-                                                                // 修复：时间旅行逻辑 (Time Travel Logic)
-                                                                // 1. 获取目标生效日 (默认 1970 兼容旧数据)
+                                                                // 核心修复：应用时间旅行逻辑
                                                                 const goalStart = a.goalStartDate ? new Date(a.goalStartDate) : new Date(0);
-                                                                
-                                                                // 2. 确定有效计算起始日：取 (报表开始日, 目标生效日) 的较晚者
-                                                                // 避免“未出生”的目标被过早统计
                                                                 let calcStart = reportStart > goalStart ? reportStart : goalStart;
                                                                 
-                                                                // 3. 边界检查：如果计算起始日晚于报表结束日，说明该目标在此期间不存在
                                                                 if (calcStart > reportEnd) return false;
-
-                                                                // 4. 重置时间部分，确保日期迭代准确
+                                                                
                                                                 calcStart.setHours(0,0,0,0);
                                                                 reportEnd.setHours(23,59,59,999);
-
+                                                                
                                                                 let effectiveDays = 0;
                                                                 
                                                                 // 循环计算每一天是否暂停
                                                                 for (let d = new Date(calcStart); d <= reportEnd; d.setDate(d.getDate() + 1)) {
-                                                                    const dateStr = d.toISOString().split('T')[0];
+                                                                    // 修复：这里也要用本地日期字符串
+                                                                    const dateStr = toLocalDateStr(d);
                                                                     const isPaused = dailyPauses.some(p => p.activityId === a.id && p.date === dateStr);
                                                                     if (!isPaused) effectiveDays++;
                                                                 }
                                                                 
-                                                                if (effectiveDays === 0) return false; // 无有效天数（全程暂停或未生效）
+                                                                if (effectiveDays === 0) return false;
 
                                                                 const targetTotal = a.dailyGoal * effectiveDays;
                                                                 
-                                                                // 修复：进度统计必须使用 calcStart，防止“历史数据偷跑”
-                                                                const calcStartStr = calcStart.toISOString().split('T')[0];
+                                                                // 修复：使用 calcStartStr 计算进度，封堵历史数据
+                                                                const calcStartStr = toLocalDateStr(calcStart);
                                                                 const progress = getRangeProgress(a.id, calcStartStr, archiveFilters.endDate);
                                                                 
                                                                 // Daily Report 翻转
@@ -2035,74 +2026,74 @@
                                                         )
                                                     ) : (
                                                         // Daily Goals List (Calculated with Pause Logic)
-                                                    activities.filter(a => a.dailyGoal > 0).map(act => {
-                                                        const reportStart = new Date(archiveFilters.startDate);
-                                                        const reportEnd = new Date(archiveFilters.endDate);
-                                                        
-                                                        // 核心修复：应用时间旅行逻辑
-                                                        // 1. 获取目标生效日 (默认 1970 兼容旧数据)
-                                                        const goalStart = act.goalStartDate ? new Date(act.goalStartDate) : new Date(0);
-                                                        
-                                                        // 2. 确定有效计算起始日：取 (报表开始日, 目标生效日) 的较晚者
-                                                        let calcStart = reportStart > goalStart ? reportStart : goalStart;
-                                                        
-                                                        // 3. 边界检查
-                                                        if (calcStart > reportEnd) return null;
+                                                        activities.filter(a => a.dailyGoal > 0).map(act => {
+                                                            const reportStart = new Date(archiveFilters.startDate);
+                                                            const reportEnd = new Date(archiveFilters.endDate);
+                                                            
+                                                            // 核心修复：应用时间旅行逻辑
+                                                            // 1. 获取目标生效日 (默认 1970 兼容旧数据)
+                                                            const goalStart = act.goalStartDate ? new Date(act.goalStartDate) : new Date(0);
+                                                            
+                                                            // 2. 确定有效计算起始日：取 (报表开始日, 目标生效日) 的较晚者
+                                                            let calcStart = reportStart > goalStart ? reportStart : goalStart;
+                                                            
+                                                            // 3. 边界检查
+                                                            if (calcStart > reportEnd) return null;
 
-                                                        // 4. 重置时间部分
-                                                        calcStart.setHours(0,0,0,0);
-                                                        reportEnd.setHours(23,59,59,999);
+                                                            // 4. 重置时间部分
+                                                            calcStart.setHours(0,0,0,0);
+                                                            reportEnd.setHours(23,59,59,999);
 
-                                                        let effectiveDays = 0;
-                                                        
-                                                        // 循环计算每一天是否暂停
-                                                        for (let d = new Date(calcStart); d <= reportEnd; d.setDate(d.getDate() + 1)) {
-                                                            // 修复：这里也要用本地日期字符串，防止暂停功能因时区判断错误而失效
-                                                            const dateStr = toLocalDateStr(d);
-                                                            const isPaused = dailyPauses.some(p => p.activityId === act.id && p.date === dateStr);
-                                                            if (!isPaused) effectiveDays++;
-                                                        }
-
-                                                        const targetTotal = act.dailyGoal * effectiveDays;
-                                                        
-                                                        // 修复：进度统计必须使用 calcStart，防止“历史数据偷跑”
-                                                        // 重点修复：使用 toLocalDateStr 替代 toISOString，防止因时区差异导致日期回退到“昨天”，从而统计入昨天的历史数据
-                                                        const calcStartStr = toLocalDateStr(calcStart);
-                                                        const progress = getRangeProgress(act.id, calcStartStr, archiveFilters.endDate);
-                                                        
-                                                        // Daily Report 翻转
-                                                        let success = false;
-                                                        let typeLabel = '';
-                                                        let statusText = '';
-                                                        
-                                                        if (effectiveDays === 0) {
-                                                            statusText = 'PAUSED';
-                                                        } else {
-                                                            if (act.nature === 'negative') {
-                                                                success = progress <= targetTotal;
-                                                                typeLabel = '(LIMIT)';
-                                                            } else {
-                                                                success = progress >= targetTotal;
+                                                            let effectiveDays = 0;
+                                                            
+                                                            // 循环计算每一天是否暂停
+                                                            for (let d = new Date(calcStart); d <= reportEnd; d.setDate(d.getDate() + 1)) {
+                                                                // 修复：这里也要用本地日期字符串，防止暂停功能因时区判断错误而失效
+                                                                const dateStr = toLocalDateStr(d);
+                                                                const isPaused = dailyPauses.some(p => p.activityId === act.id && p.date === dateStr);
+                                                                if (!isPaused) effectiveDays++;
                                                             }
 
-                                                            if (act.nature === 'neutral') {
-                                                                statusText = success ? 'DONE' : 'MISS';
+                                                            const targetTotal = act.dailyGoal * effectiveDays;
+                                                            
+                                                            // 修复：进度统计必须使用 calcStart，防止“历史数据偷跑”
+                                                            // 重点修复：使用 toLocalDateStr 替代 toISOString，防止因时区差异导致日期回退到“昨天”，从而统计入昨天的历史数据
+                                                            const calcStartStr = toLocalDateStr(calcStart);
+                                                            const progress = getRangeProgress(act.id, calcStartStr, archiveFilters.endDate);
+                                                            
+                                                            // Daily Report 翻转
+                                                            let success = false;
+                                                            let typeLabel = '';
+                                                            let statusText = '';
+                                                            
+                                                            if (effectiveDays === 0) {
+                                                                statusText = 'PAUSED';
                                                             } else {
-                                                                statusText = success ? 'WIN' : 'LOSE';
-                                                            }
-                                                        }
-                                                        
-                                                        let statusColor = 'text-gray-400';
-                                                        if (effectiveDays > 0) {
-                                                            if (act.nature === 'neutral') {
-                                                                statusColor = success ? 'text-blue-600' : 'text-gray-400';
-                                                            } else {
-                                                                statusColor = success ? 'text-green-600' : 'text-red-500';
-                                                            }
-                                                        }
+                                                                if (act.nature === 'negative') {
+                                                                    success = progress <= targetTotal;
+                                                                    typeLabel = '(LIMIT)';
+                                                                } else {
+                                                                    success = progress >= targetTotal;
+                                                                }
 
-                                                        return (
-                                                            <div key={act.id} className="bg-gray-50 pixel-border p-2 flex justify-between items-center">
+                                                                if (act.nature === 'neutral') {
+                                                                    statusText = success ? 'DONE' : 'MISS';
+                                                                } else {
+                                                                    statusText = success ? 'WIN' : 'LOSE';
+                                                                }
+                                                            }
+                                                            
+                                                            let statusColor = 'text-gray-400';
+                                                            if (effectiveDays > 0) {
+                                                                if (act.nature === 'neutral') {
+                                                                    statusColor = success ? 'text-blue-600' : 'text-gray-400';
+                                                                } else {
+                                                                    statusColor = success ? 'text-green-600' : 'text-red-500';
+                                                                }
+                                                            }
+
+                                                            return (
+                                                                <div key={act.id} className="bg-gray-50 pixel-border p-2 flex justify-between items-center">
                                                                     <div>
                                                                         <div className="flex items-center gap-1">
                                                                             <span>{act.emoji}</span>
@@ -2179,7 +2170,8 @@
                                     <button onClick={() => {setShowAddModal(false); setShowEditModal(false);}} className="flex-1 pixel-border p-4 font-black uppercase text-xs text-center">Abort</button>
                                     <button onClick={() => {
                                         if(!formData.name) return;
-                                        const todayStr = new Date().toISOString().split('T')[0];
+                                        // 修复：保存时使用本地日期，防止时区偏差导致目标生效日变成昨天
+                                        const todayStr = toLocalDateStr();
 
                                         if(showEditModal) {
                                             const oldActivity = activities.find(a => a.id === activeEditId);
@@ -2193,7 +2185,8 @@
                                                     const startDate = (a.dailyGoal > 0 && a.goalStartDate) ? a.goalStartDate : todayStr;
                                                     const finalDate = formData.dailyGoal > 0 ? startDate : null;
                                                     
-                                                    return { ...a, ...formData, goalStartDate: finalDate };
+                                                    // 修复2：数据清洗，保存前强制将空字符串 parentId 转换为 null
+                                                    return { ...a, ...formData, parentId: formData.parentId || null, goalStartDate: finalDate };
                                                 }
                                                 return a;
                                             }));
@@ -2215,9 +2208,11 @@
                                         else {
                                             // 新建活动逻辑同步
                                             const finalDate = formData.dailyGoal > 0 ? todayStr : null;
+                                            // 修复2：数据清洗，保存前强制将空字符串 parentId 转换为 null
                                             setActivities([...activities, { 
                                                 id: Math.random().toString(36).substr(2, 9), 
                                                 ...formData,
+                                                parentId: formData.parentId || null,
                                                 goalStartDate: finalDate
                                             }]);
                                         }

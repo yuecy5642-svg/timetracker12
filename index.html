@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>时间捕手 TimeCatcher 2.2 Final Fixed</title>
+    <title>时间捕手 TimeCatcher 2.3 Final Fixed</title>
     
     <!-- 核心资源 -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -93,7 +93,6 @@
         const PIXEL_ICONS = {
             stop: <svg className="icon-svg text-red-600" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>,
             gear: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M11 2h2v4h-2V2zm6 2l1.4 1.4-2.8 2.8-1.4-1.4L17 4zM7 4L5.6 5.4l2.8 2.8 1.4-1.4L7 4zm13 7v2h-4v-2h4zM8 11v2H4v-2h4zm9 8l-1.4 1.4-2.8-2.8 1.4-1.4 2.8 2.8zM7 19l1.4-1.4 2.8 2.8-1.4 1.4L7 19zm4 1h2v4h-2v-4zm1-11a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>,
-            // Play 图标 (24x24 box but path is centralized)
             play: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>,
             back: <svg className="w-4 h-4" viewBox="0 0 24 24"><path d="M10 4v2H8v2H6v2H4v4h2v2h2v2h2v2h2v-4h-2v-2h-2v-4h2V8h2V4h-2zM12 10h8v4h-8v-4z"/></svg>,
             plus: <svg className="icon-svg" viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5z"/></svg>,
@@ -127,11 +126,13 @@
                         { id: '6', name: '体力锻炼', emoji: '💪', parentId: null, nature: 'positive' }
                     ];
                 }
+                // 恢复：旧数据迁移时，默认补全为 neutral，不强制转 positive，保护原有逻辑
                 return saved.map(a => ({ nature: 'neutral', ...a })); 
             });
 
             const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('tc_v10_17_logs') || '[]'));
             const [customGoals, setCustomGoals] = useState(() => JSON.parse(localStorage.getItem('tc_v2_custom_goals') || '[]'));
+            // 新增：暂停记录状态 (TC v2.1)
             const [dailyPauses, setDailyPauses] = useState(() => JSON.parse(localStorage.getItem('tc_v2_pauses') || '[]'));
             
             const [currentParentId, setCurrentParentId] = useState(null);
@@ -166,8 +167,10 @@
             const [isCapturing, setIsCapturing] = useState(false); 
             const [activeEditId, setActiveEditId] = useState(null);
             
+            // 恢复：新建活动默认属性改回 neutral
             const [formData, setFormData] = useState({ name: '', emoji: '📍', parentId: '', dailyGoal: 0, nature: 'neutral' });
             
+            // 自定义挑战增加 isNegativeOverride
             const [newGoalData, setNewGoalData] = useState(() => {
                 const today = new Date().toISOString().split('T')[0];
                 return { activityId: '', startDate: today, endDate: today, targetMinutes: '', isNegativeOverride: false };
@@ -1281,7 +1284,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div className="flex justify-between items-center text-[10px] border-t border-gray-700 pt-1">
-                                                                    <span>Soul Score Delta</span>
+                                                                    <span>Soul Score Delta (A-B)</span>
                                                                     <span className={`font-black ${soulColor.replace('text-', 'text-')}`}>
                                                                         {soulDelta > 0 ? '+' : ''}{Math.round(soulDelta)}m
                                                                     </span>
@@ -1484,25 +1487,21 @@
                                                             
                                                             setActivities(prev => prev.map(a => {
                                                                 if (a.id === newDailyData.activityId) {
-                                                                    // 逻辑升级：记录目标生效日期
-                                                                    // 1. 如果是新开启的目标 (val > 0 且之前没目标)，设为今天
-                                                                    // 2. 如果是修改已有目标，保留原有开始日期；如果原有日期丢失，补录为今天
-                                                                    // 3. 如果关闭目标 (val = 0)，清除日期
-                                                                    const currentGoal = a.dailyGoal || 0;
-                                                                    let startDate = a.goalStartDate;
+                                                                    // 核心修复：写入 goalStartDate
+                                                                    // 逻辑：如果设定了新目标(val>0)，且之前没有开始日期(或之前是0)，则打上今天的时间戳
+                                                                    // 如果只是修改数字(比如30改60)，通常保持原开始日期？这里简化为：只要设置就更新/保持
+                                                                    // 为了稳妥：如果已经有日期且只是修改数值，保留原日期；如果是新设，用今天。
+                                                                    const startDate = (a.dailyGoal > 0 && a.goalStartDate) ? a.goalStartDate : todayStr;
                                                                     
-                                                                    if (val > 0) {
-                                                                        if (currentGoal === 0 || !startDate) {
-                                                                            startDate = todayStr;
-                                                                        }
-                                                                    } else {
-                                                                        startDate = null;
-                                                                    }
+                                                                    // 如果 val 是 0 (移除目标)，可以保留日期或清空，这里不清空以便未来恢复，或者清空？
+                                                                    // 建议：移除目标时清空日期，下次设时重新开始
+                                                                    const finalDate = val > 0 ? startDate : null;
 
-                                                                    return { ...a, dailyGoal: val, goalStartDate: startDate };
+                                                                    return { ...a, dailyGoal: val, goalStartDate: finalDate };
                                                                 }
                                                                 return a;
                                                             }));
+                                                            
                                                             setNewDailyData({ activityId: '', targetMinutes: '' });
                                                             showMsg(val > 0 ? "Goal Set!" : "Goal Removed");
                                                         }}
@@ -1785,32 +1784,21 @@
                                                             
                                                             // 计算有效目标总数（剔除暂停日）
                                                             totalAchieved = dailyActs.filter(a => {
-                                                                const reportStart = new Date(archiveFilters.startDate);
-                                                                const reportEnd = new Date(archiveFilters.endDate);
-                                                                
-                                                                // 核心修复：确定计算的起始点
-                                                                // 取 "报表开始时间" 和 "目标生效时间" 的较晚者
-                                                                const goalStart = a.goalStartDate ? new Date(a.goalStartDate) : new Date(0); 
-                                                                let calcStart = reportStart > goalStart ? reportStart : goalStart;
-                                                                
-                                                                // 如果计算起始点晚于结束点，说明该目标在这个时间段内尚未生效，直接跳过不显示
-                                                                if (calcStart > reportEnd) return false;
-
+                                                                const start = new Date(archiveFilters.startDate);
+                                                                const end = new Date(archiveFilters.endDate);
                                                                 let effectiveDays = 0;
                                                                 
                                                                 // 循环计算每一天是否暂停
-                                                                for (let d = new Date(calcStart); d <= reportEnd; d.setDate(d.getDate() + 1)) {
+                                                                for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
                                                                     const dateStr = d.toISOString().split('T')[0];
                                                                     const isPaused = dailyPauses.some(p => p.activityId === a.id && p.date === dateStr);
                                                                     if (!isPaused) effectiveDays++;
                                                                 }
                                                                 
-                                                                if (effectiveDays === 0) return false; // 全程暂停或未生效
+                                                                if (effectiveDays === 0) return false; // 全程暂停不算达成（但也可能不算失败，这里简化处理）
 
                                                                 const targetTotal = a.dailyGoal * effectiveDays;
-                                                                // 进度统计同样需要遵循 calcStart 限制
-                                                                const calcStartStr = calcStart.toISOString().split('T')[0];
-                                                                const progress = getRangeProgress(a.id, calcStartStr, archiveFilters.endDate);
+                                                                const progress = getRangeProgress(a.id, archiveFilters.startDate, archiveFilters.endDate);
                                                                 
                                                                 // Daily Report 翻转
                                                                 return a.nature === 'negative' ? progress <= targetTotal : progress >= targetTotal;
@@ -1889,21 +1877,24 @@
                                                             const reportStart = new Date(archiveFilters.startDate);
                                                             const reportEnd = new Date(archiveFilters.endDate);
                                                             
-                                                            // 核心修复：确定计算的起始点
-                                                            // 取 "报表开始时间" 和 "目标生效时间" 的较晚者
-                                                            // 如果 goalStartDate 不存在（老数据），默认从报表开始时间算（兼容旧行为，或者建议用户重设）
-                                                            const goalStart = act.goalStartDate ? new Date(act.goalStartDate) : new Date(0); 
-                                                            // 如果 goalStart 比 reportStart 晚，就用 goalStart；否则用 reportStart
-                                                            // 注意：new Date(0) 肯定比 reportStart 早，所以兼容了老数据
+                                                            // 核心修复：应用时间旅行逻辑
+                                                            // 1. 获取目标生效日，若无则默认为远古时间(1970)以兼容旧数据
+                                                            const goalStart = act.goalStartDate ? new Date(act.goalStartDate) : new Date(0);
+                                                            
+                                                            // 2. 计算实际有效开始时间：取 "报表开始时间" 和 "目标生效时间" 的较晚者
+                                                            // 例如：报表查 1号~30号，目标是 15号设的。则 calcStart = 15号。
                                                             let calcStart = reportStart > goalStart ? reportStart : goalStart;
                                                             
-                                                            // 如果计算起始点晚于结束点，说明该目标在这个时间段内尚未生效，直接跳过不显示
+                                                            // 3. 边界检查：如果 "有效开始时间" 晚于 "报表结束时间"，说明这段时间内目标还没存在，直接隐藏
                                                             if (calcStart > reportEnd) return null;
+
+                                                            // 4. 重置时分秒，确保日期比较准确
+                                                            calcStart.setHours(0,0,0,0);
+                                                            reportEnd.setHours(23,59,59,999);
 
                                                             let effectiveDays = 0;
                                                             
-                                                            // 循环计算每一天是否暂停，且仅计算生效日期之后的日子
-                                                            // 注意：这里必须创建一个新的日期对象进行迭代，不能修改 calcStart 本身
+                                                            // 循环计算每一天是否暂停
                                                             for (let d = new Date(calcStart); d <= reportEnd; d.setDate(d.getDate() + 1)) {
                                                                 const dateStr = d.toISOString().split('T')[0];
                                                                 const isPaused = dailyPauses.some(p => p.activityId === act.id && p.date === dateStr);
@@ -1911,11 +1902,8 @@
                                                             }
 
                                                             const targetTotal = act.dailyGoal * effectiveDays;
-                                                            
-                                                            // 进度统计同样需要遵循 calcStart 限制
-                                                            // getRangeProgress 需要传入字符串，我们将 calcStart 转回字符串
-                                                            const calcStartStr = calcStart.toISOString().split('T')[0];
-                                                            const progress = getRangeProgress(act.id, calcStartStr, archiveFilters.endDate);
+                                                            // 进度统计也必须只统计 calcStart 之后的
+                                                            const progress = getRangeProgress(act.id, calcStart.toISOString().split('T')[0], archiveFilters.endDate);
                                                             
                                                             // Daily Report 翻转
                                                             let success = false;
@@ -1923,21 +1911,31 @@
                                                             let statusText = '';
                                                             
                                                             if (effectiveDays === 0) {
-                                                                statusText = 'PAUSED'; // 全程暂停或无有效日期
+                                                                statusText = 'PAUSED';
                                                             } else {
                                                                 if (act.nature === 'negative') {
                                                                     success = progress <= targetTotal;
                                                                     typeLabel = '(LIMIT)';
-                                                                } else if (act.nature === 'neutral') {
-                                                                    success = true; 
                                                                 } else {
+                                                                    // Positive & Neutral logic: >= target
                                                                     success = progress >= targetTotal;
                                                                 }
-                                                                statusText = act.nature === 'neutral' ? 'N/A' : (success ? 'WIN' : 'LOSE');
+
+                                                                if (act.nature === 'neutral') {
+                                                                    statusText = success ? 'DONE' : 'MISS';
+                                                                } else {
+                                                                    statusText = success ? 'WIN' : 'LOSE';
+                                                                }
                                                             }
                                                             
-                                                            const isNeutral = act.nature === 'neutral';
-                                                            const statusColor = (effectiveDays === 0 || isNeutral) ? 'text-gray-400' : (success ? 'text-green-600' : 'text-red-500');
+                                                            let statusColor = 'text-gray-400';
+                                                            if (effectiveDays > 0) {
+                                                                if (act.nature === 'neutral') {
+                                                                    statusColor = success ? 'text-blue-600' : 'text-gray-400';
+                                                                } else {
+                                                                    statusColor = success ? 'text-green-600' : 'text-red-500';
+                                                                }
+                                                            }
 
                                                             return (
                                                                 <div key={act.id} className="bg-gray-50 pixel-border p-2 flex justify-between items-center">
@@ -1963,147 +1961,18 @@
                             </div>
                         </div>
                     )}
-                    
-                    {/* Summary Modal (Restored) */}
-                    {showSummary && (
-                        <div className={`fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4 backdrop-blur-sm ${isCapturing ? 'is-capturing' : ''}`}>
-                            <div id="summary-card" className="bg-[#E0F2F1] pixel-border p-6 w-full max-w-sm flex flex-col overflow-hidden max-h-[85vh] text-left">
-                                <div className="flex justify-between items-center mb-5 border-b-4 border-black pb-2">
-                                    <div><h2 className="text-3xl font-black italic uppercase tracking-tighter">Mission Clear</h2><p className="text-[10px] font-bold opacity-40 mt-1">Date: {selectedDate.toLocaleDateString()}</p></div>
-                                    <button onClick={() => setShowSummary(false)} className="hide-in-capture text-xl font-bold border-4 border-black px-4 py-1 bg-white mb-2 shadow-sm shadow-black">X</button>
-                                </div>
-                                <div className="flex-1 space-y-1 overflow-y-auto no-scrollbar pr-1 pb-4">
-                                    {getLogsForDate(selectedDate).length === 0 ? (
-                                        <p className="text-center font-bold opacity-30 py-20 italic uppercase tracking-tight">No Data Found</p>
-                                    ) : (
-                                        getLogsForDate(selectedDate).map((l, i) => {
-                                            const activityObj = activities.find(a => a.name === l.activityName);
-                                            const parentObj = activityObj?.parentId ? activities.find(a => a.id === activityObj.parentId) : null;
-                                            const displayName = parentObj ? `${parentObj.name}-${l.activityName}` : l.activityName;
-                                            return (
-                                                <div key={l.id} className="bg-white border-b-2 border-black/10 p-2 flex justify-between items-center text-left">
-                                                    <div className="flex items-center gap-1.5 min-w-0">
-                                                        <span className="text-lg flex-shrink-0">{l.activityEmoji || '📍'}</span>
-                                                        <div className="flex items-center gap-1.5 truncate py-1">
-                                                            <span className="font-black text-[13px] uppercase truncate leading-relaxed">{displayName}</span>
-                                                            <span className="text-[9px] font-bold text-blue-600 opacity-60 flex-shrink-0">[{formatTime(l.startTime)}-{formatTime(l.endTime)}]</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="font-black text-xs flex-shrink-0">{Math.round((l.endTime-l.startTime)/60000)}M</div>
-                                                        {isDeleteMode && (
-                                                            <button 
-                                                                onClick={(e) => handleDeleteLog(e, l.id)}
-                                                                className={`hide-in-capture w-5 h-5 flex items-center justify-center border-2 border-black text-[10px] font-bold transition-all shadow-sm ${logDeleteConfirmId === l.id ? 'bg-red-500 text-white border-red-800' : 'bg-white text-gray-400 border-gray-200'}`}
-                                                            >
-                                                                {logDeleteConfirmId === l.id ? '?' : 'x'}
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
-                                <div className="mt-2 pt-4 border-t-4 border-black flex justify-between items-end flex-shrink-0 text-left">
-                                    <div className="flex-1">
-                                        <p className="text-[10px] font-bold opacity-40 uppercase mb-1">Total XP</p>
-                                        <p className="text-5xl font-black leading-relaxed pb-2">
-                                            {Math.round(getLogsForDate(selectedDate).reduce((acc, l) => acc + (l.endTime ? (l.endTime - l.startTime) / 60000 : 0), 0))}0
-                                        </p>
-                                    </div>
-                                    <div className="hide-in-capture grid grid-cols-2 gap-2 w-32">
-                                        <button onClick={saveSummaryImage} className="bg-[#FFD60A] border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Save Image">{PIXEL_ICONS.save} PNG</button>
-                                        <button onClick={() => exportICS(getLogsForDate(selectedDate))} className="bg-[#6D83F2] text-white border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Sync Calendar">{PIXEL_ICONS.cal} CAL</button>
-                                        <button onClick={() => exportCSV(selectedDate)} className="bg-white text-black border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1" title="Export CSV">{PIXEL_ICONS.csv} CSV</button>
-                                        <button 
-                                            onClick={() => setIsDeleteMode(!isDeleteMode)} 
-                                            className={`border-2 border-black py-1.5 font-bold uppercase text-[9px] italic shadow-sm active:translate-y-0.5 flex items-center justify-center gap-1 transition-colors ${isDeleteMode ? 'bg-black text-white' : 'bg-white text-red-600'}`} 
-                                            title="Toggle Delete Mode"
-                                        >
-                                            {PIXEL_ICONS.trash} {isDeleteMode ? 'DONE' : 'DEL'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Show Calendar Modal (Restored) */}
-                    {showCalendar && (
-                        <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4 backdrop-blur-md">
-                            <div className="bg-white pixel-border p-6 w-full max-w-sm">
-                                <div className="flex justify-between items-center mb-6 border-b-4 border-black pb-2">
-                                    <h2 className="text-2xl font-black uppercase">TIME TRAVEL</h2>
-                                    <button onClick={() => setShowCalendar(false)} className="text-xl font-bold border-2 border-black px-3">X</button>
-                                </div>
-                                <div className="flex justify-center items-center mb-4">
-                                    <input 
-                                        type="month" 
-                                        value={`${selectedDate.getFullYear()}-${String(selectedDate.getMonth()+1).padStart(2,'0')}`}
-                                        onChange={handleMonthChange}
-                                        className="font-black text-xl text-center bg-[#E0F2F1] border-2 border-black p-2 outline-none uppercase"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-7 gap-2 mb-6">
-                                    {['S','M','T','W','T','F','S'].map((d,i) => <div key={i} className="text-center text-xs font-bold opacity-40">{d}</div>)}
-                                    {renderCalendar()}
-                                </div>
-                                <div className="border-t-4 border-dashed border-gray-300 pt-4">
-                                    <button onClick={() => exportCSV(null)} className="w-full bg-[#E0F2F1] pixel-border p-3 font-bold text-xs uppercase shadow-sm active:bg-gray-200">EXPORT ALL HISTORY (CSV)</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Backup Modal (Restored) */}
-                    {showBackupModal && (
-                        <div className="fixed inset-0 z-[150] bg-black/90 flex items-center justify-center p-6 text-left">
-                            <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
-                                <h2 className="text-2xl font-black mb-4 border-b-4 border-black uppercase">{isRestoreMode ? 'RESTORE' : 'VAULT'}</h2>
-                                
-                                {isRestoreMode ? (
-                                    <textarea 
-                                        className="w-full h-40 pixel-border p-3 text-[9px] font-mono mb-4 break-all bg-yellow-50 outline-none placeholder-gray-400" 
-                                        placeholder="Paste backup code here..." 
-                                        value={restoreInputValue}
-                                        onChange={(e) => setRestoreInputValue(e.target.value)}
-                                    ></textarea>
-                                ) : (
-                                    <textarea id="backup-output" readOnly className="w-full h-40 pixel-border p-3 text-[9px] font-mono mb-4 break-all bg-gray-50 outline-none" value={backupString}></textarea>
-                                )}
-
-                                <div className="flex flex-col gap-3">
-                                    {isRestoreMode ? (
-                                        <>
-                                            <button onClick={() => restoreBackup(restoreInputValue)} className="bg-[#6D83F2] text-white p-4 font-black">CONFIRM RESTORE</button>
-                                            <button onClick={() => setIsRestoreMode(false)} className="bg-white border-2 border-black p-3 font-black text-xs">CANCEL</button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => { 
-                                                const el = document.getElementById('backup-output');
-                                                if (el) {
-                                                    el.select();
-                                                    el.setSelectionRange(0, 99999);
-                                                    document.execCommand('copy');
-                                                    showMsg("Copied");
-                                                }
-                                            }} className="bg-[#FFD60A] p-4 font-black">COPY CODE</button>
-                                            <button onClick={() => { setIsRestoreMode(true); setRestoreInputValue(''); }} className="bg-[#6D83F2] text-white p-4 font-black">ENTER RESTORE MODE</button>
-                                        </>
-                                    )}
-                                    <button onClick={() => setShowBackupModal(false)} className="bg-black text-white p-3 font-black text-xs">EXIT</button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
                     {(showAddModal || showEditModal) && (
                         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-6 backdrop-blur-md text-left">
                             <div className="bg-white pixel-border p-6 w-full max-w-sm shadow-[10px_10px_0px_0px_black]">
                                 <h2 className="text-3xl font-black mb-6 uppercase border-b-4 border-black">{showEditModal ? 'Edit' : 'New'}</h2>
                                 <div className="space-y-5 max-h-[50vh] overflow-y-auto no-scrollbar pr-1">
-                                    <input type="text" placeholder="Name..." className="w-full pixel-border p-4 font-bold text-xl outline-none focus:bg-yellow-50" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Name..." 
+                                        className="w-full pixel-border p-4 font-bold text-xl outline-none focus:bg-yellow-50" 
+                                        value={formData.name} 
+                                        onChange={e => setFormData({...formData, name: e.target.value})} 
+                                    />
                                     
                                     {/* 核心改动：增加 Nature 选择器 */}
                                     <div className="pixel-border p-3 bg-gray-50">
@@ -2146,17 +2015,10 @@
                                     <button onClick={() => {setShowAddModal(false); setShowEditModal(false);}} className="flex-1 pixel-border p-4 font-black uppercase text-xs text-center">Abort</button>
                                     <button onClick={() => {
                                         if(!formData.name) return;
-                                        
-                                        // 修复2：数据清洗，保存前强制将空字符串 parentId 转换为 null，保持数据纯净
-                                        const cleanFormData = {
-                                            ...formData,
-                                            parentId: formData.parentId || null
-                                        };
-
                                         if(showEditModal) {
                                             const oldActivity = activities.find(a => a.id === activeEditId);
-                                            // 保存 nature
-                                            setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, ...cleanFormData } : a));
+                                            // 保存 
+                                            setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, ...formData } : a));
                                             
                                             // 级联同步引擎
                                             if (oldActivity) {
@@ -2164,15 +2026,15 @@
                                                     if (log.activityName === oldActivity.name) {
                                                         return {
                                                             ...log,
-                                                            activityName: cleanFormData.name,
-                                                            activityEmoji: cleanFormData.emoji
+                                                            activityName: formData.name,
+                                                            activityEmoji: formData.emoji
                                                         };
                                                     }
                                                     return log;
                                                 }));
                                             }
                                         }
-                                        else setActivities([...activities, { id: Math.random().toString(36).substr(2, 9), ...cleanFormData }]);
+                                        else setActivities([...activities, { id: Math.random().toString(36).substr(2, 9), ...formData }]);
                                         setShowAddModal(false); setShowEditModal(false);
                                         triggerVibrate(30);
                                     }} className="flex-1 bg-black text-white p-4 font-black uppercase text-xs text-center">Save</button>

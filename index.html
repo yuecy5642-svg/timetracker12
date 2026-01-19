@@ -1919,21 +1919,40 @@
                                                             
                                                             // 计算有效目标总数（剔除暂停日）
                                                             totalAchieved = dailyActs.filter(a => {
-                                                                const start = new Date(archiveFilters.startDate);
-                                                                const end = new Date(archiveFilters.endDate);
+                                                                const reportStart = new Date(archiveFilters.startDate);
+                                                                const reportEnd = new Date(archiveFilters.endDate);
+                                                                
+                                                                // 修复：时间旅行逻辑 (Time Travel Logic)
+                                                                // 1. 获取目标生效日 (默认 1970 兼容旧数据)
+                                                                const goalStart = a.goalStartDate ? new Date(a.goalStartDate) : new Date(0);
+                                                                
+                                                                // 2. 确定有效计算起始日：取 (报表开始日, 目标生效日) 的较晚者
+                                                                // 避免“未出生”的目标被过早统计
+                                                                let calcStart = reportStart > goalStart ? reportStart : goalStart;
+                                                                
+                                                                // 3. 边界检查：如果计算起始日晚于报表结束日，说明该目标在此期间不存在
+                                                                if (calcStart > reportEnd) return false;
+
+                                                                // 4. 重置时间部分，确保日期迭代准确
+                                                                calcStart.setHours(0,0,0,0);
+                                                                reportEnd.setHours(23,59,59,999);
+
                                                                 let effectiveDays = 0;
                                                                 
                                                                 // 循环计算每一天是否暂停
-                                                                for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                                                                for (let d = new Date(calcStart); d <= reportEnd; d.setDate(d.getDate() + 1)) {
                                                                     const dateStr = d.toISOString().split('T')[0];
                                                                     const isPaused = dailyPauses.some(p => p.activityId === a.id && p.date === dateStr);
                                                                     if (!isPaused) effectiveDays++;
                                                                 }
                                                                 
-                                                                if (effectiveDays === 0) return false; // 全程暂停不算达成（但也可能不算失败，这里简化处理）
+                                                                if (effectiveDays === 0) return false; // 无有效天数（全程暂停或未生效）
 
                                                                 const targetTotal = a.dailyGoal * effectiveDays;
-                                                                const progress = getRangeProgress(a.id, archiveFilters.startDate, archiveFilters.endDate);
+                                                                
+                                                                // 修复：进度统计必须使用 calcStart，防止“历史数据偷跑”
+                                                                const calcStartStr = calcStart.toISOString().split('T')[0];
+                                                                const progress = getRangeProgress(a.id, calcStartStr, archiveFilters.endDate);
                                                                 
                                                                 // Daily Report 翻转
                                                                 return a.nature === 'negative' ? progress <= targetTotal : progress >= targetTotal;

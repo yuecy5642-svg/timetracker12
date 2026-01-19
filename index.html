@@ -1057,11 +1057,11 @@
                                                     )}
                                                 </button>
                                                 {isEditMode && (
-                                                    <div className="absolute -top-11 left-0 right-0 flex justify-center gap-1.5 z-20">
-                                                        <button onClick={() => { setActiveEditId(act.id); setFormData({name: act.name, emoji: act.emoji, parentId: act.parentId || '', dailyGoal: act.dailyGoal || 0, nature: act.nature || 'neutral' }); setShowEditModal(true); }} className="bg-[#FFD60A] border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.edit}</button>
-                                                        <button onClick={(e) => handleDeleteItem(e, act.id)} className={`border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${itemDeleteConfirmId === act.id ? 'bg-red-600 text-white animate-pulse' : 'bg-red-500 text-white'}`}>{itemDeleteConfirmId === act.id ? <span className="text-[6px] font-black">SURE</span> : PIXEL_ICONS.trash}</button>
-                                                        <button onClick={() => moveItem(act.id, -1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.up}</button>
-                                                        <button onClick={() => moveItem(act.id, 1)} className="bg-white border-2 border-black w-8 h-8 flex items-center justify-center shadow-sm">{PIXEL_ICONS.down}</button>
+                                                    <div className="absolute -top-6 left-0 right-0 flex justify-center gap-1.5 z-20">
+                                                        <button onClick={() => { setActiveEditId(act.id); setFormData({name: act.name, emoji: act.emoji, parentId: act.parentId || '', dailyGoal: act.dailyGoal || 0, nature: act.nature || 'neutral' }); setShowEditModal(true); }} className="bg-[#FFD60A] border-2 border-black w-6 h-6 flex items-center justify-center shadow-sm">{PIXEL_ICONS.edit}</button>
+                                                        <button onClick={(e) => handleDeleteItem(e, act.id)} className={`border-2 border-black w-6 h-6 flex items-center justify-center shadow-sm transition-colors ${itemDeleteConfirmId === act.id ? 'bg-red-600 text-white animate-pulse' : 'bg-red-500 text-white'}`}>{itemDeleteConfirmId === act.id ? <span className="text-[6px] font-black">SURE</span> : PIXEL_ICONS.trash}</button>
+                                                        <button onClick={() => moveItem(act.id, -1)} className="bg-white border-2 border-black w-6 h-6 flex items-center justify-center shadow-sm">{PIXEL_ICONS.up}</button>
+                                                        <button onClick={() => moveItem(act.id, 1)} className="bg-white border-2 border-black w-6 h-6 flex items-center justify-center shadow-sm">{PIXEL_ICONS.down}</button>
                                                     </div>
                                                 )}
                                             </div>

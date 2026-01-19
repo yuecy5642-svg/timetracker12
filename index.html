@@ -501,12 +501,12 @@
                                     div.textContent = input.value; 
                                     div.className = input.className; 
                                     
-                                    div.style.display = 'flex';           
-                                    div.style.alignItems = 'center';      
+                                    div.style.display = 'flex';            
+                                    div.style.alignItems = 'center';       
                                     div.style.justifyContent = 'center';  
-                                    div.style.height = 'auto';            
+                                    div.style.height = 'auto';             
                                     div.style.minHeight = input.offsetHeight + 'px'; 
-                                    div.style.padding = '4px 0';          
+                                    div.style.padding = '4px 0';           
                                     div.style.fontFamily = 'Arial, sans-serif'; 
                                     div.style.lineHeight = '1.2';
                                     div.style.overflow = 'visible';
@@ -921,13 +921,13 @@
                 e.preventDefault();
                 const input = prompt("手动输入活动名称：");
                 if (input) {
-                     const match = activitiesRef.current.find(act => input.includes(act.name) || act.name.includes(input));
-                     if (match) {
+                      const match = activitiesRef.current.find(act => input.includes(act.name) || act.name.includes(input));
+                      if (match) {
                         handleActivityClick(match);
                         showMsg(`指令已执行: ${match.name}`);
-                     } else {
+                      } else {
                         showMsg("找不到该活动", "error");
-                     }
+                      }
                 }
             };
 
@@ -1037,7 +1037,7 @@
                                                             <p className="font-black text-lg uppercase leading-none truncate">{act.name}</p>
                                                             {goalMins > 0 && (
                                                                 <p className="text-[10px] font-bold text-gray-400 mt-1 flex items-center gap-1">
-                                                                        {currentMins}/{goalMins}m 
+                                                                            {currentMins}/{goalMins}m 
                                                                         {/* 正向：达成显示星；负向：未超标显示星 */}
                                                                         {(!isNegative && currentMins >= goalMins) && <span className="text-yellow-500">★</span>}
                                                                         {(isNegative && currentMins <= goalMins) && <span className="text-yellow-500">★</span>}
@@ -1491,10 +1491,10 @@
                                                                     // 逻辑：如果设定了新目标(val>0)，且之前没有开始日期(或之前是0)，则打上今天的时间戳
                                                                     // 如果只是修改数字(比如30改60)，通常保持原开始日期？这里简化为：只要设置就更新/保持
                                                                     // 为了稳妥：如果已经有日期且只是修改数值，保留原日期；如果是新设，用今天。
-                                                                    const startDate = (a.dailyGoal > 0 && a.goalStartDate) ? a.goalStartDate : todayStr;
                                                                     
                                                                     // 如果 val 是 0 (移除目标)，可以保留日期或清空，这里不清空以便未来恢复，或者清空？
                                                                     // 建议：移除目标时清空日期，下次设时重新开始
+                                                                    const startDate = (a.dailyGoal > 0 && a.goalStartDate) ? a.goalStartDate : todayStr;
                                                                     const finalDate = val > 0 ? startDate : null;
 
                                                                     return { ...a, dailyGoal: val, goalStartDate: finalDate };
@@ -1547,37 +1547,37 @@
 
                                                             return (
                                                                 <div key={act.id} className="relative">
-                                                                    <div className="flex justify-between items-center mb-1 text-[10px] font-bold relative z-10">
-                                                                        <div className="flex items-center gap-1">
-                                                                            <span>{act.emoji}</span>
-                                                                            <span>{act.name}</span>
-                                                                            {isPaused && <span className="text-[8px] bg-gray-200 px-1 rounded opacity-60">PAUSED</span>}
+                                                                        <div className="flex justify-between items-center mb-1 text-[10px] font-bold relative z-10">
+                                                                            <div className="flex items-center gap-1">
+                                                                                <span>{act.emoji}</span>
+                                                                                <span>{act.name}</span>
+                                                                                {isPaused && <span className="text-[8px] bg-gray-200 px-1 rounded opacity-60">PAUSED</span>}
+                                                                            </div>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <button 
+                                                                                    onClick={(e) => { e.stopPropagation(); togglePause(act.id, new Date().toISOString().split('T')[0]); }} 
+                                                                                    className={`w-4 h-4 flex items-center justify-center rounded border border-gray-300 ${isPaused ? 'bg-blue-100 text-blue-500' : 'bg-white text-gray-300 hover:text-blue-400'}`}
+                                                                                    title={isPaused ? "Unfreeze" : "Freeze/Pause"}
+                                                                                >
+                                                                                    {PIXEL_ICONS.snow}
+                                                                                </button>
+                                                                                <span className={`${checkColor} opacity-80`}>{Math.round((current / goal) * 100)}%</span>
+                                                                                <span className="opacity-50 text-[9px]">|</span>
+                                                                                <span>{current}/{goal}m</span>
+                                                                                {/* 仅当“赢”了才显示庆祝符号, 暂停不显示 */}
+                                                                                {(!isPaused && (isNegative ? (current <= goal) : (current >= goal))) && <span className="text-sm leading-none">✅</span>}
+                                                                            </div>
                                                                         </div>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <button 
-                                                                                onClick={(e) => { e.stopPropagation(); togglePause(act.id, new Date().toISOString().split('T')[0]); }} 
-                                                                                className={`w-4 h-4 flex items-center justify-center rounded border border-gray-300 ${isPaused ? 'bg-blue-100 text-blue-500' : 'bg-white text-gray-300 hover:text-blue-400'}`}
-                                                                                title={isPaused ? "Unfreeze" : "Freeze/Pause"}
-                                                                            >
-                                                                                {PIXEL_ICONS.snow}
-                                                                            </button>
-                                                                            <span className={`${checkColor} opacity-80`}>{Math.round((current / goal) * 100)}%</span>
-                                                                            <span className="opacity-50 text-[9px]">|</span>
-                                                                            <span>{current}/{goal}m</span>
-                                                                            {/* 仅当“赢”了才显示庆祝符号, 暂停不显示 */}
-                                                                            {(!isPaused && (isNegative ? (current <= goal) : (current >= goal))) && <span className="text-sm leading-none">✅</span>}
+                                                                        <div className="w-full h-1.5 bg-white border border-black relative">
+                                                                            <div className="h-full transition-all duration-300" style={{width: `${pct}%`, backgroundColor: barColor}}></div>
                                                                         </div>
-                                                                    </div>
-                                                                    <div className="w-full h-1.5 bg-white border border-black relative">
-                                                                        <div className="h-full transition-all duration-300" style={{width: `${pct}%`, backgroundColor: barColor}}></div>
-                                                                    </div>
-                                                                    <button 
-                                                                        onClick={() => {
-                                                                            setNewDailyData({ activityId: act.id, targetMinutes: act.dailyGoal });
-                                                                        }}
-                                                                        className="absolute inset-0 opacity-0 hover:opacity-10 bg-black transition-opacity cursor-pointer"
-                                                                        title="Edit"
-                                                                    ></button>
+                                                                        <button 
+                                                                            onClick={() => {
+                                                                                setNewDailyData({ activityId: act.id, targetMinutes: act.dailyGoal });
+                                                                            }}
+                                                                            className="absolute inset-0 opacity-0 hover:opacity-10 bg-black transition-opacity cursor-pointer"
+                                                                            title="Edit"
+                                                                        ></button>
                                                                 </div>
                                                             );
                                                         })
@@ -1697,41 +1697,41 @@
                                                                 </button>
                                                                 
                                                                 <div className="flex justify-between items-start mb-2">
-                                                                    <div>
-                                                                        <div className="flex items-center gap-1.5">
-                                                                            <span className={`text-sm ${status === 'upcoming' ? 'grayscale opacity-50' : ''}`}>{act.emoji}</span>
-                                                                            <span className={`font-bold text-xs uppercase ${status === 'upcoming' ? 'text-gray-500' : ''}`}>{act.name}</span>
-                                                                            
-                                                                            {status === 'upcoming' && <span className="text-[8px] bg-gray-200 text-gray-500 px-1 py-0.5 rounded border border-gray-300">WAITING</span>}
-                                                                            {status === 'active' && <span className="text-[8px] bg-blue-100 text-blue-600 px-1 py-0.5 rounded border border-blue-200">ACTIVE</span>}
-                                                                            {/* 显示模式标记 */}
-                                                                            {isNegative ? <span className="text-[8px] text-red-500 border border-red-200 px-1 rounded">LIMIT</span> : <span className="text-[8px] text-green-600 border border-green-200 px-1 rounded">REACH</span>}
-                                                                        </div>
-                                                                        <p className="text-[9px] font-bold opacity-40">{g.startDate.slice(5)} ~ {g.endDate.slice(5)} ({daysTotal} Days)</p>
-                                                                        <p className="text-[9px] font-bold text-blue-600 mt-0.5">Avg: {dailyAvg}m/day</p>
-                                                                    </div>
-                                                                    
-                                                                    {status !== 'upcoming' && (
-                                                                        <div className="text-right">
-                                                                            <div className="flex items-center justify-end gap-1">
-                                                                                <p className={`text-lg font-black leading-none ${isDone ? 'text-green-600' : (isNegative ? 'text-red-500' : 'text-blue-600')}`}>
-                                                                                    {Math.round((progress/g.targetMinutes)*100)}%
-                                                                                </p>
-                                                                                {/* 仅在真正胜利时庆祝 */}
-                                                                                {((!isNegative && progress >= g.targetMinutes) || (isNegative && progress <= g.targetMinutes)) && <span className="text-lg animate-bounce">🎉</span>}
+                                                                        <div>
+                                                                            <div className="flex items-center gap-1.5">
+                                                                                <span className={`text-sm ${status === 'upcoming' ? 'grayscale opacity-50' : ''}`}>{act.emoji}</span>
+                                                                                <span className={`font-bold text-xs uppercase ${status === 'upcoming' ? 'text-gray-500' : ''}`}>{act.name}</span>
+                                                                                
+                                                                                {status === 'upcoming' && <span className="text-[8px] bg-gray-200 text-gray-500 px-1 py-0.5 rounded border border-gray-300">WAITING</span>}
+                                                                                {status === 'active' && <span className="text-[8px] bg-blue-100 text-blue-600 px-1 py-0.5 rounded border border-blue-200">ACTIVE</span>}
+                                                                                {/* 显示模式标记 */}
+                                                                                {isNegative ? <span className="text-[8px] text-red-500 border border-red-200 px-1 rounded">LIMIT</span> : <span className="text-[8px] text-green-600 border border-green-200 px-1 rounded">REACH</span>}
                                                                             </div>
-                                                                            <p className="text-[9px] font-bold opacity-60">{progress}/{g.targetMinutes}m</p>
+                                                                            <p className="text-[9px] font-bold opacity-40">{g.startDate.slice(5)} ~ {g.endDate.slice(5)} ({daysTotal} Days)</p>
+                                                                            <p className="text-[9px] font-bold text-blue-600 mt-0.5">Avg: {dailyAvg}m/day</p>
                                                                         </div>
-                                                                    )}
+                                                                        
+                                                                        {status !== 'upcoming' && (
+                                                                            <div className="text-right">
+                                                                                    <div className="flex items-center justify-end gap-1">
+                                                                                        <p className={`text-lg font-black leading-none ${isDone ? 'text-green-600' : (isNegative ? 'text-red-500' : 'text-blue-600')}`}>
+                                                                                            {Math.round((progress/g.targetMinutes)*100)}%
+                                                                                        </p>
+                                                                                        {/* 仅在真正胜利时庆祝 */}
+                                                                                        {((!isNegative && progress >= g.targetMinutes) || (isNegative && progress <= g.targetMinutes)) && <span className="text-lg animate-bounce">🎉</span>}
+                                                                                    </div>
+                                                                                    <p className="text-[9px] font-bold opacity-60">{progress}/{g.targetMinutes}m</p>
+                                                                            </div>
+                                                                        )}
                                                                 </div>
                                                                 
                                                                 {status !== 'upcoming' ? (
                                                                     <div className="w-full h-3 border-2 border-black bg-gray-100 relative">
-                                                                        <div className="h-full transition-all duration-300" style={{width: `${pct}%`, backgroundColor: barColor}}></div>
+                                                                            <div className="h-full transition-all duration-300" style={{width: `${pct}%`, backgroundColor: barColor}}></div>
                                                                     </div>
                                                                 ) : (
                                                                     <div className="w-full h-3 border-2 border-dashed border-gray-300 bg-transparent flex items-center justify-center">
-                                                                        <span className="text-[8px] text-gray-400 font-bold">STARTS SOON</span>
+                                                                            <span className="text-[8px] text-gray-400 font-bold">STARTS SOON</span>
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -2015,10 +2015,24 @@
                                     <button onClick={() => {setShowAddModal(false); setShowEditModal(false);}} className="flex-1 pixel-border p-4 font-black uppercase text-xs text-center">Abort</button>
                                     <button onClick={() => {
                                         if(!formData.name) return;
+                                        const todayStr = new Date().toISOString().split('T')[0];
+
                                         if(showEditModal) {
                                             const oldActivity = activities.find(a => a.id === activeEditId);
                                             // 保存 
-                                            setActivities(prev => prev.map(a => a.id === activeEditId ? { ...a, ...formData } : a));
+                                            setActivities(prev => prev.map(a => {
+                                                if (a.id === activeEditId) {
+                                                    // 修复：同步 Data Stamping 逻辑
+                                                    // 1. 如果新目标 > 0
+                                                    // 2. 检查旧对象是否有有效目标和日期，有则保留（视为修改数值），无则用今天（视为新开启）
+                                                    // 3. 如果新目标 <= 0，清空日期
+                                                    const startDate = (a.dailyGoal > 0 && a.goalStartDate) ? a.goalStartDate : todayStr;
+                                                    const finalDate = formData.dailyGoal > 0 ? startDate : null;
+                                                    
+                                                    return { ...a, ...formData, goalStartDate: finalDate };
+                                                }
+                                                return a;
+                                            }));
                                             
                                             // 级联同步引擎
                                             if (oldActivity) {
@@ -2034,7 +2048,15 @@
                                                 }));
                                             }
                                         }
-                                        else setActivities([...activities, { id: Math.random().toString(36).substr(2, 9), ...formData }]);
+                                        else {
+                                            // 新建活动逻辑同步
+                                            const finalDate = formData.dailyGoal > 0 ? todayStr : null;
+                                            setActivities([...activities, { 
+                                                id: Math.random().toString(36).substr(2, 9), 
+                                                ...formData,
+                                                goalStartDate: finalDate
+                                            }]);
+                                        }
                                         setShowAddModal(false); setShowEditModal(false);
                                         triggerVibrate(30);
                                     }} className="flex-1 bg-black text-white p-4 font-black uppercase text-xs text-center">Save</button>

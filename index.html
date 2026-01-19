@@ -783,6 +783,14 @@
             };
 
             const formatTime = (ts) => new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', hour12:false});
+            
+            // 新增：安全的本地日期格式化函数，防止时区回退导致偷跑昨天的数据
+            const toLocalDateStr = (date) => {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            };
 
             const restoreBackup = (str) => {
                 try {
@@ -2027,75 +2035,74 @@
                                                         )
                                                     ) : (
                                                         // Daily Goals List (Calculated with Pause Logic)
-                                                        activities.filter(a => a.dailyGoal > 0).map(act => {
-                                                            const reportStart = new Date(archiveFilters.startDate);
-                                                            const reportEnd = new Date(archiveFilters.endDate);
-                                                            
-                                                            // 核心修复：应用时间旅行逻辑
-                                                            // 1. 获取目标生效日 (默认 1970 兼容旧数据)
-                                                            const goalStart = act.goalStartDate ? new Date(act.goalStartDate) : new Date(0);
-                                                            
-                                                            // 2. 确定有效计算起始日：取 (报表开始日, 目标生效日) 的较晚者
-                                                            // 避免“未出生”的目标被过早统计
-                                                            let calcStart = reportStart > goalStart ? reportStart : goalStart;
-                                                            
-                                                            // 3. 边界检查：如果计算起始日晚于报表结束日，说明该目标在此期间不存在
-                                                            if (calcStart > reportEnd) return null;
+                                                    activities.filter(a => a.dailyGoal > 0).map(act => {
+                                                        const reportStart = new Date(archiveFilters.startDate);
+                                                        const reportEnd = new Date(archiveFilters.endDate);
+                                                        
+                                                        // 核心修复：应用时间旅行逻辑
+                                                        // 1. 获取目标生效日 (默认 1970 兼容旧数据)
+                                                        const goalStart = act.goalStartDate ? new Date(act.goalStartDate) : new Date(0);
+                                                        
+                                                        // 2. 确定有效计算起始日：取 (报表开始日, 目标生效日) 的较晚者
+                                                        let calcStart = reportStart > goalStart ? reportStart : goalStart;
+                                                        
+                                                        // 3. 边界检查
+                                                        if (calcStart > reportEnd) return null;
 
-                                                            // 4. 重置时间部分，确保日期迭代准确
-                                                            calcStart.setHours(0,0,0,0);
-                                                            reportEnd.setHours(23,59,59,999);
+                                                        // 4. 重置时间部分
+                                                        calcStart.setHours(0,0,0,0);
+                                                        reportEnd.setHours(23,59,59,999);
 
-                                                            let effectiveDays = 0;
-                                                            
-                                                            // 循环计算每一天是否暂停
-                                                            for (let d = new Date(calcStart); d <= reportEnd; d.setDate(d.getDate() + 1)) {
-                                                                const dateStr = d.toISOString().split('T')[0];
-                                                                const isPaused = dailyPauses.some(p => p.activityId === act.id && p.date === dateStr);
-                                                                if (!isPaused) effectiveDays++;
-                                                            }
+                                                        let effectiveDays = 0;
+                                                        
+                                                        // 循环计算每一天是否暂停
+                                                        for (let d = new Date(calcStart); d <= reportEnd; d.setDate(d.getDate() + 1)) {
+                                                            // 修复：这里也要用本地日期字符串，防止暂停功能因时区判断错误而失效
+                                                            const dateStr = toLocalDateStr(d);
+                                                            const isPaused = dailyPauses.some(p => p.activityId === act.id && p.date === dateStr);
+                                                            if (!isPaused) effectiveDays++;
+                                                        }
 
-                                                            const targetTotal = act.dailyGoal * effectiveDays;
-                                                            
-                                                            // 修复：进度统计必须使用 calcStart，防止“历史数据偷跑”
-                                                            // 之前错误写法：archiveFilters.startDate，导致统计了目标生效前的历史数据
-                                                            const calcStartStr = calcStart.toISOString().split('T')[0];
-                                                            const progress = getRangeProgress(act.id, calcStartStr, archiveFilters.endDate);
-                                                            
-                                                            // Daily Report 翻转
-                                                            let success = false;
-                                                            let typeLabel = '';
-                                                            let statusText = '';
-                                                            
-                                                            if (effectiveDays === 0) {
-                                                                statusText = 'PAUSED';
+                                                        const targetTotal = act.dailyGoal * effectiveDays;
+                                                        
+                                                        // 修复：进度统计必须使用 calcStart，防止“历史数据偷跑”
+                                                        // 重点修复：使用 toLocalDateStr 替代 toISOString，防止因时区差异导致日期回退到“昨天”，从而统计入昨天的历史数据
+                                                        const calcStartStr = toLocalDateStr(calcStart);
+                                                        const progress = getRangeProgress(act.id, calcStartStr, archiveFilters.endDate);
+                                                        
+                                                        // Daily Report 翻转
+                                                        let success = false;
+                                                        let typeLabel = '';
+                                                        let statusText = '';
+                                                        
+                                                        if (effectiveDays === 0) {
+                                                            statusText = 'PAUSED';
+                                                        } else {
+                                                            if (act.nature === 'negative') {
+                                                                success = progress <= targetTotal;
+                                                                typeLabel = '(LIMIT)';
                                                             } else {
-                                                                if (act.nature === 'negative') {
-                                                                    success = progress <= targetTotal;
-                                                                    typeLabel = '(LIMIT)';
-                                                                } else {
-                                                                    // Positive & Neutral logic: >= target
-                                                                    success = progress >= targetTotal;
-                                                                }
-
-                                                                if (act.nature === 'neutral') {
-                                                                    statusText = success ? 'DONE' : 'MISS';
-                                                                } else {
-                                                                    statusText = success ? 'WIN' : 'LOSE';
-                                                                }
-                                                            }
-                                                            
-                                                            let statusColor = 'text-gray-400';
-                                                            if (effectiveDays > 0) {
-                                                                if (act.nature === 'neutral') {
-                                                                    statusColor = success ? 'text-blue-600' : 'text-gray-400';
-                                                                } else {
-                                                                    statusColor = success ? 'text-green-600' : 'text-red-500';
-                                                                }
+                                                                success = progress >= targetTotal;
                                                             }
 
-                                                            return (
-                                                                <div key={act.id} className="bg-gray-50 pixel-border p-2 flex justify-between items-center">
+                                                            if (act.nature === 'neutral') {
+                                                                statusText = success ? 'DONE' : 'MISS';
+                                                            } else {
+                                                                statusText = success ? 'WIN' : 'LOSE';
+                                                            }
+                                                        }
+                                                        
+                                                        let statusColor = 'text-gray-400';
+                                                        if (effectiveDays > 0) {
+                                                            if (act.nature === 'neutral') {
+                                                                statusColor = success ? 'text-blue-600' : 'text-gray-400';
+                                                            } else {
+                                                                statusColor = success ? 'text-green-600' : 'text-red-500';
+                                                            }
+                                                        }
+
+                                                        return (
+                                                            <div key={act.id} className="bg-gray-50 pixel-border p-2 flex justify-between items-center">
                                                                     <div>
                                                                         <div className="flex items-center gap-1">
                                                                             <span>{act.emoji}</span>
